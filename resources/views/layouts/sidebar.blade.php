@@ -23,6 +23,14 @@
             </a>
         </li>
 
+
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('hso-theo-doi.index') ? 'active' : '' }}"
+                href="{{ route('so-theo-doi.index') }}">
+                <i class="bi bi-journal-bookmark"></i> Quản lý sổ theo dõi
+            </a>
+        </li>
+
         {{-- CÀI ĐẶT --}}
         @php
             $settingOpen = request()->routeIs('roles.*');

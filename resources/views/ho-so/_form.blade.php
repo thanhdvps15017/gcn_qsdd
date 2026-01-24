@@ -44,7 +44,7 @@
         @method('PUT')
     @endif
 
-    <div class="card-header text-white d-flex justify-content-between align-items-center mb-3"
+    <div class="card-header text-white d-flex justify-content-between align-items-center mb-3 rounded-1"
         style="background: linear-gradient(135deg, var(--primary), #0d6efd);">
         <h5 class="mb-0 fw-bold">{{ $title }}</h5>
         <a href="{{ route('ho-so.index') }}" class="btn btn-light btn-sm d-inline-flex align-items-center gap-2">

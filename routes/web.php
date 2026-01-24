@@ -9,6 +9,7 @@ use App\Http\Controllers\LoaiHoSoController;
 use App\Http\Controllers\LoaiThuTucController;
 use App\Http\Controllers\XaController;
 use App\Http\Controllers\HoSoController;
+use App\Http\Controllers\SoTheoDoiController;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -90,3 +91,15 @@ Route::middleware('auth')->prefix('users')->name('users.')->group(function () {
     Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
     Route::get('/{user}', [UserController::class, 'show'])->name('show');
 });
+
+Route::get('so-theo-doi', [SoTheoDoiController::class, 'index'])->name('so-theo-doi.index');
+Route::get('so-theo-doi/create', [SoTheoDoiController::class, 'create'])->name('so-theo-doi.create');
+Route::post('so-theo-doi', [SoTheoDoiController::class, 'store'])->name('so-theo-doi.store');
+
+Route::get('so-theo-doi/{group}', [SoTheoDoiController::class, 'show'])->name('so-theo-doi.show');
+Route::get('so-theo-doi/{group}/edit', [SoTheoDoiController::class, 'edit'])->name('so-theo-doi.edit');
+Route::put('so-theo-doi/{group}', [SoTheoDoiController::class, 'update'])->name('so-theo-doi.update');
+Route::delete('so-theo-doi/{group}', [SoTheoDoiController::class, 'destroy'])->name('so-theo-doi.destroy');
+
+Route::post('so-theo-doi/{group}/batch-add', [SoTheoDoiController::class, 'batchAdd'])->name('so-theo-doi.batch-add');
+Route::post('so-theo-doi/{group}/batch-remove', [SoTheoDoiController::class, 'batchRemove'])->name('so-theo-doi.batch-remove');

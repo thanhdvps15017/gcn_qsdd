@@ -60,6 +60,11 @@ class HoSo extends Model
         return $this->belongsTo(\App\Models\User::class, 'nguoi_tham_tra_id');
     }
 
+    public function soTheoDoiGroups()
+    {
+        return $this->belongsToMany(SoTheoDoiGroup::class, 'ho_so_so_theo_doi');
+    }
+
     public function getTrangThaiMetaAttribute()
     {
         if ($this->trang_thai === 'hoan_thanh') {
