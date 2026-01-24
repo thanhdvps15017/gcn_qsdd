@@ -103,3 +103,5 @@ Route::delete('so-theo-doi/{group}', [SoTheoDoiController::class, 'destroy'])->n
 
 Route::post('so-theo-doi/{group}/batch-add', [SoTheoDoiController::class, 'batchAdd'])->name('so-theo-doi.batch-add');
 Route::post('so-theo-doi/{group}/batch-remove', [SoTheoDoiController::class, 'batchRemove'])->name('so-theo-doi.batch-remove');
+Route::get('/so-theo-doi/{group}/export-excel', [SoTheoDoiController::class, 'exportExcel'])->name('so-theo-doi.export-excel');
+Route::get('/so-theo-doi/{group}/export-word', [SoTheoDoiController::class, 'exportWord'])->name('so-theo-doi.export-word');

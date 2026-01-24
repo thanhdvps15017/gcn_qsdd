@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\SoTheoDoiExport;
+
 class SoTheoDoiController extends Controller
 {
     public function index()
@@ -111,5 +114,10 @@ class SoTheoDoiController extends Controller
         $group->hoSos()->detach($request->ho_so_ids);
 
         return redirect()->back()->with('success', "Đã xóa $count hồ sơ!");
+    }
+
+    public function exportExcel(SoTheoDoiGroup $group)
+    {
+        return Excel::download(new SoTheoDoiExport($group), 'so_theo_doi_' . $group->ma_so . '.xlsx');
     }
 }

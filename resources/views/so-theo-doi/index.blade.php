@@ -26,21 +26,29 @@
                         </p>
                     </div>
                     <div class="card-footer bg-light d-flex gap-2">
-                        <a href="{{ route('so-theo-doi.show', $group) }}" class="btn btn-outline-primary btn-sm flex-fill">
+                        <a href="{{ route('so-theo-doi.show', $group) }}"
+                            class="btn btn-outline-primary btn-sm flex-fill rounded-1">
                             <i class="bi bi-eye"></i> Xem
                         </a>
-                        <button class="btn btn-outline-warning btn-sm flex-fill"
+
+                        <button class="btn btn-outline-warning btn-sm flex-fill rounded-1"
                             onclick="openEditModal({{ $group->id }}, '{{ addslashes($group->ten_so) }}', '{{ addslashes($group->mo_ta ?? '') }}')">
                             <i class="bi bi-pencil"></i> Sửa
                         </button>
-                        <form action="{{ route('so-theo-doi.destroy', $group) }}" method="POST" class="d-inline">
+
+                        <form action="{{ route('so-theo-doi.destroy', $group) }}" method="POST" class="flex-fill">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-outline-danger btn-sm flex-fill"
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100 rounded-1"
                                 onclick="return confirm('Xóa sổ này?');">
                                 <i class="bi bi-trash"></i> Xóa
                             </button>
                         </form>
+
+                        <a href="{{ route('so-theo-doi.export-excel', $group) }}"
+                            class="btn btn-success btn-sm rounded-1">
+                            <i class="bi bi-file-earmark-excel"></i>
+                        </a>
                     </div>
                 </div>
             </div>
