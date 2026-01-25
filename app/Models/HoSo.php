@@ -42,6 +42,11 @@ class HoSo extends Model
         'updated_at'        => 'datetime',
     ];
 
+    public function trangThaiLogs(): HasMany
+    {
+        return $this->hasMany(HoSoTrangThaiLog::class)->latest();
+    }
+
     public function files(): HasMany
     {
         return $this->hasMany(HoSoFile::class);
@@ -121,6 +126,16 @@ class HoSo extends Model
                 Storage::disk('public')->delete($file->duong_dan);
             }
             $hoSo->files()->delete();
+        });
+
+        static::updating(function ($hoSo) {
+            if ($hoSo->isDirty('trang_thai')) {
+                $hoSo->trangThaiLogs()->create([
+                    'trang_thai_cu'  => $hoSo->getOriginal('trang_thai'),
+                    'trang_thai_moi' => $hoSo->trang_thai,
+                    'user_id'        => auth()->id(),
+                ]);
+            }
         });
     }
 }

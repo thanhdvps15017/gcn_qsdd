@@ -234,7 +234,7 @@
 
     {{-- THÔNG TIN RIÊNG - Chỉ 1 form duy nhất --}}
     <div class="card mb-4">
-        <div class="card-header fw-bold">Thông tin riêng</div>
+        <div class="card-header fw-bold">Thông tin sau khi biến động</div>
         <div class="card-body">
 
             <div class="mb-4">

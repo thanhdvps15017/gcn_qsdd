@@ -195,7 +195,7 @@ class HoSoController extends Controller
 
     public function show(HoSo $hoSo)
     {
-        $hoSo->load(['loaiHoSo', 'loaiThuTuc', 'xa', 'nguoiThamTra', 'files']);
+        $hoSo->load(['loaiHoSo', 'loaiThuTuc', 'xa', 'nguoiThamTra', 'files', 'trangThaiLogs.user']);
         return view('ho-so.show', compact('hoSo'));
     }
 
