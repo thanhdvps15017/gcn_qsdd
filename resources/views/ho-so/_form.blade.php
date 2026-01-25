@@ -232,14 +232,15 @@
         </div>
     </div>
 
-    {{-- THÔNG TIN RIÊNG - Chỉ 1 form duy nhất --}}
+    {{-- THÔNG TIN SAU KHI BIẾN ĐỘNG --}}
     <div class="card mb-4">
         <div class="card-header fw-bold">Thông tin sau khi biến động</div>
         <div class="card-body">
 
             <div class="mb-4">
+                <label class="form-label fw-bold">Loại biến động</label>
                 <select name="thong_tin_rieng[loai]" class="form-select">
-                    <option value="">-- Chọn loại --</option>
+                    <option value="">-- Chọn loại biến động --</option>
                     <option value="tachthua_chuyennhuong"
                         {{ old('thong_tin_rieng.loai', $riengLoai) === 'tachthua_chuyennhuong' ? 'selected' : '' }}>
                         Tách thửa - chuyển nhượng</option>
@@ -257,40 +258,78 @@
                 </select>
             </div>
 
-            <div class="row g-3 mb-4">
-                <div class="col-md-4">
-                    <label>Họ tên</label>
-                    <input name="thong_tin_rieng[data][ho_ten]" class="form-control"
-                        value="{{ old('thong_tin_rieng.data.ho_ten', $riengData['ho_ten'] ?? '') }}"
-                        placeholder="Họ và tên người liên quan">
-                </div>
-                <div class="col-md-4">
-                    <label>CMND / CCCD</label>
-                    <input name="thong_tin_rieng[data][cccd]" class="form-control"
-                        value="{{ old('thong_tin_rieng.data.cccd', $riengData['cccd'] ?? '') }}"
-                        placeholder="Số CMND / CCCD">
-                </div>
-                <div class="col-md-4">
-                    <label>Ngày cấp CCCD / CMND</label>
-                    <input type="date" name="thong_tin_rieng[data][ngay_cap_cccd]" class="form-control"
-                        value="{{ old('thong_tin_rieng.data.ngay_cap_cccd', $riengData['ngay_cap_cccd'] ?? '') }}">
-                </div>
-                <div class="col-12">
-                    <label>Địa chỉ</label>
-                    <textarea name="thong_tin_rieng[data][dia_chi]" class="form-control" rows="2"
-                        placeholder="Địa chỉ thường trú / nơi ở hiện tại">{{ old('thong_tin_rieng.data.dia_chi', $riengData['dia_chi'] ?? '') }}</textarea>
-                </div>
-            </div>
+            <!-- DANH SÁCH NGƯỜI LIÊN QUAN -->
+            <h6 class="fw-bold mb-3">Người liên quan / Bên nhận chuyển nhượng</h6>
+            <table class="table table-bordered table-hover mb-4">
+                <thead class="table-light">
+                    <tr>
+                        <th>Họ tên</th>
+                        <th>CCCD / CMND</th>
+                        <th>Ngày cấp</th>
+                        <th>Địa chỉ</th>
+                        <th width="60"></th>
+                    </tr>
+                </thead>
+                <tbody id="tbl_nguoi_lien_quan">
+                    @php
+                        // Lấy dữ liệu cũ hoặc migrate từ cấu trúc cũ
+                        $nguoiLienQuan = old(
+                            'thong_tin_rieng.data.nguoi_lien_quan',
+                            $riengData['nguoi_lien_quan'] ?? [],
+                        );
 
-            <h6 class="fw-bold mb-3">Danh sách thửa đất</h6>
-            <table class="table table-bordered">
-                <thead>
+                        // Nếu là edit và có dữ liệu cũ (chưa migrate), chuyển sang mảng mới
+                        if (empty($nguoiLienQuan) && !empty($riengData['ho_ten'])) {
+                            $nguoiLienQuan = [
+                                [
+                                    'ho_ten' => $riengData['ho_ten'] ?? '',
+                                    'cccd' => $riengData['cccd'] ?? '',
+                                    'ngay_cap_cccd' => $riengData['ngay_cap_cccd'] ?? '',
+                                    'dia_chi' => $riengData['dia_chi'] ?? '',
+                                ],
+                            ];
+                        }
+
+                        $nguoiIndex = count($nguoiLienQuan);
+                    @endphp
+
+                    @foreach ($nguoiLienQuan as $idx => $nguoi)
+                        <tr>
+                            <td><input name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][ho_ten]"
+                                    class="form-control" value="{{ $nguoi['ho_ten'] ?? '' }}"></td>
+                            <td><input name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][cccd]"
+                                    class="form-control" value="{{ $nguoi['cccd'] ?? '' }}"></td>
+                            <td><input type="date"
+                                    name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][ngay_cap_cccd]"
+                                    class="form-control" value="{{ $nguoi['ngay_cap_cccd'] ?? '' }}"></td>
+                            <td>
+                                <textarea name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][dia_chi]" class="form-control"
+                                    rows="2">{{ $nguoi['dia_chi'] ?? '' }}</textarea>
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-danger btn-sm"
+                                    onclick="this.closest('tr').remove()">X</button>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+
+            <button type="button" class="btn btn-success btn-sm mb-4"
+                onclick="addNguoiLienQuan('tbl_nguoi_lien_quan')">
+                + Thêm người liên quan
+            </button>
+
+            <!-- DANH SÁCH THỬA SAU BIẾN ĐỘNG -->
+            <h6 class="fw-bold mb-3">Danh sách thửa đất sau biến động</h6>
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
                     <tr>
                         <th>Tờ</th>
                         <th>Thửa</th>
                         <th>Diện tích (m²)</th>
                         <th>Ghi chú</th>
-                        <th width="50"></th>
+                        <th width="60"></th>
                     </tr>
                 </thead>
                 <tbody id="tbl_thongtinrieng">
@@ -304,7 +343,7 @@
                                     class="form-control" value="{{ $t['dien_tich'] ?? '' }}"></td>
                             <td><input name="thong_tin_rieng[data][thua][{{ $idx }}][ghi_chu]"
                                     class="form-control" value="{{ $t['ghi_chu'] ?? '' }}"></td>
-                            <td style="text-align: center;">
+                            <td class="text-center">
                                 <button type="button" class="btn btn-danger btn-sm"
                                     onclick="this.closest('tr').remove()">X</button>
                             </td>
@@ -313,8 +352,9 @@
                 </tbody>
             </table>
 
-            {{-- <button type="button" class="btn btn-success btn-sm mt-2" onclick="addRiengRow('tbl_thongtinrieng')">+
-                Thêm thửa</button> --}}
+            <button type="button" class="btn btn-success btn-sm mt-3" onclick="addRiengRow('tbl_thongtinrieng')">
+                + Thêm thửa
+            </button>
 
         </div>
     </div>
@@ -373,6 +413,7 @@
 <script>
     let thuaChungIndex = {{ count($thuaChung) }};
     let thongRiengThuaIndex = {{ count($riengThua) }};
+    let nguoiLienQuanIndex = {{ $nguoiIndex ?? 0 }};
 
     function tinhHanTra(select) {
         const days = select.options[select.selectedIndex]?.dataset.days;
@@ -410,9 +451,25 @@
         document.getElementById(tbodyId)?.insertAdjacentHTML('beforeend', html);
     }
 
+    function addNguoiLienQuan(tbodyId) {
+        const i = nguoiLienQuanIndex++;
+        const html = `
+            <tr>
+                <td><input name="thong_tin_rieng[data][nguoi_lien_quan][${i}][ho_ten]" class="form-control" placeholder="Họ và tên"></td>
+                <td><input name="thong_tin_rieng[data][nguoi_lien_quan][${i}][cccd]" class="form-control" placeholder="CCCD/CMND"></td>
+                <td><input type="date" name="thong_tin_rieng[data][nguoi_lien_quan][${i}][ngay_cap_cccd]" class="form-control"></td>
+                <td><textarea name="thong_tin_rieng[data][nguoi_lien_quan][${i}][dia_chi]" class="form-control" rows="2" placeholder="Địa chỉ"></textarea></td>
+                <td style="text-align: center;">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">X</button>
+                </td>
+            </tr>`;
+        document.getElementById(tbodyId)?.insertAdjacentHTML('beforeend', html);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         if (thuaChungIndex === 0) addThua('tblThua');
         if (thongRiengThuaIndex === 0) addRiengRow('tbl_thongtinrieng');
+        if (nguoiLienQuanIndex === 0) addNguoiLienQuan('tbl_nguoi_lien_quan');
 
         const loaiSelect = document.querySelector('select[name="loai_thu_tuc_id"]');
         if (loaiSelect && loaiSelect.selectedIndex > 0) {

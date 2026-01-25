@@ -25,6 +25,7 @@
             </form>
         </div>
     </div>
+
     <div class="row">
         <div class="col-lg-8">
             <!-- Thông tin chung -->
@@ -77,7 +78,7 @@
             <!-- Chủ sử dụng & Ủy quyền -->
             <div class="card shadow border-0 mb-3 rounded-1 overflow-hidden">
                 <div class="card-header text-black fw-bold fs-5 d-flex align-items-center px-4 py-2">
-                    <i class="bi bi-person-badge-fill me-3 fs-4"></i> Chủ sử dụng ( Theo GCN ) & Ủy quyền
+                    <i class="bi bi-person-badge-fill me-3 fs-4"></i> Chủ sử dụng (Theo GCN) & Ủy quyền
                 </div>
                 <div class="card-body p-4">
                     @php $chu = $hoSo->chu_su_dung ?? []; @endphp
@@ -156,7 +157,7 @@
                 </div>
             </div>
 
-            <!-- Thông tin riêng -->
+            <!-- Thông tin sau khi biến động (đã fix) -->
             <div class="card shadow border-0 mb-3 rounded-1 overflow-hidden">
                 <div class="card-header text-black fw-bold fs-5 d-flex align-items-center px-4 py-2">
                     <i class="bi bi-file-earmark-check-fill me-3 fs-4"></i> Thông tin sau khi biến động
@@ -166,49 +167,60 @@
                         $rieng = $hoSo->thong_tin_rieng ?? [];
                         $riengLoai = $rieng['loai'] ?? null;
                         $riengData = $rieng['data'] ?? [];
+                        $nguoiLienQuan = $riengData['nguoi_lien_quan'] ?? [];
                         $riengThua = $riengData['thua'] ?? [];
+
+                        $loaiMap = [
+                            'tachthua_chuyennhuong' => 'Tách thửa - chuyển nhượng',
+                            'capdoi' => 'Cấp đổi',
+                            'chuyennhuong' => 'Chuyển nhượng',
+                            'tachthua' => 'Tách thửa',
+                            'capdoi_chuyennhuong' => 'Cấp đổi + chuyển nhượng',
+                        ];
                     @endphp
 
-                    <div class="row g-4 mb-5">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted small">Loại thủ tục chi tiết</label>
-                            @php
-                                $loaiThongTinRiengMap = [
-                                    'tachthua_chuyennhuong' => 'Tách thửa - chuyển nhượng',
-                                    'capdoi' => 'Cấp đổi',
-                                    'chuyennhuong' => 'Chuyển nhượng',
-                                    'tachthua' => 'Tách thửa',
-                                    'capdoi_chuyennhuong' => 'Cấp đổi + chuyển nhượng',
-                                ];
-
-                                $riengLoai = $riengLoai ?? ($hoSo->thong_tin_rieng['loai'] ?? null);
-                            @endphp
-
-                            <p class="fs-5 mb-0 fw-medium">
-                                {{ $loaiThongTinRiengMap[$riengLoai] ?? 'Chưa chọn' }}
-                            </p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted small">Họ tên</label>
-                            <p class="fs-5 mb-0 fw-medium">{{ $riengData['ho_ten'] ?? '-' }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted small">CMND / CCCD</label>
-                            <p class="fs-5 mb-0 fw-medium">{{ $riengData['cccd'] ?? '-' }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted small">Ngày cấp CCCD / CMND</label>
-                            <p class="fs-5 mb-0 fw-medium">
-                                {{ $riengData['ngay_cap_cccd'] ? \Carbon\Carbon::parse($riengData['ngay_cap_cccd'])->format('d/m/Y') : '-' }}
-                            </p>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label fw-semibold text-muted small">Địa chỉ</label>
-                            <p class="fs-5 mb-0 fw-medium">{{ $riengData['dia_chi'] ?? '-' }}</p>
-                        </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold text-muted small">Loại biến động</label>
+                        <p class="fs-5 mb-0 fw-medium">{{ $loaiMap[$riengLoai] ?? 'Chưa chọn' }}</p>
                     </div>
 
-                    <h5 class="fw-bold text-success mb-4">Danh sách thửa đất chi tiết</h5>
+                    <!-- Người liên quan -->
+                    <h5 class="fw-bold text-success mb-4">Người liên quan / Bên nhận chuyển nhượng</h5>
+                    @if (!empty($nguoiLienQuan) && is_array($nguoiLienQuan))
+                        <div class="table-responsive mb-5">
+                            <table class="table table-hover table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="text-center" width="60">#</th>
+                                        <th>Họ tên</th>
+                                        <th>CCCD/CMND</th>
+                                        <th>Ngày cấp</th>
+                                        <th>Địa chỉ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($nguoiLienQuan as $i => $nguoi)
+                                        <tr>
+                                            <td class="text-center fw-medium">{{ $i + 1 }}</td>
+                                            <td class="fw-medium">{{ $nguoi['ho_ten'] ?? '-' }}</td>
+                                            <td class="fw-medium">{{ $nguoi['cccd'] ?? '-' }}</td>
+                                            <td class="fw-medium">
+                                                {{ !empty($nguoi['ngay_cap_cccd']) ? \Carbon\Carbon::parse($nguoi['ngay_cap_cccd'])->format('d/m/Y') : '-' }}
+                                            </td>
+                                            <td class="fw-medium">{{ $nguoi['dia_chi'] ?? '-' }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="alert alert-info text-center p-4 fs-5 mb-4 rounded-3">
+                            Không có thông tin người liên quan
+                        </div>
+                    @endif
+
+                    <!-- Danh sách thửa -->
+                    <h5 class="fw-bold text-success mb-4">Danh sách thửa đất sau biến động</h5>
                     @if (!empty($riengThua) && is_array($riengThua))
                         <div class="table-responsive">
                             <table class="table table-hover table-bordered">
@@ -249,7 +261,6 @@
                     <div class="card-header text-black fw-bold fs-5 d-flex align-items-center px-4 py-2">
                         <i class="bi bi-paperclip me-3 fs-4"></i> Tài liệu đính kèm
                     </div>
-
                     <div class="card-body p-4">
                         <ul class="list-group list-group-flush">
                             @foreach ($hoSo->files as $file)
@@ -259,7 +270,6 @@
                                         class="fw-semibold text-decoration-none">
                                         {{ $file->ten_file }}
                                     </a>
-
                                     <button type="button" class="btn btn-sm btn-danger btn-delete-file"
                                         data-url="{{ route('ho-so.files.destroy', [$hoSo, $file]) }}"
                                         data-id="{{ $file->id }}">
@@ -272,11 +282,11 @@
                 </div>
             @endif
 
+            <!-- Lịch sử trạng thái -->
             <div class="card shadow border-0 rounded-1 mb-4 overflow-hidden" id="lich-su">
                 <div class="card-header text-black fw-bold fs-5 d-flex align-items-center px-4 py-2">
                     <i class="bi bi-clock-history me-3 fs-4"></i> Lịch sử trạng thái
                 </div>
-
                 <div class="card-body p-4 timeline-scroll">
                     @forelse ($hoSo->trangThaiLogs as $log)
                         @php
@@ -292,7 +302,6 @@
                             ];
 
                             [$oldText, $oldClass] = $statusMap[$log->trang_thai_cu] ?? ['—', 'bg-light text-dark'];
-
                             [$newText, $newClass] = $statusMap[$log->trang_thai_moi] ?? [
                                 str_replace('_', ' ', ucwords($log->trang_thai_moi)),
                                 'bg-primary text-white',
@@ -300,11 +309,9 @@
                         @endphp
 
                         <div class="timeline-item position-relative ps-4 pb-4">
-                            {{-- Dot --}}
                             <div class="timeline-dot position-absolute top-0 start-0 translate-middle-x rounded-circle border border-3 border-white {{ $newClass }}"
                                 style="width:14px;height:14px;z-index:1"></div>
 
-                            {{-- Line --}}
                             @if (!$loop->last)
                                 <div class="timeline-line position-absolute top-0 start-0 bottom-0 bg-light"
                                     style="width:2px;left:6px"></div>
@@ -315,7 +322,6 @@
                                     <strong class="text-dark">
                                         {{ $log->created_at->format('d/m/Y H:i') }}
                                     </strong>
-
                                     <div class="d-flex align-items-center gap-2 flex-wrap">
                                         <span class="badge rounded-pill px-3 py-2 {{ $oldClass }}">
                                             {{ $oldText }}
@@ -346,9 +352,9 @@
                         </div>
                     @endforelse
                 </div>
-
             </div>
 
+            <!-- Ghi chú -->
             <div class="card shadow border-0 rounded-1 overflow-hidden">
                 <div class="card-header text-black fw-bold fs-5 d-flex align-items-center px-4 py-2">
                     <i class="bi bi-journal-text me-3 fs-4"></i> Ghi chú
@@ -395,9 +401,8 @@
                     fetch(url, {
                             method: 'DELETE',
                             headers: {
-                                'X-CSRF-TOKEN': document
-                                    .querySelector('meta[name="csrf-token"]')
-                                    .getAttribute('content'),
+                                'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name="csrf-token"]')?.getAttribute('content'),
                                 'Accept': 'application/json'
                             }
                         })
