@@ -120,4 +120,38 @@ class SoTheoDoiController extends Controller
     {
         return Excel::download(new SoTheoDoiExport($group), 'so_theo_doi_' . $group->ma_so . '.xlsx');
     }
+
+    public function searchHoSoChuaThem(Request $request, SoTheoDoiGroup $group)
+    {
+        $keyword = $request->q;
+
+        $ids = $group->hoSos()->pluck('ho_sos.id');
+
+        $data = HoSo::whereNotIn('id', $ids)
+            ->when($keyword, function ($q) use ($keyword) {
+                $q->where('ma_ho_so', 'like', "%{$keyword}%")
+                    ->orWhere('ten_chu_ho_so', 'like', "%{$keyword}%");
+            })
+            ->orderBy('ma_ho_so')
+            ->limit(50)
+            ->get(['id', 'ma_ho_so', 'ten_chu_ho_so']);
+
+        return response()->json($data);
+    }
+
+    public function searchHoSoTrongSo(Request $request, SoTheoDoiGroup $group)
+    {
+        $keyword = $request->q;
+
+        $data = $group->hoSos()
+            ->when($keyword, function ($q) use ($keyword) {
+                $q->where('ma_ho_so', 'like', "%{$keyword}%")
+                    ->orWhere('ten_chu_ho_so', 'like', "%{$keyword}%");
+            })
+            ->with('chuSuDung:id,ho_ten')
+            ->limit(50)
+            ->get();
+
+        return response()->json($data);
+    }
 }

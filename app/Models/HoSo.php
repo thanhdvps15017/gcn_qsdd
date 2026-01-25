@@ -40,6 +40,11 @@ class HoSo extends Model
         'updated_at'        => 'datetime',
     ];
 
+    public function chuSuDung()
+    {
+        return $this->belongsTo(User::class, 'chu_su_dung_id');
+    }
+
     public function loaiHoSo(): BelongsTo
     {
         return $this->belongsTo(\App\Models\LoaiHoSo::class, 'loai_ho_so_id');

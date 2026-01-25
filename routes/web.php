@@ -44,6 +44,12 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::prefix('so-theo-doi')->name('so-theo-doi.')->group(function () {
+        Route::get('/{group}/search-chua-them', [SoTheoDoiController::class, 'searchHoSoChuaThem'])
+            ->name('search-chua-them');
+
+        Route::get('/{group}/search-trong-so', [SoTheoDoiController::class, 'searchHoSoTrongSo'])
+            ->name('search-trong-so');
+
         Route::get('/', [SoTheoDoiController::class, 'index'])->name('index');
         Route::get('/create', [SoTheoDoiController::class, 'create'])->name('create');
         Route::post('/', [SoTheoDoiController::class, 'store'])->name('store');
