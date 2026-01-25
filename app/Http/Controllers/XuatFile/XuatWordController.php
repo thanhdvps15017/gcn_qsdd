@@ -10,9 +10,6 @@ use PhpOffice\PhpWord\TemplateProcessor;
 
 class XuatWordController extends Controller
 {
-    /**
-     * Danh sách hồ sơ + danh sách mẫu word
-     */
     public function index()
     {
         $hoSos    = HoSo::with(['xa'])->latest()->paginate(20);
@@ -21,9 +18,6 @@ class XuatWordController extends Controller
         return view('xuat-file.word.index', compact('hoSos', 'mauWords'));
     }
 
-    /**
-     * Xuất Word theo hồ sơ + mẫu
-     */
     public function export(Request $request)
     {
         $request->validate([
@@ -31,7 +25,6 @@ class XuatWordController extends Controller
             'mau_word_id' => 'required|exists:mau_words,id',
         ]);
 
-        // ===== LẤY DỮ LIỆU =====
         $hs = HoSo::with([
             'xa',
             'nguoiThamTra',
@@ -48,13 +41,6 @@ class XuatWordController extends Controller
 
         $template = new TemplateProcessor($templatePath);
 
-        /**
-         * =====================================================
-         * MAP KEY WORD
-         * =====================================================
-         */
-
-        // ===== FIELD CƠ BẢN =====
         $values = [
             'id'               => $hs->id,
             'ma_ho_so'         => $hs->ma_ho_so,
@@ -71,15 +57,13 @@ class XuatWordController extends Controller
             'created_at'       => optional($hs->created_at)->format('d/m/Y'),
         ];
 
-        // ===== QUAN HỆ =====
         $values += [
-            'xa'               => optional($hs->xa)->ten,
+            'xa'               => optional($hs->xa)->name,
             'nguoi_tham_tra'   => optional($hs->nguoiThamTra)->name,
-            'loai_ho_so'       => optional($hs->loaiHoSo)->ten,
-            'loai_thu_tuc'     => optional($hs->loaiThuTuc)->ten,
+            'loai_ho_so'       => optional($hs->loaiHoSo)->name,
+            'loai_thu_tuc'     => optional($hs->loaiThuTuc)->name,
         ];
 
-        // ===== JSON: CHỦ SỬ DỤNG =====
         $chuSuDung = $hs->chu_su_dung ?? [];
         $values += [
             'chu_su_dung_ho_ten'   => $chuSuDung['ho_ten'] ?? '',
@@ -88,14 +72,12 @@ class XuatWordController extends Controller
             'chu_su_dung_dia_chi'  => $chuSuDung['dia_chi'] ?? '',
         ];
 
-        // ===== JSON: ỦY QUYỀN =====
         $uyQuyen = $hs->uy_quyen ?? [];
         $values += [
             'uy_quyen_nguoi' => $uyQuyen['nguoi'] ?? '',
             'uy_quyen_giay'  => $uyQuyen['giay'] ?? '',
         ];
 
-        // ===== ARRAY JSON: THỬA CHUNG =====
         if (is_array($hs->thua_chung)) {
             foreach ($hs->thua_chung as $i => $thua) {
                 $index = $i + 1;
@@ -105,7 +87,6 @@ class XuatWordController extends Controller
             }
         }
 
-        // ===== JSON PHỨC TẠP: THÔNG TIN RIÊNG =====
         $thongTinRieng = $hs->thong_tin_rieng ?? [];
         $values['thong_tin_rieng_loai'] = $thongTinRieng['loai'] ?? '';
 
@@ -116,16 +97,8 @@ class XuatWordController extends Controller
             'thong_tin_rieng_dia_chi' => $data['dia_chi'] ?? '',
         ];
 
-        // ===== GÁN VÀO TEMPLATE =====
         // dd($values);
-
         $template->setValues($values);
-
-        /**
-         * =====================================================
-         * LƯU FILE & DOWNLOAD
-         * =====================================================
-         */
 
         $fileName = 'ho_so_' . $hs->ma_ho_so . '.docx';
         $tempDir  = storage_path('app/temp');
