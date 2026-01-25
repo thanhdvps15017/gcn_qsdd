@@ -10,98 +10,103 @@ use App\Http\Controllers\LoaiThuTucController;
 use App\Http\Controllers\XaController;
 use App\Http\Controllers\HoSoController;
 use App\Http\Controllers\SoTheoDoiController;
+use App\Http\Controllers\XuatFile\MauWordController;
+use App\Http\Controllers\XuatFile\XuatExcelController;
+use App\Http\Controllers\XuatFile\XuatWordController;
 
-Route::get('/', function () {
-    return redirect('/login');
+Route::get('/', fn() => redirect()->route('login'));
+
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+
+    Route::get('/register', [AuthController::class, 'showRegister']);
+    Route::post('/register', [AuthController::class, 'register']);
 });
 
-Route::get('/login', [AuthController::class, 'showLogin'])
-    ->middleware('guest')
-    ->name('login');
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::middleware('auth')->group(function () {
 
-Route::get('/register', [AuthController::class, 'showRegister'])
-    ->middleware('guest');
+    Route::get('/dashboard', fn() => view('_form'))->name('dashboard');
 
-Route::post('/register', [AuthController::class, 'register']);
+    Route::prefix('ho-so')->name('ho-so.')->group(function () {
+        Route::get('/', [HoSoController::class, 'index'])->name('index');
+        Route::get('/create', [HoSoController::class, 'create'])->name('create');
+        Route::post('/', [HoSoController::class, 'store'])->name('store');
+        Route::get('/{hoSo}', [HoSoController::class, 'show'])->name('show');
+        Route::get('/{hoSo}/edit', [HoSoController::class, 'edit'])->name('edit');
+        Route::put('/{hoSo}', [HoSoController::class, 'update'])->name('update');
+        Route::delete('/{hoSo}', [HoSoController::class, 'destroy'])->name('destroy');
 
-Route::post('/logout', [AuthController::class, 'logout']);
+        Route::patch('/{hoSo}/trang-thai', [HoSoController::class, 'updateTrangThai'])
+            ->name('update-trang-thai');
+    });
 
-Route::get('/dashboard', function () {
-    return view('_form');
-})->middleware('auth')->name('dashboard');
+    Route::prefix('so-theo-doi')->name('so-theo-doi.')->group(function () {
+        Route::get('/', [SoTheoDoiController::class, 'index'])->name('index');
+        Route::get('/create', [SoTheoDoiController::class, 'create'])->name('create');
+        Route::post('/', [SoTheoDoiController::class, 'store'])->name('store');
 
-Route::prefix('ho-so')->name('ho-so.')->group(function () {
-    Route::get('/', [HoSoController::class, 'index'])->name('index');
-    Route::get('/create', [HoSoController::class, 'create'])->name('create');
-    Route::post('/', [HoSoController::class, 'store'])->name('store');
+        Route::get('/{group}', [SoTheoDoiController::class, 'show'])->name('show');
+        Route::get('/{group}/edit', [SoTheoDoiController::class, 'edit'])->name('edit');
+        Route::put('/{group}', [SoTheoDoiController::class, 'update'])->name('update');
+        Route::delete('/{group}', [SoTheoDoiController::class, 'destroy'])->name('destroy');
 
-    Route::get('/{hoSo}', [HoSoController::class, 'show'])->name('show');
+        Route::post('/{group}/batch-add', [SoTheoDoiController::class, 'batchAdd'])->name('batch-add');
+        Route::post('/{group}/batch-remove', [SoTheoDoiController::class, 'batchRemove'])->name('batch-remove');
 
-    Route::get('/{hoSo}/edit', [HoSoController::class, 'edit'])->name('edit');
+        Route::get('/{group}/export-excel', [SoTheoDoiController::class, 'exportExcel'])->name('export-excel');
+        Route::get('/{group}/export-word', [SoTheoDoiController::class, 'exportWord'])->name('export-word');
+    });
 
-    Route::put('/{hoSo}', [HoSoController::class, 'update'])->name('update');
+    Route::prefix('xuat-excel')->name('xuat-excel.')->group(function () {
+        Route::get('/', [XuatExcelController::class, 'index'])->name('index');
+        Route::get('/export', [XuatExcelController::class, 'export'])->name('export');
+    });
 
-    Route::delete('/{hoSo}', [HoSoController::class, 'destroy'])->name('destroy');
+    Route::prefix('xuat-word')->name('xuat-word.')->group(function () {
+        Route::get('/', [XuatWordController::class, 'index'])->name('index');
+        Route::post('/export', [XuatWordController::class, 'export'])->name('export');
+    });
 
-    Route::patch('/{hoSo}/trang-thai', [HoSoController::class, 'updateTrangThai'])
-        ->name('update-trang-thai');
+    Route::prefix('settings')->group(function () {
+
+        Route::resource('roles', RolePermissionController::class)
+            ->except(['create', 'show']);
+
+        Route::post(
+            'roles/{role}/assign-permission',
+            [RolePermissionController::class, 'assignPermission']
+        )->name('roles.assign-permission');
+
+        Route::get(
+            'roles/user/{user}',
+            [RolePermissionController::class, 'userRoles']
+        )->name('roles.user.roles');
+
+        Route::post(
+            'roles/user/{user}',
+            [RolePermissionController::class, 'assignUserRole']
+        )->name('roles.user.assign');
+
+        Route::resource('users', UserController::class)
+            ->except(['create', 'edit']);
+
+        Route::resource('loai-ho-so', LoaiHoSoController::class)
+            ->only(['index', 'store', 'update', 'destroy']);
+
+        Route::resource('loai-thu-tuc', LoaiThuTucController::class)
+            ->only(['index', 'store', 'update', 'destroy']);
+
+        Route::resource('xa', XaController::class)
+            ->only(['index', 'store', 'update', 'destroy']);
+
+        Route::prefix('mau-word')->name('mau-word.')->group(function () {
+            Route::get('/', [MauWordController::class, 'index'])->name('index');
+            Route::post('/upload', [MauWordController::class, 'store'])->name('store');
+            Route::put('/{mauWord}', [MauWordController::class, 'update'])->name('update');
+            Route::delete('/{mauWord}', [MauWordController::class, 'destroy'])->name('destroy');
+        });
+    });
 });
-
-Route::prefix('loai-ho-so')->name('loai-ho-so.')->group(function () {
-    Route::get('/', [LoaiHoSoController::class, 'index'])->name('index');
-    Route::post('/', [LoaiHoSoController::class, 'store'])->name('store');
-    Route::put('/{id}', [LoaiHoSoController::class, 'update'])->name('update');
-    Route::delete('/{id}', [LoaiHoSoController::class, 'destroy'])->name('destroy');
-});
-
-
-Route::prefix('loai-thu-tuc')->name('loai-thu-tuc.')->group(function () {
-    Route::get('/', [LoaiThuTucController::class, 'index'])->name('index');
-    Route::post('/', [LoaiThuTucController::class, 'store'])->name('store');
-    Route::put('/{id}', [LoaiThuTucController::class, 'update'])->name('update');
-    Route::delete('/{id}', [LoaiThuTucController::class, 'destroy'])->name('destroy');
-});
-
-Route::prefix('xa')->name('xa.')->group(function () {
-    Route::get('/', [XaController::class, 'index'])->name('index');
-    Route::post('/', [XaController::class, 'store'])->name('store');
-    Route::put('/{id}', [XaController::class, 'update'])->name('update');
-    Route::delete('/{id}', [XaController::class, 'destroy'])->name('destroy');
-});
-
-Route::prefix('roles')->name('roles.')->group(function () {
-    Route::get('/', [RolePermissionController::class, 'index'])->name('index');
-    Route::post('/', [RolePermissionController::class, 'store'])->name('store');
-    Route::get('/{role}/edit', [RolePermissionController::class, 'edit'])->name('edit');
-    Route::put('/{role}', [RolePermissionController::class, 'update'])->name('update');
-    Route::delete('/{role}', [RolePermissionController::class, 'destroy'])->name('destroy');
-
-    Route::post('/{role}/assign-permission', [RolePermissionController::class, 'assignPermission'])->name('assign-permission');
-
-    Route::get('/user/{user}/roles', [RolePermissionController::class, 'userRoles'])->name('user.roles');
-    Route::post('/user/{user}/roles', [RolePermissionController::class, 'assignUserRole'])->name('user.assign-role');
-});
-
-Route::middleware('auth')->prefix('users')->name('users.')->group(function () {
-    Route::get('/', [UserController::class, 'index'])->name('index');
-    Route::post('/', [UserController::class, 'store'])->name('store');
-    Route::put('/{user}', [UserController::class, 'update'])->name('update');
-    Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
-    Route::get('/{user}', [UserController::class, 'show'])->name('show');
-});
-
-Route::get('so-theo-doi', [SoTheoDoiController::class, 'index'])->name('so-theo-doi.index');
-Route::get('so-theo-doi/create', [SoTheoDoiController::class, 'create'])->name('so-theo-doi.create');
-Route::post('so-theo-doi', [SoTheoDoiController::class, 'store'])->name('so-theo-doi.store');
-
-Route::get('so-theo-doi/{group}', [SoTheoDoiController::class, 'show'])->name('so-theo-doi.show');
-Route::get('so-theo-doi/{group}/edit', [SoTheoDoiController::class, 'edit'])->name('so-theo-doi.edit');
-Route::put('so-theo-doi/{group}', [SoTheoDoiController::class, 'update'])->name('so-theo-doi.update');
-Route::delete('so-theo-doi/{group}', [SoTheoDoiController::class, 'destroy'])->name('so-theo-doi.destroy');
-
-Route::post('so-theo-doi/{group}/batch-add', [SoTheoDoiController::class, 'batchAdd'])->name('so-theo-doi.batch-add');
-Route::post('so-theo-doi/{group}/batch-remove', [SoTheoDoiController::class, 'batchRemove'])->name('so-theo-doi.batch-remove');
-Route::get('/so-theo-doi/{group}/export-excel', [SoTheoDoiController::class, 'exportExcel'])->name('so-theo-doi.export-excel');
-Route::get('/so-theo-doi/{group}/export-word', [SoTheoDoiController::class, 'exportWord'])->name('so-theo-doi.export-word');

@@ -150,7 +150,7 @@
 
         function openEditModal(id, name, days) {
             form.reset();
-            form.action = `/loai-thu-tuc/${id}`;
+            form.action = `/settings/loai-thu-tuc/${id}`;
             document.getElementById('methodField').innerHTML =
                 '<input type="hidden" name="_method" value="PUT">';
             document.getElementById('modalTitle').innerText = 'Sửa loại thủ tục';

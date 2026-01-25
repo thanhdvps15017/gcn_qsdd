@@ -203,7 +203,7 @@
 
         function openEditUser(user, currentRole) {
             form.reset();
-            form.action = `/users/${user.id}`;
+            form.action = `/settings/users/${user.id}`;
 
             document.getElementById('userModalTitle').innerText = 'Sửa tài khoản';
             document.getElementById('methodField').innerHTML =
@@ -221,7 +221,7 @@
 
 
         function openShowUser(id) {
-            fetch(`/users/${id}`)
+            fetch(`/settings/users/${id}`)
                 .then(r => r.json())
                 .then(u => {
                     s_username.innerText = u.username;

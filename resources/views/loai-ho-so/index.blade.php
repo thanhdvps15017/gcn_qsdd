@@ -134,7 +134,7 @@
 
         function openEditModal(id, name) {
             form.reset();
-            form.action = `/loai-ho-so/${id}`;
+            form.action = `/settings/loai-ho-so/${id}`;
 
             document.getElementById('modalTitle').innerText = 'Sửa loại hồ sơ';
             document.getElementById('methodField').innerHTML =

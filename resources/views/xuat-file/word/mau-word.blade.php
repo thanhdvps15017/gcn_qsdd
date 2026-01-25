@@ -1,6 +1,6 @@
 @extends('welcome')
 
-@section('title', 'Quản lý xã')
+@section('title', 'Quản lý mẫu Word')
 
 @section('content')
 
@@ -11,11 +11,38 @@
                 {{-- HEADER --}}
                 <div class="card-header text-white d-flex justify-content-between align-items-center"
                     style="background: linear-gradient(135deg, var(--primary), #0d6efd);">
-                    <h5 class="mb-0 fw-bold">DANH SÁCH XÃ / PHƯỜNG</h5>
+                    <h5 class="mb-0 fw-bold">QUẢN LÝ MẪU WORD</h5>
 
-                    <button class="btn btn-light btn-sm" onclick="openCreateXa()">
-                        <i class="bi bi-plus-lg"></i> Thêm mới
+                    <button class="btn btn-light btn-sm" data-bs-toggle="collapse" data-bs-target="#uploadForm">
+                        <i class="bi bi-upload"></i> Upload mẫu
                     </button>
+                </div>
+
+                {{-- FORM UPLOAD --}}
+                <div class="collapse show" id="uploadForm">
+                    <div class="card-body border-bottom">
+                        <form method="POST" action="{{ route('mau-word.store') }}" enctype="multipart/form-data">
+                            @csrf
+
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-5">
+                                    <label class="fw-bold">Tên mẫu *</label>
+                                    <input name="ten" class="form-control" value="{{ old('ten') }}" required>
+                                </div>
+
+                                <div class="col-md-5">
+                                    <label class="fw-bold">File Word *</label>
+                                    <input type="file" name="file" class="form-control" required>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <button class="btn btn-primary w-100">
+                                        <i class="bi bi-cloud-arrow-up"></i> Upload
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
                 {{-- TABLE --}}
@@ -24,16 +51,15 @@
                         <thead>
                             <tr>
                                 <th width="5%">#</th>
-                                <th>TÊN XÃ / PHƯỜNG</th>
+                                <th>TÊN MẪU</th>
                                 <th width="5%" class="text-end"></th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($items as $item)
+                            @forelse ($mauWords as $mau)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td class="fw-semibold">{{ $item->name }}</td>
-
+                                    <td class="fw-semibold">{{ $mau->ten }}</td>
                                     <td class="text-end position-static">
                                         <div class="dropdown">
                                             <button class="btn btn-link text-muted p-2" data-bs-toggle="dropdown">
@@ -42,13 +68,13 @@
 
                                             <div class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
                                                 <button class="dropdown-item d-flex align-items-center gap-2 text-warning"
-                                                    onclick="openEditXa({{ $item->id }}, '{{ addslashes($item->name) }}')">
+                                                    onclick="openEditMauWord({{ $mau->id }}, '{{ addslashes($mau->ten) }}')">
                                                     <i class="bi bi-pencil-square"></i>
-                                                    Chỉnh sửa
+                                                    Chỉnh sửa tên
                                                 </button>
 
-                                                <form action="{{ route('xa.destroy', $item) }}" method="POST"
-                                                    onsubmit="return confirm('Xoá xã {{ addslashes($item->name) }}?')">
+                                                <form action="{{ route('mau-word.destroy', $mau) }}" method="POST"
+                                                    onsubmit="return confirm('Xoá mẫu {{ $mau->ten }}?')">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit"
@@ -64,7 +90,7 @@
                             @empty
                                 <tr>
                                     <td colspan="3" class="text-center text-muted py-4">
-                                        Chưa có dữ liệu
+                                        Chưa có mẫu Word nào
                                     </td>
                                 </tr>
                             @endforelse
@@ -76,30 +102,23 @@
         </div>
     </div>
 
-    {{-- ================= MODAL CREATE / EDIT ================= --}}
-    <div class="modal fade" id="xaModal" tabindex="-1">
+    {{-- MODAL EDIT --}}
+    <div class="modal fade" id="mauWordModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
 
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="fw-bold" id="xaModalTitle"></h5>
+                    <h5 class="fw-bold mb-0">Cập nhật tên mẫu Word</h5>
                     <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
 
-                <form id="xaForm" method="POST">
+                <form id="mauWordForm" method="POST">
                     @csrf
-                    <input type="hidden" id="xaMethod">
+                    @method('PUT')
 
                     <div class="modal-body p-4">
-                        <label class="fw-bold">Tên xã / phường *</label>
-                        <input name="name" id="xaName" class="form-control @error('name') is-invalid @enderror"
-                            value="{{ old('name') }}" required>
-
-                        @error('name')
-                            <div class="invalid-feedback d-block mt-2">
-                                {{ $message }}
-                            </div>
-                        @enderror
+                        <label class="fw-bold">Tên mẫu *</label>
+                        <input name="ten" id="mauWordName" class="form-control" required>
                     </div>
 
                     <div class="modal-footer">
@@ -112,36 +131,29 @@
         </div>
     </div>
 
-@endsection
-
-@push('script')
     <script>
-        const xaModal = new bootstrap.Modal(document.getElementById('xaModal'));
-        const xaForm = document.getElementById('xaForm');
-
-        function openCreateXa() {
-            xaForm.reset();
-            xaForm.action = "{{ route('xa.store') }}";
-            document.getElementById('xaMethod').innerHTML = '';
-            document.getElementById('xaModalTitle').innerText = 'Thêm xã / phường';
-            xaModal.show();
+        let mauWordModal;
+        let mauWordForm;
+    
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof bootstrap === 'undefined') {
+                console.error('Bootstrap JS chưa được load!');
+                return;
+            }
+    
+            mauWordModal = new bootstrap.Modal(document.getElementById('mauWordModal'));
+            mauWordForm  = document.getElementById('mauWordForm');
+        });
+    
+        function openEditMauWord(id, ten) {
+            if (!mauWordForm || !mauWordModal) {
+                console.error('Modal chưa sẵn sàng');
+                return;
+            }
+    
+            mauWordForm.action = `/settings/mau-word/${id}`;
+            document.getElementById('mauWordName').value = ten;
+            mauWordModal.show();
         }
-
-        function openEditXa(id, name) {
-            xaForm.reset();
-            xaForm.action = `/settings/xa/${id}`;
-            document.getElementById('xaMethod').innerHTML =
-                '<input type="hidden" name="_method" value="PUT">';
-            document.getElementById('xaModalTitle').innerText = 'Cập nhật xã / phường';
-            document.getElementById('xaName').value = name;
-            xaModal.show();
-        }
-
-        // Tự mở modal khi validate lỗi
-        @if ($errors->has('name'))
-            document.addEventListener('DOMContentLoaded', () => {
-                openCreateXa();
-            });
-        @endif
     </script>
-@endpush
+@endsection
