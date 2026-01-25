@@ -29,7 +29,7 @@
         <div class="col-lg-8">
             <!-- Thông tin chung -->
             <div class="card shadow border-0 mb-3 rounded-1 overflow-hidden">
-                <div class="card-header bg-primary text-white fw-bold fs-5 d-flex align-items-center px-4 py-2">
+                <div class="card-header text-black fw-bold fs-5 d-flex align-items-center px-4 py-2">
                     <i class="bi bi-info-circle-fill me-3 fs-4"></i> Thông tin chung
                 </div>
                 <div class="card-body p-4">
@@ -49,7 +49,7 @@
                             <p class="fs-5 mb-0 fw-medium">{{ $hoSo->sdt_chu_ho_so ?? '-' }}</p>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted small">Hạn giải quyết</label>
+                            <label class="form-label fw-semibold text-muted small">Ngày trả kết quả</label>
                             <p class="fs-5 mb-0 fw-medium">
                                 {{ $hoSo->han_giai_quyet ? \Carbon\Carbon::parse($hoSo->han_giai_quyet)->format('d/m/Y') : '-' }}
                             </p>
@@ -76,8 +76,8 @@
 
             <!-- Chủ sử dụng & Ủy quyền -->
             <div class="card shadow border-0 mb-3 rounded-1 overflow-hidden">
-                <div class="card-header bg-info text-white fw-bold fs-5 d-flex align-items-center px-4 py-2">
-                    <i class="bi bi-person-badge-fill me-3 fs-4"></i> Chủ sử dụng & Ủy quyền
+                <div class="card-header text-black fw-bold fs-5 d-flex align-items-center px-4 py-2">
+                    <i class="bi bi-person-badge-fill me-3 fs-4"></i> Chủ sử dụng ( Theo GCN ) & Ủy quyền
                 </div>
                 <div class="card-body p-4">
                     @php $chu = $hoSo->chu_su_dung ?? []; @endphp
@@ -87,12 +87,12 @@
                             <p class="fs-5 mb-0 fw-medium">{{ $chu['ho_ten'] ?? '-' }}</p>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-muted small">CCCD/CMND</label>
-                            <p class="fs-5 mb-0 fw-medium">{{ $chu['cccd'] ?? '-' }}</p>
+                            <label class="form-label fw-semibold text-muted small">Ngày sinh</label>
+                            <p class="fs-5 mb-0 fw-medium">{{ $chu['ngay_cap'] ?? '-' }}</p>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-muted small">Ngày cấp</label>
-                            <p class="fs-5 mb-0 fw-medium">{{ $chu['ngay_cap'] ?? '-' }}</p>
+                            <label class="form-label fw-semibold text-muted small">CCCD/CMND</label>
+                            <p class="fs-5 mb-0 fw-medium">{{ $chu['cccd'] ?? '-' }}</p>
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-semibold text-muted small">Địa chỉ</label>
@@ -120,7 +120,7 @@
 
             <!-- Thửa chung -->
             <div class="card shadow border-0 mb-3 rounded-1 overflow-hidden">
-                <div class="card-header bg-secondary text-white fw-bold fs-5 d-flex align-items-center px-4 py-2">
+                <div class="card-header text-black fw-bold fs-5 d-flex align-items-center px-4 py-2">
                     <i class="bi bi-geo-alt-fill me-3 fs-4"></i> Thửa - Tờ - Diện tích chung
                 </div>
                 <div class="card-body p-0">
@@ -158,7 +158,7 @@
 
             <!-- Thông tin riêng -->
             <div class="card shadow border-0 mb-3 rounded-1 overflow-hidden">
-                <div class="card-header bg-success text-white fw-bold fs-5 d-flex align-items-center px-4 py-2">
+                <div class="card-header text-black fw-bold fs-5 d-flex align-items-center px-4 py-2">
                     <i class="bi bi-file-earmark-check-fill me-3 fs-4"></i> Thông tin sau khi biến động
                 </div>
                 <div class="card-body p-4">
@@ -172,8 +172,20 @@
                     <div class="row g-4 mb-5">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold text-muted small">Loại thủ tục chi tiết</label>
+                            @php
+                                $loaiThongTinRiengMap = [
+                                    'tachthua_chuyennhuong' => 'Tách thửa - chuyển nhượng',
+                                    'capdoi' => 'Cấp đổi',
+                                    'chuyennhuong' => 'Chuyển nhượng',
+                                    'tachthua' => 'Tách thửa',
+                                    'capdoi_chuyennhuong' => 'Cấp đổi + chuyển nhượng',
+                                ];
+
+                                $riengLoai = $riengLoai ?? ($hoSo->thong_tin_rieng['loai'] ?? null);
+                            @endphp
+
                             <p class="fs-5 mb-0 fw-medium">
-                                {{ $riengLoai ? str_replace('_', ' ', ucwords($riengLoai)) : 'Chưa chọn' }}
+                                {{ $loaiThongTinRiengMap[$riengLoai] ?? 'Chưa chọn' }}
                             </p>
                         </div>
                         <div class="col-md-6">
@@ -234,7 +246,7 @@
         <div class="col-lg-4">
             @if ($hoSo->files->count())
                 <div class="card shadow border-0 rounded-1 mb-4 overflow-hidden">
-                    <div class="card-header bg-primary text-white fw-bold fs-5 d-flex align-items-center px-4 py-2">
+                    <div class="card-header text-black fw-bold fs-5 d-flex align-items-center px-4 py-2">
                         <i class="bi bi-paperclip me-3 fs-4"></i> Tài liệu đính kèm
                     </div>
 
@@ -261,7 +273,7 @@
             @endif
 
             <div class="card shadow border-0 rounded-1 mb-4 overflow-hidden" id="lich-su">
-                <div class="card-header bg-secondary text-white fw-bold fs-5 d-flex align-items-center px-4 py-3">
+                <div class="card-header text-black fw-bold fs-5 d-flex align-items-center px-4 py-2">
                     <i class="bi bi-clock-history me-3 fs-4"></i> Lịch sử trạng thái
                 </div>
 
@@ -338,7 +350,7 @@
             </div>
 
             <div class="card shadow border-0 rounded-1 overflow-hidden">
-                <div class="card-header bg-warning text-dark fw-bold fs-5 d-flex align-items-center px-4 py-2">
+                <div class="card-header text-black fw-bold fs-5 d-flex align-items-center px-4 py-2">
                     <i class="bi bi-journal-text me-3 fs-4"></i> Ghi chú
                 </div>
                 <div class="card-body p-4">
@@ -352,7 +364,7 @@
 
     <style>
         .timeline-scroll {
-            max-height: 820px;
+            max-height: 835px;
             overflow-y: auto;
             padding-right: 8px;
         }

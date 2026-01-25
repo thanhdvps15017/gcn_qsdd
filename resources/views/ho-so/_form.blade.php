@@ -109,7 +109,7 @@
                     </select>
                 </div>
                 <div class="col-md-6">
-                    <label>Hạn trả kết quả</label>
+                    <label>Ngày trả kết quả</label>
                     <input type="date" name="han_giai_quyet" id="han_giai_quyet" class="form-control" readonly
                         value="{{ old('han_giai_quyet', $isEdit ? optional($hoSo->han_giai_quyet)->format('Y-m-d') : '') }}">
                 </div>
@@ -143,20 +143,20 @@
 
     {{-- CHỦ SỬ DỤNG --}}
     <div class="card mb-4">
-        <div class="card-header fw-bold">Thông tin chủ sử dụng</div>
+        <div class="card-header fw-bold">Thông tin chủ sử dụng ( Theo GCN )</div>
         <div class="card-body row g-3">
             <div class="col-md-4">
                 <label>Họ tên</label>
                 <input name="chu_su_dung[ho_ten]" class="form-control" value="{{ $chuSuDung['ho_ten'] ?? '' }}">
             </div>
             <div class="col-md-4">
-                <label>CMND / CCCD</label>
-                <input name="chu_su_dung[cccd]" class="form-control" value="{{ $chuSuDung['cccd'] ?? '' }}">
-            </div>
-            <div class="col-md-4">
-                <label>Ngày cấp</label>
+                <label>Ngày sinh</label>
                 <input type="date" name="chu_su_dung[ngay_cap]" class="form-control"
                     value="{{ $chuSuDung['ngay_cap'] ?? '' }}">
+            </div>
+            <div class="col-md-4">
+                <label>CMND / CCCD</label>
+                <input name="chu_su_dung[cccd]" class="form-control" value="{{ $chuSuDung['cccd'] ?? '' }}">
             </div>
             <div class="col-12">
                 <label>Địa chỉ</label>
@@ -238,7 +238,6 @@
         <div class="card-body">
 
             <div class="mb-4">
-                <label class="fw-bold">Loại thủ tục chi tiết</label>
                 <select name="thong_tin_rieng[loai]" class="form-select">
                     <option value="">-- Chọn loại --</option>
                     <option value="tachthua_chuyennhuong"

@@ -59,12 +59,12 @@
 
                         {{-- 🏘️ Xã --}}
                         <div class="col-md-4 col-lg-3">
-                            <label class="fw-semibold">Xã / Phường</label>
-                            <select name="xa_id" class="form-select">
+                            <label class="fw-semibold">Người thẩm tra</label>
+                            <select name="nguoi_tham_tra_id" class="form-select">
                                 <option value="">-- Tất cả --</option>
                                 @foreach ($xas as $item)
                                     <option value="{{ $item->id }}"
-                                        {{ request('xa_id') == $item->id ? 'selected' : '' }}>
+                                        {{ request('nguoi_tham_tra_id') == $item->id ? 'selected' : '' }}>
                                         {{ $item->name }}
                                     </option>
                                 @endforeach
@@ -137,7 +137,7 @@
                                 <th>Chủ hồ sơ</th>
                                 <th class="d-none d-md-table-cell">Loại hồ sơ</th>
                                 <th class="d-none d-md-table-cell">Loại thủ tục</th>
-                                <th class="d-none d-md-table-cell">Xã/Phường</th>
+                                <th class="d-none d-md-table-cell">Người thẩm tra</th>
                                 <th class="d-none d-md-table-cell">Trạng thái</th>
                                 <th width="5%" class="text-end"></th>
                             </tr>
@@ -177,7 +177,7 @@
 
                                     <td class="d-none d-md-table-cell">{{ optional($hoSo->loaiHoSo)->name ?? '-' }}</td>
                                     <td class="d-none d-md-table-cell">{{ optional($hoSo->loaiThuTuc)->name ?? '-' }}</td>
-                                    <td class="d-none d-md-table-cell">{{ optional($hoSo->xa)->name ?? '-' }}</td>
+                                    <td class="d-none d-md-table-cell">{{ optional($hoSo->nguoiThamTra)->name ?? '-' }}</td>
 
                                     <td class="d-none d-md-table-cell">
                                         <div class="dropdown">

@@ -15,7 +15,7 @@
 
     <div class="row g-4 pt-3">
         <!-- CỘT TRÁI -->
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card shadow-sm border-0 rounded-1 h-100">
                 <div class="card-header bg-success text-white fw-bold">
                     Thêm hồ sơ vào sổ
@@ -46,7 +46,7 @@
         </div>
 
         <!-- CỘT PHẢI -->
-        <div class="col-md-8">
+        <div class="col-md-9">
             <div class="card shadow-sm border-0 rounded-1 h-100">
                 <div class="card-header bg-info text-white fw-bold">
                     Hồ sơ trong sổ
@@ -67,7 +67,10 @@
                                             <input type="checkbox" id="check-all">
                                         </th>
                                         <th>Mã HS</th>
-                                        <th>Chủ hồ sơ</th>
+                                        <th>Chủ HS</th>
+                                        <th>Loại HS</th>
+                                        <th>Loại TT</th>
+                                        <th>Người TT</th>
                                         <th>Trạng thái</th>
                                         <th></th>
                                     </tr>
@@ -81,6 +84,10 @@
                                             </td>
                                             <td>{{ $hs->ma_ho_so }}</td>
                                             <td>{{ $hs->ten_chu_ho_so }}</td>
+                                            <td>{{ $hs->loaiHoSo->name }}</td>
+                                            <td>{{ $hs->loaiThuTuc->name }}</td>
+                                            <td>{{ $hs->nguoiThamTra->name }}</td>
+
                                             @php
                                                 $map = [
                                                     'dang_giai_quyet' => 'Đang giải quyết',
@@ -93,7 +100,6 @@
                                                     'in_gcn_qsdd' => 'In GCN QSDĐ',
                                                 ];
                                             @endphp
-
                                             <td>{{ $map[$hs->trang_thai] ?? $hs->trang_thai }}</td>
                                             <td>
                                                 <a href="{{ route('ho-so.show', $hs) }}"
