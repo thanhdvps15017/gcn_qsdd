@@ -14,6 +14,11 @@ class MauWord extends Model
     protected $fillable = [
         'ten',
         'file_path',
-        'mo_ta',
+        'folder_id',
     ];
+
+    public function folder()
+    {
+        return $this->belongsTo(MauWordFolder::class, 'folder_id');
+    }
 }

@@ -11,14 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mau_words', function (Blueprint $table) {
+        Schema::create('mau_word_folders', function (Blueprint $table) {
             $table->id();
             $table->string('ten');
-            $table->string('file_path');
-            $table->foreignId('folder_id')
-                ->nullable()
-                ->constrained('mau_word_folders')
-                ->cascadeOnDelete();
             $table->timestamps();
         });
     }
@@ -28,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mau_words');
+        Schema::dropIfExists('mau_word_folders');
     }
 };

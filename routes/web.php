@@ -123,6 +123,8 @@ Route::middleware('auth')->group(function () {
             Route::post('/upload', [MauWordController::class, 'store'])->name('store');
             Route::put('/{mauWord}', [MauWordController::class, 'update'])->name('update');
             Route::delete('/{mauWord}', [MauWordController::class, 'destroy'])->name('destroy');
+            Route::delete('/folder/{folder}', [MauWordController::class, 'destroyFolder'])
+                ->name('destroy-folder');
         });
     });
 });
