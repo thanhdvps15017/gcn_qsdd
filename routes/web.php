@@ -84,6 +84,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('xuat-word')->name('xuat-word.')->group(function () {
         Route::get('/', [XuatWordController::class, 'index'])->name('index');
         Route::post('/export', [XuatWordController::class, 'export'])->name('export');
+        Route::post('/preview', [XuatWordController::class, 'preview'])->name('preview');
     });
 
     Route::prefix('settings')->group(function () {
