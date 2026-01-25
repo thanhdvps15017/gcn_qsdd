@@ -49,6 +49,11 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::prefix('so-theo-doi')->name('so-theo-doi.')->group(function () {
+        Route::post(
+            '/{soTheoDoiGroup}/ho-so/{hoSo}/ghi-chu',
+            [SoTheoDoiController::class, 'saveGhiChu']
+        )->name('save-ghi-chu');
+
         Route::get('/{group}/search-chua-them', [SoTheoDoiController::class, 'searchHoSoChuaThem'])
             ->name('search-chua-them');
 

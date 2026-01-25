@@ -20,7 +20,10 @@ class SoTheoDoiGroup extends Model
 
     public function hoSos()
     {
-        return $this->belongsToMany(HoSo::class, 'ho_so_so_theo_doi');
+        return $this->belongsToMany(HoSo::class, 'ho_so_so_theo_doi')
+            ->withPivot(['ghi_chu', 'thu_tu'])
+            ->withTimestamps()
+            ->orderBy('ho_so_so_theo_doi.thu_tu');
     }
 
     public function nguoiTao()

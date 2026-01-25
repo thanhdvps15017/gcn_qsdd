@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('ho_so_id')->constrained('ho_sos')->cascadeOnDelete();
             $table->foreignId('so_theo_doi_group_id')->constrained('so_theo_doi_groups')->cascadeOnDelete();
+            $table->string('ghi_chu')->nullable();
+            $table->string('thu_tu')->nullable();
             $table->timestamps();
         });
     }

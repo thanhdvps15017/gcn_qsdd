@@ -97,10 +97,40 @@ class SoTheoDoiController extends Controller
             'ho_so_ids.*' => 'exists:ho_sos,id',
         ]);
 
-        $count = count($request->ho_so_ids);
-        $group->hoSos()->syncWithoutDetaching($request->ho_so_ids);
+        $existingIds = $group->hoSos()->pluck('ho_sos.id')->toArray();
 
-        return redirect()->back()->with('success', "Đã thêm $count hồ sơ!");
+        $newHoSoIds = array_values(array_diff($request->ho_so_ids, $existingIds));
+
+        if (empty($newHoSoIds)) {
+            return back()->with('warning', 'Các hồ sơ đã tồn tại trong sổ');
+        }
+
+        $todayPrefix = now()->format('dmy'); // ddmmyy
+
+        $lastThuTu = $group->hoSos()
+            ->where('ho_so_so_theo_doi.thu_tu', 'like', $todayPrefix . '-%')
+            ->orderByDesc('ho_so_so_theo_doi.thu_tu')
+            ->value('ho_so_so_theo_doi.thu_tu');
+
+        $startNumber = 0;
+        if ($lastThuTu) {
+            $startNumber = (int) substr($lastThuTu, -6);
+        }
+
+        foreach ($newHoSoIds as $index => $hoSoId) {
+            $number = $startNumber + $index + 1;
+
+            $thuTu = $todayPrefix . '-' . str_pad($number, 6, '0', STR_PAD_LEFT);
+
+            $group->hoSos()->attach($hoSoId, [
+                'thu_tu' => $thuTu,
+            ]);
+        }
+
+        return back()->with(
+            'success',
+            'Đã thêm ' . count($newHoSoIds) . ' hồ sơ'
+        );
     }
 
     public function batchRemove(Request $request, SoTheoDoiGroup $group)
@@ -153,5 +183,27 @@ class SoTheoDoiController extends Controller
             ->get();
 
         return response()->json($data);
+    }
+
+    public function saveGhiChu(Request $request, SoTheoDoiGroup $soTheoDoiGroup, HoSo $hoSo)
+    {
+        $request->validate([
+            'ghi_chu' => 'nullable|string|max:1000',
+        ]);
+
+        if (! $soTheoDoiGroup->hoSos()->where('ho_so_id', $hoSo->id)->exists()) {
+            return response()->json([
+                'message' => 'Hồ sơ không thuộc sổ này'
+            ], 404);
+        }
+
+        $soTheoDoiGroup->hoSos()->updateExistingPivot(
+            $hoSo->id,
+            ['ghi_chu' => $request->ghi_chu]
+        );
+
+        return response()->json([
+            'message' => 'Lưu ghi chú thành công'
+        ]);
     }
 }

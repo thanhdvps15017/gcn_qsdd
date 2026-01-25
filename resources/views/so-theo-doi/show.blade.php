@@ -15,7 +15,7 @@
 
     <div class="row g-4 pt-3">
         <!-- CỘT TRÁI -->
-        <div class="col-md-3">
+        <div class="col-md-12">
             <div class="card shadow-sm border-0 rounded-1 h-100">
                 <div class="card-header bg-success text-white fw-bold">
                     Thêm hồ sơ vào sổ
@@ -46,7 +46,7 @@
         </div>
 
         <!-- CỘT PHẢI -->
-        <div class="col-md-9">
+        <div class="col-md-12">
             <div class="card shadow-sm border-0 rounded-1 h-100">
                 <div class="card-header bg-info text-white fw-bold">
                     Hồ sơ trong sổ
@@ -67,11 +67,12 @@
                                             <input type="checkbox" id="check-all">
                                         </th>
                                         <th>Mã HS</th>
+                                        <th>Mã STT</th>
                                         <th>Chủ HS</th>
                                         <th>Loại HS</th>
                                         <th>Loại TT</th>
                                         <th>Người TT</th>
-                                        <th>Trạng thái</th>
+                                        <th>Ghi chú</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -83,24 +84,19 @@
                                                 <input type="checkbox" name="ho_so_ids[]" value="{{ $hs->id }}">
                                             </td>
                                             <td>{{ $hs->ma_ho_so }}</td>
+                                            <td>{{ $hs->pivot->thu_tu }}</td>
                                             <td>{{ $hs->ten_chu_ho_so }}</td>
                                             <td>{{ $hs->loaiHoSo->name }}</td>
                                             <td>{{ $hs->loaiThuTuc->name }}</td>
                                             <td>{{ $hs->nguoiThamTra->name }}</td>
-
-                                            @php
-                                                $map = [
-                                                    'dang_giai_quyet' => 'Đang giải quyết',
-                                                    'cho_bo_sung' => 'Chờ bổ sung',
-                                                    'khong_du_dieu_kien' => 'Không đủ điều kiện',
-                                                    'chuyen_thue' => 'Chuyển thuế',
-                                                    'hs_niem_yet_xa' => 'Niêm yết xã',
-                                                    'phoi_hop_do_dac' => 'Phối hợp đo đạc',
-                                                    'co_phieu_bao' => 'Có phiếu báo',
-                                                    'in_gcn_qsdd' => 'In GCN QSDĐ',
-                                                ];
-                                            @endphp
-                                            <td>{{ $map[$hs->trang_thai] ?? $hs->trang_thai }}</td>
+                                            <td>
+                                                <button type="button"
+                                                    class="btn btn-sm btn-outline-secondary btn-open-note"
+                                                    data-ho-so-id="{{ $hs->id }}"
+                                                    data-ghi-chu="{{ $hs->pivot->ghi_chu }}">
+                                                    <i class="bi bi-journal-text"></i>
+                                                </button>
+                                            </td>
                                             <td>
                                                 <a href="{{ route('ho-so.show', $hs) }}"
                                                     class="btn btn-sm btn-outline-primary">
@@ -125,6 +121,97 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="ghiChuModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ghi chú xử lý hồ sơ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <textarea id="ghi-chu-text" class="form-control" rows="4" placeholder="Nhập ghi chú trong quá trình xử lý..."></textarea>
+
+                    <input type="hidden" id="ghi-chu-ho-so-id">
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="btn-save-ghi-chu">
+                        Lưu ghi chú
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const modalEl = document.getElementById('ghiChuModal');
+            const ghiChuModal = new bootstrap.Modal(modalEl);
+
+            document.querySelectorAll('.btn-open-note').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.getElementById('ghi-chu-ho-so-id').value = this.dataset.hoSoId;
+
+                    document.getElementById('ghi-chu-text').value = this.dataset.ghiChu || '';
+
+                    ghiChuModal.show();
+                });
+            });
+
+
+            document.getElementById('btn-save-ghi-chu').addEventListener('click', function() {
+                const hoSoId = document.getElementById('ghi-chu-ho-so-id').value;
+                const ghiChu = document.getElementById('ghi-chu-text').value;
+
+                fetch(`/so-theo-doi/{{ $group->id }}/ho-so/${hoSoId}/ghi-chu`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            ghi_chu: ghiChu
+                        })
+                    })
+                    .then(res => {
+                        if (!res.ok) throw new Error();
+                        return res.json();
+                    })
+                    .then(() => {
+                        ghiChuModal.hide();
+                        showToast('✔ Lưu ghi chú thành công');
+
+                        const btn = document.querySelector(
+                            `.btn-open-note[data-ho-so-id="${hoSoId}"]`
+                        );
+
+                        if (btn) {
+                            btn.dataset.ghiChu = ghiChu;
+                        }
+                    })
+                    .catch(() => alert('Không thể lưu ghi chú'));
+            });
+
+            function showToast(message) {
+                const toast = document.createElement('div');
+                toast.className =
+                    'toast align-items-center text-bg-success border-0 show position-fixed bottom-0 end-0 m-3';
+                toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto"></button>
+            </div>
+        `;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 2500);
+            }
+
+        });
+    </script>
 
     {{-- ================= JS ================= --}}
     <script>
