@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\HoSo;
+use App\Models\HoSoFile;
 use App\Models\LoaiHoSo;
 use App\Models\LoaiThuTuc;
 use App\Models\Xa;
 use App\Models\User;
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class HoSoController extends Controller
@@ -65,7 +68,6 @@ class HoSoController extends Controller
         ]);
     }
 
-
     public function create()
     {
         return view('ho-so.create', [
@@ -118,9 +120,11 @@ class HoSoController extends Controller
             'thong_tin_rieng.data.thua.*.dien_tich' => 'nullable|numeric',
             'thong_tin_rieng.data.thua.*.ghi_chu'   => 'nullable|string',
 
-            'ghi_chu'             => 'nullable|string',
-            'han_giai_quyet'      => 'nullable|date',
-            'trang_thai'          => 'nullable|string',
+            'ghi_chu'               => 'nullable|string',
+            'files'                 => 'nullable|array',
+            'files.*'               => 'file|max:10240',
+            'han_giai_quyet'        => 'nullable|date',
+            'trang_thai'            => 'nullable|string',
         ]);
 
         // Chuẩn hóa thua_chung
@@ -167,14 +171,31 @@ class HoSoController extends Controller
         // Trạng thái mặc định
         $data['trang_thai'] = $data['trang_thai'] ?? 'dang_giai_quyet';
 
-        HoSo::create($data);
+        $hoSo = HoSo::create($data);
+
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $file) {
+                $path = $file->store(
+                    'ho_so_files/' . $hoSo->id,
+                    'public'
+                );
+
+                $hoSo->files()->create([
+                    'ten_file'   => $file->getClientOriginalName(),
+                    'duong_dan'  => $path,
+                    'loai_file'  => $file->getClientOriginalExtension(),
+                    'kich_thuoc' => $file->getSize(),
+                ]);
+            }
+        }
+
 
         return redirect()->route('ho-so.index')->with('success', 'Đã lưu hồ sơ thành công!');
     }
 
     public function show(HoSo $hoSo)
     {
-        $hoSo->load(['loaiHoSo', 'loaiThuTuc', 'xa', 'nguoiThamTra']);
+        $hoSo->load(['loaiHoSo', 'loaiThuTuc', 'xa', 'nguoiThamTra', 'files']);
         return view('ho-so.show', compact('hoSo'));
     }
 
@@ -291,6 +312,18 @@ class HoSoController extends Controller
         return redirect()->route('ho-so.index')->with('success', 'Đã xóa hồ sơ');
     }
 
+    public function destroyFile(HoSo $hoSo, HoSoFile $hoSoFile)
+    {
+        if ($hoSoFile->ho_so_id !== $hoSo->id) {
+            abort(403);
+        }
+
+        Storage::disk('public')->delete($hoSoFile->duong_dan);
+        $hoSoFile->delete();
+
+        return response()->json(['success' => true]);
+    }
+
     public function updateTrangThai(Request $request, HoSo $hoSo)
     {
         $request->validate([
@@ -304,9 +337,6 @@ class HoSoController extends Controller
         return response()->json(['success' => true]);
     }
 
-    /**
-     * Chuẩn hóa mảng indexed rows (từ form động)
-     */
     private function normalizeIndexedRows(array $raw): array
     {
         // Nếu đã là mảng các row đầy đủ → trả về array_values

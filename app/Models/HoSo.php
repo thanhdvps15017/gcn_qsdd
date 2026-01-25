@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class HoSo extends Model
 {
@@ -39,6 +41,11 @@ class HoSo extends Model
         'created_at'        => 'datetime',
         'updated_at'        => 'datetime',
     ];
+
+    public function files(): HasMany
+    {
+        return $this->hasMany(HoSoFile::class);
+    }
 
     public function chuSuDung()
     {
@@ -105,5 +112,15 @@ class HoSo extends Model
             'text'  => $map[$this->trang_thai] ?? '—',
             'color' => $color,
         ];
+    }
+
+    protected static function booted()
+    {
+        static::deleting(function ($hoSo) {
+            foreach ($hoSo->files as $file) {
+                Storage::disk('public')->delete($file->duong_dan);
+            }
+            $hoSo->files()->delete();
+        });
     }
 }

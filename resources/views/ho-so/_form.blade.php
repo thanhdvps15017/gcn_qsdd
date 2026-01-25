@@ -38,7 +38,7 @@
     }
 @endphp
 
-<form action="{{ $action }}" method="POST">
+<form action="{{ $action }}" method="POST" enctype="multipart/form-data">
     @csrf
 
     @if (isset($method) && strtoupper($method) !== 'POST')
@@ -322,9 +322,44 @@
 
     {{-- GHI CHÚ --}}
     <div class="card mb-4">
-        <div class="card-header fw-bold">Ghi chú</div>
+        <div class="card-header fw-bold">Ghi chú & Tài liệu</div>
+
         <div class="card-body">
-            <textarea name="ghi_chu" class="form-control" rows="4">{{ old('ghi_chu', $isEdit ? $hoSo->ghi_chu : '') }}</textarea>
+            <div class="mb-3">
+                <label class="form-label">Ghi chú</label>
+                <textarea name="ghi_chu" class="form-control" rows="4">{{ old('ghi_chu', $isEdit ? $hoSo->ghi_chu : '') }}</textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Tài liệu đính kèm</label>
+                <input type="file" name="files[]" class="form-control" multiple>
+                <small class="text-muted">
+                    Có thể chọn nhiều file (PDF, Word, ảnh…)
+                </small>
+            </div>
+
+            @if ($isEdit && $hoSo->files->count())
+                <hr>
+                <strong>File đã upload:</strong>
+
+                <ul class="mt-2 list-unstyled">
+                    @foreach ($hoSo->files as $file)
+                        <li class="d-flex justify-content-between align-items-center mb-2"
+                            id="file-row-{{ $file->id }}">
+                            <a href="{{ asset('storage/' . $file->duong_dan) }}" target="_blank">
+                                {{ $file->ten_file }}
+                            </a>
+
+                            <button type="button" class="btn btn-sm btn-danger btn-delete-file"
+                                data-url="{{ route('ho-so.files.destroy', [$hoSo, $file]) }}"
+                                data-id="{{ $file->id }}">
+                                Xóa
+                            </button>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+
         </div>
     </div>
 
@@ -384,5 +419,34 @@
         if (loaiSelect && loaiSelect.selectedIndex > 0) {
             tinhHanTra(loaiSelect);
         }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.btn-delete-file').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (!confirm('Xóa file này?')) return;
+
+                const url = this.dataset.url;
+                const fileId = this.dataset.id;
+
+                fetch(url, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document
+                                .querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content'),
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Lỗi xóa');
+                        return res.json();
+                    })
+                    .then(() => {
+                        document.getElementById('file-row-' + fileId)?.remove();
+                    })
+                    .catch(() => alert('Không thể xóa file'));
+            });
+        });
     });
 </script>

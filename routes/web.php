@@ -37,7 +37,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/{hoSo}', [HoSoController::class, 'show'])->name('show');
         Route::get('/{hoSo}/edit', [HoSoController::class, 'edit'])->name('edit');
         Route::put('/{hoSo}', [HoSoController::class, 'update'])->name('update');
+
         Route::delete('/{hoSo}', [HoSoController::class, 'destroy'])->name('destroy');
+        Route::delete(
+            '/{hoSo}/files/{hoSoFile}',
+            [HoSoController::class, 'destroyFile']
+        )->name('files.destroy');
 
         Route::patch('/{hoSo}/trang-thai', [HoSoController::class, 'updateTrangThai'])
             ->name('update-trang-thai');

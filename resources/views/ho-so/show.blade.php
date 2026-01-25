@@ -244,6 +244,34 @@
         </div>
     </div>
 
+    @if ($hoSo->files->count())
+        <div class="card shadow border-0 rounded-4 mb-4 overflow-hidden">
+            <div class="card-header bg-primary text-white fw-bold fs-5 d-flex align-items-center px-4 py-2">
+                <i class="bi bi-paperclip me-3 fs-4"></i> Tài liệu đính kèm
+            </div>
+
+            <div class="card-body p-4">
+                <ul class="list-group list-group-flush">
+                    @foreach ($hoSo->files as $file)
+                        <li id="file-row-{{ $file->id }}"
+                            class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="{{ asset('storage/' . $file->duong_dan) }}" target="_blank"
+                                class="fw-semibold text-decoration-none">
+                                {{ $file->ten_file }}
+                            </a>
+
+                            <button type="button" class="btn btn-sm btn-danger btn-delete-file"
+                                data-url="{{ route('ho-so.files.destroy', [$hoSo, $file]) }}"
+                                data-id="{{ $file->id }}">
+                                Xóa
+                            </button>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    @endif
+
     <!-- Ghi chú -->
     <div class="card shadow border-0 rounded-4 overflow-hidden">
         <div class="card-header bg-warning text-dark fw-bold fs-5 d-flex align-items-center px-4 py-2">
@@ -255,4 +283,35 @@
             </pre>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.btn-delete-file').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (!confirm('Xóa file này?')) return;
+
+                    const url = this.dataset.url;
+                    const fileId = this.dataset.id;
+
+                    fetch(url, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document
+                                    .querySelector('meta[name="csrf-token"]')
+                                    .getAttribute('content'),
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(res => {
+                            if (!res.ok) throw new Error('Lỗi xóa');
+                            return res.json();
+                        })
+                        .then(() => {
+                            document.getElementById('file-row-' + fileId)?.remove();
+                        })
+                        .catch(() => alert('Không thể xóa file'));
+                });
+            });
+        });
+    </script>
 @endsection
