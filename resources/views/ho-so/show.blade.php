@@ -199,7 +199,7 @@
                     <p class="fs-5 mb-0 fw-medium">{{ $riengData['cccd'] ?? '-' }}</p>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold text-muted small">Ngày cấp CCCD</label>
+                    <label class="form-label fw-semibold text-muted small">Ngày cấp CCCD / CMND</label>
                     <p class="fs-5 mb-0 fw-medium">
                         {{ $riengData['ngay_cap_cccd'] ? \Carbon\Carbon::parse($riengData['ngay_cap_cccd'])->format('d/m/Y') : '-' }}
                     </p>

@@ -22,34 +22,110 @@
                 <div class="card-body border-bottom">
                     <form method="GET" class="row g-3 align-items-end">
 
-                        <!-- Tìm kiếm text -->
-                        <div class="col-md-3 col-lg-6">
-                            <input type="text" name="q" class="form-control" placeholder="Mã hồ sơ / tên chủ hồ sơ"
+                        {{-- 🔎 Tìm kiếm --}}
+                        <div class="col-md-4 col-lg-6">
+                            <label class="fw-semibold">Tìm kiếm</label>
+                            <input type="text" name="q" class="form-control" placeholder="Mã hồ sơ / Tên chủ hồ sơ"
                                 value="{{ request('q') }}">
                         </div>
 
-                        <div class="col-md-3 col-lg-2">
-                            <select name="trang_thai" class="form-select">
-                                <option value="">-- Trạng thái --</option>
-                                <option value="dang_giai_quyet">Đang giải quyết</option>
-                                <option value="cho_bo_sung">Chờ bổ sung</option>
-                                <option value="khong_du_dieu_kien">Không đủ điều kiện</option>
-                                <option value="hoan_thanh">Hoàn thành</option>
+                        {{-- 📂 Loại hồ sơ --}}
+                        <div class="col-md-4 col-lg-3">
+                            <label class="fw-semibold">Loại hồ sơ</label>
+                            <select name="loai_ho_so_id" class="form-select">
+                                <option value="">-- Tất cả --</option>
+                                @foreach ($loaiHoSos as $item)
+                                    <option value="{{ $item->id }}"
+                                        {{ request('loai_ho_so_id') == $item->id ? 'selected' : '' }}>
+                                        {{ $item->name }}
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
 
-                        <!-- Nút + per page (nhóm lại ở cuối hàng) -->
-                        <div class="col-12 col-lg-auto ms-lg-auto d-flex gap-2 align-items-center flex-wrap">
-                            <button class="btn btn-primary px-4 order-1">
-                                <i class="bi bi-search"></i> Tìm
+                        {{-- 📄 Loại thủ tục --}}
+                        <div class="col-md-4 col-lg-3">
+                            <label class="fw-semibold">Loại thủ tục</label>
+                            <select name="loai_thu_tuc_id" class="form-select">
+                                <option value="">-- Tất cả --</option>
+                                @foreach ($loaiThuTucs as $item)
+                                    <option value="{{ $item->id }}"
+                                        {{ request('loai_thu_tuc_id') == $item->id ? 'selected' : '' }}>
+                                        {{ $item->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- 🏘️ Xã --}}
+                        <div class="col-md-4 col-lg-3">
+                            <label class="fw-semibold">Xã / Phường</label>
+                            <select name="xa_id" class="form-select">
+                                <option value="">-- Tất cả --</option>
+                                @foreach ($xas as $item)
+                                    <option value="{{ $item->id }}"
+                                        {{ request('xa_id') == $item->id ? 'selected' : '' }}>
+                                        {{ $item->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- 📌 Trạng thái --}}
+                        <div class="col-md-4 col-lg-3">
+                            <label class="fw-semibold">Trạng thái</label>
+                            <select name="trang_thai" class="form-select">
+                                <option value="">-- Tất cả --</option>
+                                @php
+                                    $statuses = [
+                                        'dang_giai_quyet' => 'Đang giải quyết',
+                                        'cho_bo_sung' => 'Chờ bổ sung',
+                                        'khong_du_dieu_kien' => 'Không đủ điều kiện',
+                                        'chuyen_thue' => 'Chuyển thuế',
+                                        'hs_niem_yet_xa' => 'Niêm yết xã',
+                                        'phoi_hop_do_dac' => 'Phối hợp đo đạc',
+                                        'co_phieu_bao' => 'Có phiếu báo',
+                                        'in_gcn_qsdd' => 'In GCN QSDĐ',
+                                        'hoan_thanh' => 'Hoàn thành',
+                                    ];
+                                @endphp
+
+                                @foreach ($statuses as $key => $label)
+                                    <option value="{{ $key }}"
+                                        {{ request('trang_thai') === $key ? 'selected' : '' }}>
+                                        {{ $label }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- ⏱️ Sắp xếp --}}
+                        <div class="col-md-4 col-lg-3">
+                            <label class="fw-semibold">Thời gian</label>
+                            <select name="sort" class="form-select">
+                                <option value="desc" {{ request('sort', 'desc') === 'desc' ? 'selected' : '' }}>
+                                    Mới nhất
+                                </option>
+                                <option value="asc" {{ request('sort') === 'asc' ? 'selected' : '' }}>
+                                    Cũ nhất
+                                </option>
+                            </select>
+                        </div>
+
+                        {{-- 🔘 Nút --}}
+                        <div class="col-md-4 col-lg-3 d-flex justify-content-end gap-2">
+                            <button class="btn btn-primary px-4">
+                                <i class="bi bi-search"></i> Lọc
                             </button>
 
-                            <a href="{{ route('ho-so.index') }}" class="btn btn-outline-secondary px-4 order-2">
+                            <a href="{{ route('ho-so.index') }}" class="btn btn-outline-secondary px-4">
                                 Làm mới
                             </a>
                         </div>
+
                     </form>
                 </div>
+
 
                 {{-- TABLE --}}
                 <div class="table-responsive-sm">
@@ -58,7 +134,7 @@
                             <tr>
                                 <th width="60">#</th>
                                 <th>Mã hồ sơ</th>
-                                <th>Chủ hồ sơ - SĐT</th>
+                                <th>Chủ hồ sơ</th>
                                 <th class="d-none d-md-table-cell">Loại hồ sơ</th>
                                 <th class="d-none d-md-table-cell">Loại thủ tục</th>
                                 <th class="d-none d-md-table-cell">Xã/Phường</th>
@@ -71,18 +147,16 @@
                                 @php
                                     $meta = $hoSo->trang_thai_meta;
 
-                                    // Map màu từ accessor sang class table Bootstrap (nhẹ nhàng, chỉ nền)
                                     $rowClass = match ($meta['color'] ?? '') {
-                                        'warning' => 'table-warning', // vàng nhạt (còn 2 ngày)
-                                        'orange' => 'table-warning', // tạm dùng warning (hoặc custom table-orange)
-                                        'danger' => 'table-danger', // đỏ nhạt (quá hạn)
-                                        'secondary' => 'table-secondary', // xám nhạt
-                                        default => '', // không màu nếu còn >= 3 ngày
+                                        'warning' => 'table-warning',
+                                        'orange' => 'table-warning',
+                                        'danger' => 'table-danger',
+                                        'secondary' => 'table-secondary',
+                                        default => '',
                                     };
 
-                                    // Override cho trạng thái hoàn thành
                                     if ($hoSo->trang_thai === 'hoan_thanh') {
-                                        $rowClass = 'table-success'; // xanh nhạt hoàn thành
+                                        $rowClass = 'table-success';
                                     }
                                 @endphp
 
@@ -115,15 +189,16 @@
 
                                             <ul class="dropdown-menu">
                                                 @foreach ([
-                                                        'dang_giai_quyet' => 'Đang giải quyết',
-                                                        'cho_bo_sung' => 'Chờ bổ sung',
-                                                        'khong_du_dieu_kien' => 'Không đủ điều kiện',
-                                                        'chuyen_thue' => 'Chuyển thuế',
-                                                        'niem_yet_xa_do_dac' => 'Niêm yết xã & đo đạc',
-                                                        'co_phieu_bao' => 'Có phiếu báo',
-                                                        'in_gcn_qsdd' => 'In GCN QSDĐ',
-                                                        'hoan_thanh' => 'Hoàn thành',
-                                                    ] as $key => $label)
+            'dang_giai_quyet' => 'Đang giải quyết',
+            'cho_bo_sung' => 'Chờ bổ sung',
+            'khong_du_dieu_kien' => 'Không đủ điều kiện',
+            'chuyen_thue' => 'Chuyển thuế',
+            'hs_niem_yet_xa' => 'Niêm yết xã',
+            'phoi_hop_do_dac' => 'Phối hợp đo đạc',
+            'co_phieu_bao' => 'Có phiếu báo',
+            'in_gcn_qsdd' => 'In GCN QSDĐ',
+            'hoan_thanh' => 'Hoàn thành',
+        ] as $key => $label)
                                                     <li>
                                                         <a href="#" class="dropdown-item"
                                                             onclick="updateStatus({{ $hoSo->id }}, '{{ $key }}')">

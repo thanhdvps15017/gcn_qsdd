@@ -38,10 +38,11 @@
     }
 @endphp
 
-<form method="{{ $method }}" action="{{ $action }}">
+<form action="{{ $action }}" method="POST">
     @csrf
-    @if ($method === 'PUT')
-        @method('PUT')
+
+    @if (isset($method) && strtoupper($method) !== 'POST')
+        @method($method)
     @endif
 
     <div class="card-header text-white d-flex justify-content-between align-items-center mb-3 rounded-1"
@@ -60,18 +61,18 @@
                 <div class="col-md-6">
                     <label>Mã hồ sơ</label>
                     <div class="input-group">
-                        <span class="input-group-text">H19.151-</span>
-                        <input name="ma_ho_so" class="form-control" required value="{{ $getValue('ma_ho_so') }}">
+                        <input name="ma_ho_so" class="form-control" required
+                            value="{{ $isEdit ? $getValue('ma_ho_so') : 'H19.151-' . $getValue('ma_ho_so') }}">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <label>Tên chủ hồ sơ</label>
                     <div class="input-group">
                         <select name="xung_ho" class="form-select" style="max-width: 90px;">
-                            <option value="ong"
+                            <option value="Ông"
                                 {{ old('xung_ho', $isEdit ? $hoSo->xung_ho ?? 'ong' : 'ong') === 'ong' ? 'selected' : '' }}>
                                 Ông</option>
-                            <option value="ba"
+                            <option value="Bà"
                                 {{ old('xung_ho', $isEdit ? $hoSo->xung_ho ?? 'ong' : 'ong') === 'ba' ? 'selected' : '' }}>
                                 Bà</option>
                         </select>
@@ -86,6 +87,7 @@
                 <div class="col-md-6">
                     <label>Loại hồ sơ</label>
                     <select name="loai_ho_so_id" class="form-select">
+                        <option value="">-- Chọn --</option>
                         @foreach ($loaiHoSos as $l)
                             <option value="{{ $l->id }}"
                                 {{ old('loai_ho_so_id', $isEdit ? $hoSo->loai_ho_so_id : '') == $l->id ? 'selected' : '' }}>
@@ -114,6 +116,7 @@
                 <div class="col-md-6">
                     <label>Hành chính công (Xã)</label>
                     <select name="xa_id" class="form-select">
+                        <option value="">-- Chọn --</option>
                         @foreach ($xas as $x)
                             <option value="{{ $x->id }}"
                                 {{ old('xa_id', $isEdit ? $hoSo->xa_id : '') == $x->id ? 'selected' : '' }}>
@@ -125,6 +128,7 @@
                 <div class="col-md-6">
                     <label>Người thẩm tra</label>
                     <select name="nguoi_tham_tra_id" class="form-select">
+                        <option value="">-- Chọn --</option>
                         @foreach ($users as $u)
                             <option value="{{ $u->id }}"
                                 {{ old('nguoi_tham_tra_id', $isEdit ? $hoSo->nguoi_tham_tra_id : '') == $u->id ? 'selected' : '' }}>
@@ -268,7 +272,7 @@
                         placeholder="Số CMND / CCCD">
                 </div>
                 <div class="col-md-4">
-                    <label>Ngày cấp CCCD</label>
+                    <label>Ngày cấp CCCD / CMND</label>
                     <input type="date" name="thong_tin_rieng[data][ngay_cap_cccd]" class="form-control"
                         value="{{ old('thong_tin_rieng.data.ngay_cap_cccd', $riengData['ngay_cap_cccd'] ?? '') }}">
                 </div>

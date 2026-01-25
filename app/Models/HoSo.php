@@ -79,7 +79,8 @@ class HoSo extends Model
             'cho_bo_sung'           => 'Chờ bổ sung',
             'khong_du_dieu_kien'    => 'Không đủ điều kiện',
             'chuyen_thue'           => 'Chuyển thuế',
-            'niem_yet_xa_do_dac'    => 'Niêm yết xã & đo đạc',
+            'hs_niem_yet_xa'        => 'Niêm yết xã',
+            'phoi_hop_do_dac'       => 'Phối hợp đo đạc',
             'co_phieu_bao'          => 'Có phiếu báo',
             'in_gcn_qsdd'           => 'In GCN QSDĐ',
         ];

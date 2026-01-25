@@ -16,30 +16,55 @@ class HoSoController extends Controller
     {
         $query = HoSo::query();
 
-        if ($q = $request->get('q')) {
-            $query->where(function ($q2) use ($q) {
-                $q2->where('ma_ho_so', 'like', "%{$q}%")
-                    ->orWhere('sdt_chu_ho_so', 'like', "%{$q}%")
-                    ->orWhereJsonContains('chu_su_dung->ho_ten', $q);
+        /* 🔎 Tìm kiếm */
+        if ($request->filled('q')) {
+            $q = $request->q;
+
+            $query->where(function ($sub) use ($q) {
+                $sub->where('ma_ho_so', 'like', "%{$q}%")
+                    ->orWhere('ten_chu_ho_so', 'like', "%{$q}%");
             });
         }
 
+        /* 📌 Trạng thái */
         if ($request->filled('trang_thai')) {
             $query->where('trang_thai', $request->trang_thai);
         }
 
-        $hoSos = $query->with(['loaiHoSo', 'loaiThuTuc', 'xa', 'nguoiThamTra'])
-            ->orderBy('created_at', 'desc')
-            ->paginate($request->get('per_page', 20));
+        /* 📂 Loại hồ sơ */
+        if ($request->filled('loai_ho_so_id')) {
+            $query->where('loai_ho_so_id', $request->loai_ho_so_id);
+        }
+
+        /* 📄 Loại thủ tục */
+        if ($request->filled('loai_thu_tuc_id')) {
+            $query->where('loai_thu_tuc_id', $request->loai_thu_tuc_id);
+        }
+
+        /* 🏘️ Xã / Phường */
+        if ($request->filled('xa_id')) {
+            $query->where('xa_id', $request->xa_id);
+        }
+
+        /* ⏱️ Sắp xếp */
+        $sort = $request->get('sort', 'desc');
+        $query->orderBy('created_at', $sort);
+
+        /* 📄 Lấy dữ liệu */
+        $hoSos = $query
+            ->with(['loaiHoSo', 'loaiThuTuc', 'xa', 'nguoiThamTra'])
+            ->paginate($request->get('per_page', 20))
+            ->withQueryString();
 
         return view('ho-so.index', [
-            'hoSos' => $hoSos,
-            'loaiHoSos' => LoaiHoSo::all(),
+            'hoSos'       => $hoSos,
+            'loaiHoSos'   => LoaiHoSo::all(),
             'loaiThuTucs' => LoaiThuTuc::all(),
-            'xas' => Xa::all(),
-            'users' => User::all(),
+            'xas'         => Xa::all(),
+            'users'       => User::all(),
         ]);
     }
+
 
     public function create()
     {
