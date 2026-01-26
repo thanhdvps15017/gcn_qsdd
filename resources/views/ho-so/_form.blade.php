@@ -87,7 +87,6 @@
                 <div class="col-md-6">
                     <label>Loại hồ sơ</label>
                     <select name="loai_ho_so_id" class="form-select">
-                        <option value="">-- Chọn --</option>
                         @foreach ($loaiHoSos as $l)
                             <option value="{{ $l->id }}"
                                 {{ old('loai_ho_so_id', $isEdit ? $hoSo->loai_ho_so_id : '') == $l->id ? 'selected' : '' }}>
@@ -99,7 +98,6 @@
                 <div class="col-md-6">
                     <label>Loại thủ tục</label>
                     <select name="loai_thu_tuc_id" class="form-select" onchange="tinhHanTra(this)">
-                        <option value="">-- Chọn --</option>
                         @foreach ($loaiThuTucs as $l)
                             <option value="{{ $l->id }}" data-days="{{ $l->ngay_tra_ket_qua }}"
                                 {{ old('loai_thu_tuc_id', $isEdit ? $hoSo->loai_thu_tuc_id : '') == $l->id ? 'selected' : '' }}>
@@ -116,7 +114,6 @@
                 <div class="col-md-6">
                     <label>Hành chính công (Xã)</label>
                     <select name="xa_id" class="form-select">
-                        <option value="">-- Chọn --</option>
                         @foreach ($xas as $x)
                             <option value="{{ $x->id }}"
                                 {{ old('xa_id', $isEdit ? $hoSo->xa_id : '') == $x->id ? 'selected' : '' }}>
@@ -128,7 +125,6 @@
                 <div class="col-md-6">
                     <label>Người thẩm tra</label>
                     <select name="nguoi_tham_tra_id" class="form-select">
-                        <option value="">-- Chọn --</option>
                         @foreach ($users as $u)
                             <option value="{{ $u->id }}"
                                 {{ old('nguoi_tham_tra_id', $isEdit ? $hoSo->nguoi_tham_tra_id : '') == $u->id ? 'selected' : '' }}>
@@ -232,130 +228,146 @@
         </div>
     </div>
 
-    {{-- THÔNG TIN SAU KHI BIẾN ĐỘNG --}}
     <div class="card mb-4">
-        <div class="card-header fw-bold">Thông tin sau khi biến động</div>
-        <div class="card-body">
+        <div class="card-header fw-bold d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
+            data-bs-target="#collapseThongTinRieng" role="button" aria-expanded="true"
+            aria-controls="collapseThongTinRieng">
+            <span>Thông tin sau khi biến động</span>
+            <span class="toggle-icon">−</span>
+        </div>
 
-            <div class="mb-4">
-                <label class="form-label fw-bold">Loại biến động</label>
-                <select name="thong_tin_rieng[loai]" class="form-select">
-                    <option value="">-- Chọn loại biến động --</option>
-                    <option value="tachthua_chuyennhuong"
-                        {{ old('thong_tin_rieng.loai', $riengLoai) === 'tachthua_chuyennhuong' ? 'selected' : '' }}>
-                        Tách thửa - chuyển nhượng</option>
-                    <option value="capdoi"
-                        {{ old('thong_tin_rieng.loai', $riengLoai) === 'capdoi' ? 'selected' : '' }}>Cấp đổi</option>
-                    <option value="chuyennhuong"
-                        {{ old('thong_tin_rieng.loai', $riengLoai) === 'chuyennhuong' ? 'selected' : '' }}>Chuyển
-                        nhượng</option>
-                    <option value="tachthua"
-                        {{ old('thong_tin_rieng.loai', $riengLoai) === 'tachthua' ? 'selected' : '' }}>Tách thửa
-                    </option>
-                    <option value="capdoi_chuyennhuong"
-                        {{ old('thong_tin_rieng.loai', $riengLoai) === 'capdoi_chuyennhuong' ? 'selected' : '' }}>Cấp
-                        đổi + chuyển nhượng</option>
-                </select>
+        <div id="collapseThongTinRieng" class="collapse">
+            <div class="card-body">
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Loại biến động</label>
+                    <select name="thong_tin_rieng[loai]" class="form-select">
+                        <option value="">-- Chọn loại biến động --</option>
+                        <option value="tachthua_chuyennhuong"
+                            {{ old('thong_tin_rieng.loai', $riengLoai) === 'tachthua_chuyennhuong' ? 'selected' : '' }}>
+                            Tách thửa - chuyển nhượng
+                        </option>
+                        <option value="capdoi"
+                            {{ old('thong_tin_rieng.loai', $riengLoai) === 'capdoi' ? 'selected' : '' }}>
+                            Cấp đổi
+                        </option>
+                        <option value="chuyennhuong"
+                            {{ old('thong_tin_rieng.loai', $riengLoai) === 'chuyennhuong' ? 'selected' : '' }}>
+                            Chuyển nhượng
+                        </option>
+                        <option value="tachthua"
+                            {{ old('thong_tin_rieng.loai', $riengLoai) === 'tachthua' ? 'selected' : '' }}>
+                            Tách thửa
+                        </option>
+                        <option value="capdoi_chuyennhuong"
+                            {{ old('thong_tin_rieng.loai', $riengLoai) === 'capdoi_chuyennhuong' ? 'selected' : '' }}>
+                            Cấp đổi + chuyển nhượng
+                        </option>
+                    </select>
+                </div>
+
+                <h6 class="fw-bold mb-3">Người liên quan / Bên nhận chuyển nhượng</h6>
+
+                <table class="table table-bordered table-hover mb-4">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Họ tên</th>
+                            <th>CCCD / CMND</th>
+                            <th>Ngày cấp</th>
+                            <th>Địa chỉ</th>
+                            <th width="60"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbl_nguoi_lien_quan">
+                        @php
+                            $nguoiLienQuan = old(
+                                'thong_tin_rieng.data.nguoi_lien_quan',
+                                $riengData['nguoi_lien_quan'] ?? [],
+                            );
+
+                            if (empty($nguoiLienQuan) && !empty($riengData['ho_ten'])) {
+                                $nguoiLienQuan = [
+                                    [
+                                        'ho_ten' => $riengData['ho_ten'] ?? '',
+                                        'cccd' => $riengData['cccd'] ?? '',
+                                        'ngay_cap_cccd' => $riengData['ngay_cap_cccd'] ?? '',
+                                        'dia_chi' => $riengData['dia_chi'] ?? '',
+                                    ],
+                                ];
+                            }
+                        @endphp
+
+                        @foreach ($nguoiLienQuan as $idx => $nguoi)
+                            <tr>
+                                <td>
+                                    <input name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][ho_ten]"
+                                        class="form-control" value="{{ $nguoi['ho_ten'] ?? '' }}">
+                                </td>
+                                <td>
+                                    <input name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][cccd]"
+                                        class="form-control" value="{{ $nguoi['cccd'] ?? '' }}">
+                                </td>
+                                <td>
+                                    <input type="date"
+                                        name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][ngay_cap_cccd]"
+                                        class="form-control" value="{{ $nguoi['ngay_cap_cccd'] ?? '' }}">
+                                </td>
+                                <td>
+                                    <textarea name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][dia_chi]" class="form-control"
+                                        rows="2">{{ $nguoi['dia_chi'] ?? '' }}</textarea>
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-danger btn-sm"
+                                        onclick="this.closest('tr').remove()">X</button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+
+                <button type="button" class="btn btn-success btn-sm mb-4"
+                    onclick="addNguoiLienQuan('tbl_nguoi_lien_quan')">
+                    + Thêm người liên quan
+                </button>
+
+                <h6 class="fw-bold mb-3">Danh sách thửa đất sau biến động</h6>
+
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Tờ</th>
+                            <th>Thửa</th>
+                            <th>Diện tích (m²)</th>
+                            <th>Ghi chú</th>
+                            <th width="60"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbl_thongtinrieng">
+                        @foreach ($riengThua as $idx => $t)
+                            <tr>
+                                <td><input name="thong_tin_rieng[data][thua][{{ $idx }}][to]"
+                                        class="form-control" value="{{ $t['to'] ?? '' }}"></td>
+                                <td><input name="thong_tin_rieng[data][thua][{{ $idx }}][thua]"
+                                        class="form-control" value="{{ $t['thua'] ?? '' }}"></td>
+                                <td><input name="thong_tin_rieng[data][thua][{{ $idx }}][dien_tich]"
+                                        class="form-control" value="{{ $t['dien_tich'] ?? '' }}"></td>
+                                <td><input name="thong_tin_rieng[data][thua][{{ $idx }}][ghi_chu]"
+                                        class="form-control" value="{{ $t['ghi_chu'] ?? '' }}"></td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-danger btn-sm"
+                                        onclick="this.closest('tr').remove()">X</button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+
+                <button type="button" class="btn btn-success btn-sm mt-3"
+                    onclick="addRiengRow('tbl_thongtinrieng')">
+                    + Thêm thửa
+                </button>
+
             </div>
-
-            <!-- DANH SÁCH NGƯỜI LIÊN QUAN -->
-            <h6 class="fw-bold mb-3">Người liên quan / Bên nhận chuyển nhượng</h6>
-            <table class="table table-bordered table-hover mb-4">
-                <thead class="table-light">
-                    <tr>
-                        <th>Họ tên</th>
-                        <th>CCCD / CMND</th>
-                        <th>Ngày cấp</th>
-                        <th>Địa chỉ</th>
-                        <th width="60"></th>
-                    </tr>
-                </thead>
-                <tbody id="tbl_nguoi_lien_quan">
-                    @php
-                        // Lấy dữ liệu cũ hoặc migrate từ cấu trúc cũ
-                        $nguoiLienQuan = old(
-                            'thong_tin_rieng.data.nguoi_lien_quan',
-                            $riengData['nguoi_lien_quan'] ?? [],
-                        );
-
-                        // Nếu là edit và có dữ liệu cũ (chưa migrate), chuyển sang mảng mới
-                        if (empty($nguoiLienQuan) && !empty($riengData['ho_ten'])) {
-                            $nguoiLienQuan = [
-                                [
-                                    'ho_ten' => $riengData['ho_ten'] ?? '',
-                                    'cccd' => $riengData['cccd'] ?? '',
-                                    'ngay_cap_cccd' => $riengData['ngay_cap_cccd'] ?? '',
-                                    'dia_chi' => $riengData['dia_chi'] ?? '',
-                                ],
-                            ];
-                        }
-
-                        $nguoiIndex = count($nguoiLienQuan);
-                    @endphp
-
-                    @foreach ($nguoiLienQuan as $idx => $nguoi)
-                        <tr>
-                            <td><input name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][ho_ten]"
-                                    class="form-control" value="{{ $nguoi['ho_ten'] ?? '' }}"></td>
-                            <td><input name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][cccd]"
-                                    class="form-control" value="{{ $nguoi['cccd'] ?? '' }}"></td>
-                            <td><input type="date"
-                                    name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][ngay_cap_cccd]"
-                                    class="form-control" value="{{ $nguoi['ngay_cap_cccd'] ?? '' }}"></td>
-                            <td>
-                                <textarea name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][dia_chi]" class="form-control"
-                                    rows="2">{{ $nguoi['dia_chi'] ?? '' }}</textarea>
-                            </td>
-                            <td class="text-center">
-                                <button type="button" class="btn btn-danger btn-sm"
-                                    onclick="this.closest('tr').remove()">X</button>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
-            <button type="button" class="btn btn-success btn-sm mb-4"
-                onclick="addNguoiLienQuan('tbl_nguoi_lien_quan')">
-                + Thêm người liên quan
-            </button>
-
-            <!-- DANH SÁCH THỬA SAU BIẾN ĐỘNG -->
-            <h6 class="fw-bold mb-3">Danh sách thửa đất sau biến động</h6>
-            <table class="table table-bordered table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>Tờ</th>
-                        <th>Thửa</th>
-                        <th>Diện tích (m²)</th>
-                        <th>Ghi chú</th>
-                        <th width="60"></th>
-                    </tr>
-                </thead>
-                <tbody id="tbl_thongtinrieng">
-                    @foreach ($riengThua as $idx => $t)
-                        <tr>
-                            <td><input name="thong_tin_rieng[data][thua][{{ $idx }}][to]"
-                                    class="form-control" value="{{ $t['to'] ?? '' }}"></td>
-                            <td><input name="thong_tin_rieng[data][thua][{{ $idx }}][thua]"
-                                    class="form-control" value="{{ $t['thua'] ?? '' }}"></td>
-                            <td><input name="thong_tin_rieng[data][thua][{{ $idx }}][dien_tich]"
-                                    class="form-control" value="{{ $t['dien_tich'] ?? '' }}"></td>
-                            <td><input name="thong_tin_rieng[data][thua][{{ $idx }}][ghi_chu]"
-                                    class="form-control" value="{{ $t['ghi_chu'] ?? '' }}"></td>
-                            <td class="text-center">
-                                <button type="button" class="btn btn-danger btn-sm"
-                                    onclick="this.closest('tr').remove()">X</button>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
-            <button type="button" class="btn btn-success btn-sm mt-3" onclick="addRiengRow('tbl_thongtinrieng')">
-                + Thêm thửa
-            </button>
-
         </div>
     </div>
 
