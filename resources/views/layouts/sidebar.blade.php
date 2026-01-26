@@ -72,8 +72,8 @@
             </a>
 
             <ul class="submenu">
-                <li><a class="nav-link {{ request()->routeIs('roles.*') ? 'active' : '' }}"
-                        href="{{ route('roles.index') }}">Phân quyền</a></li>
+                {{-- <li><a class="nav-link {{ request()->routeIs('roles.*') ? 'active' : '' }}"
+                        href="{{ route('roles.index') }}">Phân quyền</a></li> --}}
                 <li><a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}"
                         href="{{ route('users.index') }}">Tài khoản</a></li>
                 <li><a class="nav-link {{ request()->routeIs('loai-ho-so.*') ? 'active' : '' }}"

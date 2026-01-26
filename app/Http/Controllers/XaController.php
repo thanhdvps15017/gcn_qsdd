@@ -17,7 +17,7 @@ class XaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|unique:xas,name'
+            'name' => 'required'
         ], [
             'name.required' => 'Vui lòng nhập tên xã.',
             'name.unique' => 'Tên xã này đã tồn tại trong hệ thống.'
@@ -33,7 +33,7 @@ class XaController extends Controller
         $item = Xa::findOrFail($id);
 
         $request->validate([
-            'name' => 'required|unique:xas,name,' . $id
+            'name' => 'required' . $id
         ], [
             'name.required' => 'Vui lòng nhập tên xã.',
             'name.unique'    => 'Tên xã này đã tồn tại trong hệ thống.'
