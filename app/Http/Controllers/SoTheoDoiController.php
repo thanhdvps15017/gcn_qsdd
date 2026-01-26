@@ -120,7 +120,7 @@ class SoTheoDoiController extends Controller
         foreach ($newHoSoIds as $index => $hoSoId) {
             $number = $startNumber + $index + 1;
 
-            $thuTu = $todayPrefix . '-' . str_pad($number, 6, '0', STR_PAD_LEFT);
+            $thuTu = $todayPrefix . '-' .$group->id . '-' . str_pad($number, 6, '0', STR_PAD_LEFT);
 
             $group->hoSos()->attach($hoSoId, [
                 'thu_tu' => $thuTu,

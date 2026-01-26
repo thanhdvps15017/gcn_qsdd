@@ -66,13 +66,12 @@
                                         <th width="40">
                                             <input type="checkbox" id="check-all">
                                         </th>
-                                        <th>Mã HS</th>
-                                        <th>Mã STT</th>
-                                        <th>Chủ HS</th>
-                                        <th>Loại HS</th>
-                                        <th>Loại TT</th>
-                                        <th>Người TT</th>
-                                        <th>Ghi chú</th>
+                                        <th>Mã sổ theo dõi</th>
+                                        <th>Mã hồ sơ</th>
+                                        <th>Chủ hồ sơ</th>
+                                        <th>Loại hồ sơ</th>
+                                        <th>Loại thủ tục</th>
+                                        <th>Người thẩm tra</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -83,8 +82,8 @@
                                             <td>
                                                 <input type="checkbox" name="ho_so_ids[]" value="{{ $hs->id }}">
                                             </td>
-                                            <td>{{ $hs->ma_ho_so }}</td>
                                             <td>{{ $hs->pivot->thu_tu }}</td>
+                                            <td>{{ $hs->ma_ho_so }}</td>
                                             <td>{{ $hs->ten_chu_ho_so }}</td>
                                             <td>{{ $hs->loaiHoSo->name }}</td>
                                             <td>{{ $hs->loaiThuTuc->name }}</td>
@@ -94,10 +93,8 @@
                                                     class="btn btn-sm btn-outline-secondary btn-open-note"
                                                     data-ho-so-id="{{ $hs->id }}"
                                                     data-ghi-chu="{{ $hs->pivot->ghi_chu }}">
-                                                    <i class="bi bi-journal-text"></i>
+                                                    <i class="bi bi-journal-text"></i> Ghi chú
                                                 </button>
-                                            </td>
-                                            <td>
                                                 <a href="{{ route('ho-so.show', $hs) }}"
                                                     class="btn btn-sm btn-outline-primary">
                                                     Xem

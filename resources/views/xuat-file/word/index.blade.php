@@ -100,7 +100,7 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th width="6%"><input type="checkbox" id="checkAll"></th>
+                                <th width="6%"></th> <!-- Bỏ checkbox chọn tất cả -->
                                 <th>#</th>
                                 <th>MÃ HỒ SƠ</th>
                                 <th>TÊN CHỦ HỒ SƠ</th>
@@ -111,8 +111,8 @@
                             @forelse ($hoSos as $hs)
                                 <tr class="hoso-row" data-id="{{ $hs->id }}">
                                     <td>
-                                        <input type="checkbox" class="check-hoso" value="{{ $hs->id }}"
-                                            data-ma="{{ $hs->ma_ho_so ?? '—' }}"
+                                        <input type="radio" name="selected_hoso" class="check-hoso form-check-input"
+                                            value="{{ $hs->id }}" data-ma="{{ $hs->ma_ho_so ?? '—' }}"
                                             data-ten="{{ addslashes($hs->ten_chu_ho_so) }}">
                                     </td>
                                     <td>{{ $loop->iteration + ($hoSos->currentPage() - 1) * $hoSos->perPage() }}</td>
@@ -175,12 +175,8 @@
             const hiddenMau = document.getElementById('hiddenMauId');
             const hiddenHoSo = document.getElementById('hiddenHoSoId');
             const displayMau = document.getElementById('mauSelectedDisplay');
-            const checkAll = document.getElementById('checkAll');
-            const checkBoxes = document.querySelectorAll('.check-hoso');
-            const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
-            const previewIframe = document.getElementById('previewIframe');
 
-            // Chọn mẫu
+            // Chọn mẫu Word
             document.querySelectorAll('.mau-item').forEach(item => {
                 item.addEventListener('click', function() {
                     document.querySelectorAll('.mau-item').forEach(i => i.classList.remove('active',
@@ -197,38 +193,40 @@
                 });
             });
 
-            // Check all
-            checkAll.addEventListener('change', () => {
-                checkBoxes.forEach(cb => cb.checked = checkAll.checked);
-                updateButtons();
-            });
-
-            checkBoxes.forEach(cb => cb.addEventListener('change', updateButtons));
-
-            function updateButtons() {
-                const hasMau = !!selectedMauId;
-                const hasHoSo = document.querySelectorAll('.check-hoso:checked').length > 0;
-
-                const disabled = !(hasMau && hasHoSo);
-                btnExport.disabled = disabled;
-                btnPreview.disabled = disabled;
-
-                const count = document.querySelectorAll('.check-hoso:checked').length;
-                btnExport.innerHTML = `<i class="bi bi-download me-1"></i> Xuất ${count} hồ sơ`;
-            }
-
-            // Click dòng toggle checkbox
+            // Xử lý chọn hồ sơ (radio + click dòng)
             document.querySelectorAll('.hoso-row').forEach(row => {
                 row.addEventListener('click', function(e) {
                     if (e.target.tagName !== 'INPUT') {
-                        const cb = this.querySelector('.check-hoso');
-                        cb.checked = !cb.checked;
+                        const radio = this.querySelector('.check-hoso');
+                        radio.checked = true;
                         updateButtons();
                     }
                 });
             });
 
-            // Preview
+            document.querySelectorAll('.check-hoso').forEach(radio => {
+                radio.addEventListener('change', updateButtons);
+            });
+
+            function updateButtons() {
+                const selectedRadio = document.querySelector('.check-hoso:checked');
+
+                const hasMau = !!selectedMauId;
+                const hasHoSo = !!selectedRadio;
+
+                const disabled = !(hasMau && hasHoSo);
+
+                btnExport.disabled = disabled;
+                btnPreview.disabled = disabled;
+
+                if (hasHoSo) {
+                    hiddenHoSo.value = selectedRadio.value;
+                } else {
+                    hiddenHoSo.value = '';
+                }
+            }
+
+            // Xử lý Preview
             btnPreview.addEventListener('click', async () => {
                 const selected = document.querySelector('.check-hoso:checked');
                 if (!selected) return;
@@ -253,8 +251,8 @@
                     if (data.success) {
                         const viewer =
                             `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(data.url)}`;
-                        previewIframe.src = viewer;
-                        previewModal.show();
+                        document.getElementById('previewIframe').src = viewer;
+                        new bootstrap.Modal(document.getElementById('previewModal')).show();
                     } else {
                         alert(data.message || 'Lỗi khi tạo preview');
                     }
@@ -262,6 +260,9 @@
                     alert('Lỗi kết nối: ' + err.message);
                 }
             });
+
+            // Khởi tạo ban đầu
+            updateButtons();
 
         });
     </script>

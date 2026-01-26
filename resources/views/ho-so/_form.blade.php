@@ -97,7 +97,7 @@
                 </div>
                 <div class="col-md-6">
                     <label>Loại thủ tục</label>
-                    <select name="loai_thu_tuc_id" class="form-select" onchange="tinhHanTra(this)">
+                    <select name="loai_thu_tuc_id" class="form-select" id="thoi_han" onchange="tinhHanTra(this)">
                         @foreach ($loaiThuTucs as $l)
                             <option value="{{ $l->id }}" data-days="{{ $l->ngay_tra_ket_qua }}"
                                 {{ old('loai_thu_tuc_id', $isEdit ? $hoSo->loai_thu_tuc_id : '') == $l->id ? 'selected' : '' }}>
@@ -295,6 +295,7 @@
                                     ],
                                 ];
                             }
+                            $nguoiIndex = count($nguoiLienQuan);
                         @endphp
 
                         @foreach ($nguoiLienQuan as $idx => $nguoi)
@@ -427,14 +428,34 @@
     let thongRiengThuaIndex = {{ count($riengThua) }};
     let nguoiLienQuanIndex = {{ $nguoiIndex ?? 0 }};
 
+    document.addEventListener('DOMContentLoaded', function() {
+        const select = document.getElementById('thoi_han');
+        if (select) {
+            tinhHanTra(select);
+        }
+    });
+
     function tinhHanTra(select) {
         const days = select.options[select.selectedIndex]?.dataset.days;
         if (!days) return;
-        const today = new Date();
-        today.setDate(today.getDate() + parseInt(days, 10));
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const dd = String(today.getDate()).padStart(2, '0');
+
+        let soNgayCanCong = parseInt(days, 10);
+        let currentDate = new Date();
+        let soNgayDaCong = 0;
+
+        while (soNgayDaCong < soNgayCanCong) {
+            currentDate.setDate(currentDate.getDate() + 1);
+
+            const dayOfWeek = currentDate.getDay();
+            if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                soNgayDaCong++;
+            }
+        }
+
+        const yyyy = currentDate.getFullYear();
+        const mm = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(currentDate.getDate()).padStart(2, '0');
+
         document.getElementById('han_giai_quyet').value = `${yyyy}-${mm}-${dd}`;
     }
 

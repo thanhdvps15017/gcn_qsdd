@@ -31,6 +31,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', fn() => view('_form'))->name('dashboard');
 
     Route::prefix('ho-so')->name('ho-so.')->group(function () {
+        Route::post('/{hoSo}/ghi-chu', [HoSoController::class, 'saveGhiChu'])
+            ->name('save-ghi-chu');
+
         Route::get('/', [HoSoController::class, 'index'])->name('index');
         Route::get('/create', [HoSoController::class, 'create'])->name('create');
         Route::post('/', [HoSoController::class, 'store'])->name('store');

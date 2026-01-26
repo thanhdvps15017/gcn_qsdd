@@ -355,16 +355,19 @@
             </div>
 
             <!-- Ghi chú -->
-            <div class="card shadow border-0 rounded-1 overflow-hidden">
-                <div class="card-header text-black fw-bold fs-5 d-flex align-items-center px-4 py-2">
-                    <i class="bi bi-journal-text me-3 fs-4"></i> Ghi chú
+            <div class="card shadow-sm border-0 rounded-2 overflow-hidden">
+                <div class="card-header bg-white fw-bold fs-5 d-flex align-items-center px-4 py-3 border-bottom">
+                    <i class="bi bi-journal-text me-3 fs-4 text-primary"></i>
+                    Ghi chú
                 </div>
-                <div class="card-body p-4">
-                    <pre class="mb-0 bg-light p-4 rounded border fs-5 lh-lg" style="white-space: pre-wrap; word-wrap: break-word;">
+
+                <div class="card-body px-4 py-3">
+                    <div class="note-content">
                         {{ $hoSo->ghi_chu ?? 'Không có ghi chú nào' }}
-                    </pre>
+                    </div>
                 </div>
             </div>
+
         </div>
     </div>
 

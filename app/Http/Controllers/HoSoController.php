@@ -368,4 +368,20 @@ class HoSoController extends Controller
             return is_array($row) && !empty(array_filter($row));
         }));
     }
+
+    public function saveGhiChu(Request $request, HoSo $hoSo)
+    {
+        $request->validate([
+            'ghi_chu' => 'nullable|string|max:1000',
+        ]);
+
+        $hoSo->update([
+            'ghi_chu' => $request->ghi_chu,
+        ]);
+
+        return response()->json([
+            'message' => 'Lưu ghi chú thành công',
+            'ghi_chu'  => $hoSo->fresh()->ghi_chu,
+        ]);
+    }
 }

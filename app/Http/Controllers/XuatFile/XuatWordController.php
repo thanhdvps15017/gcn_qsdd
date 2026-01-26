@@ -57,18 +57,19 @@ class XuatWordController extends Controller
 
         $values = [
             'id'               => $hs->id,
-            'ma_ho_so'         => $hs->ma_ho_so,
-            'xung_ho'          => $hs->xung_ho,
-            'ten_chu_ho_so'    => $hs->ten_chu_ho_so,
-            'sdt_chu_ho_so'    => $hs->sdt_chu_ho_so,
-            'ngay_cap_gcn'     => optional($hs->ngay_cap_gcn)->format('d/m/Y'),
-            'so_vao_so'        => $hs->so_vao_so,
-            'so_phat_hanh'     => $hs->so_phat_hanh,
-            'xa_ap_thon'       => $hs->xa_ap_thon,
-            'ghi_chu'          => $hs->ghi_chu,
-            'trang_thai'       => $hs->trang_thai,
-            'han_giai_quyet'   => optional($hs->han_giai_quyet)->format('d/m/Y'),
-            'created_at'       => optional($hs->created_at)->format('d/m/Y'),
+            'ma_ho_so'         => $hs->ma_ho_so ?? '',
+            'xung_ho'          => $hs->xung_ho ?? '',
+            'ten_chu_ho_so'    => $hs->ten_chu_ho_so ?? '',
+            'sdt_chu_ho_so'    => $hs->sdt_chu_ho_so ?? '',
+            'ngay_cap_gcn'     => optional($hs->ngay_cap_gcn)->format('d/m/Y') ?? '',
+            'so_vao_so'        => $hs->so_vao_so ?? '',
+            'so_phat_hanh'     => $hs->so_phat_hanh ?? '',
+            'xa_ap_thon'       => $hs->xa_ap_thon ?? '',
+            'ghi_chu'          => $hs->ghi_chu ?? '',
+            'trang_thai'       => $hs->trang_thai ?? '',
+            'han_giai_quyet'   => optional($hs->han_giai_quyet)->format('d/m/Y') ?? '',
+            'created_at'       => optional($hs->created_at)->format('d/m/Y') ?? '',
+            'updated_at'       => optional($hs->updated_at)->format('d/m/Y H:i') ?? '',
         ];
 
         $values += [
@@ -88,11 +89,11 @@ class XuatWordController extends Controller
 
         $uyQuyen = $hs->uy_quyen ?? [];
         $values += [
-            'uy_quyen_nguoi' => $uyQuyen['nguoi'] ?? '',
-            'uy_quyen_giay'  => $uyQuyen['giay'] ?? '',
+            'uy_quyen_nguoi'    => $uyQuyen['nguoi'] ?? '',
+            'uy_quyen_giay_to'  => $uyQuyen['giay'] ?? '',
         ];
 
-        if (is_array($hs->thua_chung)) {
+        if (is_array($hs->thua_chung) && !empty($hs->thua_chung)) {
             foreach ($hs->thua_chung as $i => $thua) {
                 $index = $i + 1;
                 $values["thua_chung_{$index}_to"]        = $thua['to'] ?? '';
@@ -106,14 +107,27 @@ class XuatWordController extends Controller
 
         $data = $thongTinRieng['data'] ?? [];
         $values += [
-            'thong_tin_rieng_ho_ten'   => $data['ho_ten'] ?? '',
-            'thong_tin_rieng_cccd'     => $data['cccd'] ?? '',
-            'thong_tin_rieng_dia_chi'  => $data['dia_chi'] ?? '',
+            'thong_tin_rieng_ho_ten'       => $data['ho_ten'] ?? '',
+            'thong_tin_rieng_cccd'         => $data['cccd'] ?? '',
+            'thong_tin_rieng_dia_chi'      => $data['dia_chi'] ?? '',
+            'thong_tin_rieng_ngay_cap_cccd' => $data['ngay_cap_cccd'] ?? '',
         ];
+
+        if (isset($data['thua']) && is_array($data['thua']) && !empty($data['thua'])) {
+            foreach ($data['thua'] as $i => $thua) {
+                $index = $i + 1;
+                $values["thong_tin_rieng_thua_{$index}_to"]        = $thua['to'] ?? '';
+                $values["thong_tin_rieng_thua_{$index}_thua"]      = $thua['thua'] ?? '';
+                $values["thong_tin_rieng_thua_{$index}_dien_tich"] = $thua['dien_tich'] ?? '';
+                $values["thong_tin_rieng_thua_{$index}_ghi_chu"]   = $thua['ghi_chu'] ?? '';
+            }
+        }
+
+        // dd($values);
 
         $template->setValues($values);
 
-        $fileName = 'ho_so_' . ($hs->ma_ho_so ?: 'HS_' . $hs->id) . '.docx';
+        $fileName = 'ho_so_' . ($hs->ma_ho_so ?: 'HS_' . $hs->id) . '_' . time() . '.docx';
         $tempDir  = storage_path('app/temp');
 
         if (!is_dir($tempDir)) {
@@ -149,21 +163,21 @@ class XuatWordController extends Controller
 
         $template = new TemplateProcessor($templatePath);
 
-        // Phần setValues giống hệt export
         $values = [
             'id'               => $hs->id,
-            'ma_ho_so'         => $hs->ma_ho_so,
-            'xung_ho'          => $hs->xung_ho,
-            'ten_chu_ho_so'    => $hs->ten_chu_ho_so,
-            'sdt_chu_ho_so'    => $hs->sdt_chu_ho_so,
-            'ngay_cap_gcn'     => optional($hs->ngay_cap_gcn)->format('d/m/Y'),
-            'so_vao_so'        => $hs->so_vao_so,
-            'so_phat_hanh'     => $hs->so_phat_hanh,
-            'xa_ap_thon'       => $hs->xa_ap_thon,
-            'ghi_chu'          => $hs->ghi_chu,
-            'trang_thai'       => $hs->trang_thai,
-            'han_giai_quyet'   => optional($hs->han_giai_quyet)->format('d/m/Y'),
-            'created_at'       => optional($hs->created_at)->format('d/m/Y'),
+            'ma_ho_so'         => $hs->ma_ho_so ?? '',
+            'xung_ho'          => $hs->xung_ho ?? '',
+            'ten_chu_ho_so'    => $hs->ten_chu_ho_so ?? '',
+            'sdt_chu_ho_so'    => $hs->sdt_chu_ho_so ?? '',
+            'ngay_cap_gcn'     => optional($hs->ngay_cap_gcn)->format('d/m/Y') ?? '',
+            'so_vao_so'        => $hs->so_vao_so ?? '',
+            'so_phat_hanh'     => $hs->so_phat_hanh ?? '',
+            'xa_ap_thon'       => $hs->xa_ap_thon ?? '',
+            'ghi_chu'          => $hs->ghi_chu ?? '',
+            'trang_thai'       => $hs->trang_thai ?? '',
+            'han_giai_quyet'   => optional($hs->han_giai_quyet)->format('d/m/Y') ?? '',
+            'created_at'       => optional($hs->created_at)->format('d/m/Y') ?? '',
+            'updated_at'       => optional($hs->updated_at)->format('d/m/Y H:i') ?? '',
         ];
 
         $values += [
@@ -183,11 +197,11 @@ class XuatWordController extends Controller
 
         $uyQuyen = $hs->uy_quyen ?? [];
         $values += [
-            'uy_quyen_nguoi' => $uyQuyen['nguoi'] ?? '',
-            'uy_quyen_giay'  => $uyQuyen['giay'] ?? '',
+            'uy_quyen_nguoi'    => $uyQuyen['nguoi'] ?? '',
+            'uy_quyen_giay_to'  => $uyQuyen['giay'] ?? '',
         ];
 
-        if (is_array($hs->thua_chung)) {
+        if (is_array($hs->thua_chung) && !empty($hs->thua_chung)) {
             foreach ($hs->thua_chung as $i => $thua) {
                 $index = $i + 1;
                 $values["thua_chung_{$index}_to"]        = $thua['to'] ?? '';
@@ -201,10 +215,23 @@ class XuatWordController extends Controller
 
         $data = $thongTinRieng['data'] ?? [];
         $values += [
-            'thong_tin_rieng_ho_ten'   => $data['ho_ten'] ?? '',
-            'thong_tin_rieng_cccd'     => $data['cccd'] ?? '',
-            'thong_tin_rieng_dia_chi'  => $data['dia_chi'] ?? '',
+            'thong_tin_rieng_ho_ten'       => $data['ho_ten'] ?? '',
+            'thong_tin_rieng_cccd'         => $data['cccd'] ?? '',
+            'thong_tin_rieng_dia_chi'      => $data['dia_chi'] ?? '',
+            'thong_tin_rieng_ngay_cap_cccd' => $data['ngay_cap_cccd'] ?? '',
         ];
+
+        if (isset($data['thua']) && is_array($data['thua']) && !empty($data['thua'])) {
+            foreach ($data['thua'] as $i => $thua) {
+                $index = $i + 1;
+                $values["thong_tin_rieng_thua_{$index}_to"]        = $thua['to'] ?? '';
+                $values["thong_tin_rieng_thua_{$index}_thua"]      = $thua['thua'] ?? '';
+                $values["thong_tin_rieng_thua_{$index}_dien_tich"] = $thua['dien_tich'] ?? '';
+                $values["thong_tin_rieng_thua_{$index}_ghi_chu"]   = $thua['ghi_chu'] ?? '';
+            }
+        }
+
+        // dd($values);
 
         $template->setValues($values);
 

@@ -126,7 +126,6 @@
                     </form>
                 </div>
 
-
                 {{-- TABLE --}}
                 <div class="table-responsive-sm">
                     <table class="table table-hover align-middle mb-0">
@@ -138,6 +137,7 @@
                                 <th class="d-none d-md-table-cell">Loại hồ sơ</th>
                                 <th class="d-none d-md-table-cell">Loại thủ tục</th>
                                 <th class="d-none d-md-table-cell">Người thẩm tra</th>
+                                <th class="d-none d-md-table-cell">Ghi chú</th>
                                 <th class="d-none d-md-table-cell">Trạng thái</th>
                                 <th width="5%" class="text-end"></th>
                             </tr>
@@ -177,8 +177,15 @@
 
                                     <td class="d-none d-md-table-cell">{{ optional($hoSo->loaiHoSo)->name ?? '-' }}</td>
                                     <td class="d-none d-md-table-cell">{{ optional($hoSo->loaiThuTuc)->name ?? '-' }}</td>
-                                    <td class="d-none d-md-table-cell">{{ optional($hoSo->nguoiThamTra)->name ?? '-' }}</td>
-
+                                    <td class="d-none d-md-table-cell">{{ optional($hoSo->nguoiThamTra)->name ?? '-' }}
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-open-note"
+                                            data-ho-so-id="{{ $hoSo->id }}"
+                                            data-ghi-chu="{{ addslashes($hoSo->ghi_chu ?? '') }}">
+                                            <i class="bi bi-journal-text"></i> Ghi chú
+                                        </button>
+                                    </td>
                                     <td class="d-none d-md-table-cell">
                                         <div class="dropdown">
                                             <button
@@ -270,6 +277,104 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="ghiChuModal" tabindex="-1" aria-labelledby="ghiChuModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ghiChuModalLabel">Ghi chú hồ sơ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea id="ghi-chu-text" class="form-control" rows="5" placeholder="Nhập ghi chú..."></textarea>
+                    <input type="hidden" id="ghi-chu-ho-so-id">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="btn-save-ghi-chu">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const modalEl = document.getElementById('ghiChuModal');
+            if (!modalEl) return;
+
+            const ghiChuModal = new bootstrap.Modal(modalEl);
+
+            // Mở modal
+            document.querySelectorAll('.btn-open-note').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('ghi-chu-ho-so-id').value = btn.dataset.hoSoId;
+                    // Fix escape ký tự đặc biệt
+                    const ghiChu = (btn.dataset.ghiChu || '').replace(/\\'/g, "'");
+                    document.getElementById('ghi-chu-text').value = ghiChu;
+                    ghiChuModal.show();
+                });
+            });
+
+            // Lưu ghi chú
+            document.getElementById('btn-save-ghi-chu')?.addEventListener('click', async () => {
+                const hoSoId = document.getElementById('ghi-chu-ho-so-id').value;
+                const ghiChu = document.getElementById('ghi-chu-text').value.trim();
+
+                if (!hoSoId) {
+                    alert('Không tìm thấy ID hồ sơ');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/ho-so/${hoSoId}/ghi-chu`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                ?.content || '',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            ghi_chu: ghiChu
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const error = await response.json().catch(() => ({}));
+                        throw new Error(error.message || `Lỗi ${response.status}`);
+                    }
+
+                    ghiChuModal.hide();
+                    showToast('✔ Đã lưu ghi chú');
+
+                    // Cập nhật lại nút để lần sau mở modal thấy đúng nội dung
+                    const btn = document.querySelector(`.btn-open-note[data-ho-so-id="${hoSoId}"]`);
+                    if (btn) {
+                        btn.dataset.ghiChu = ghiChu;
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    alert('Không thể lưu ghi chú: ' + err.message);
+                }
+            });
+
+            function showToast(message) {
+                const toast = document.createElement('div');
+                toast.className =
+                    'toast align-items-center text-bg-success border-0 position-fixed bottom-0 end-0 m-3';
+                toast.innerHTML = `
+                    <div class="d-flex">
+                        <div class="toast-body">${message}</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                `;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3500);
+            }
+        });
+    </script>
 
     <script>
         function updateStatus(id, status) {
