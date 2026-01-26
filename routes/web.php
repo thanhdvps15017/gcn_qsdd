@@ -10,6 +10,7 @@ use App\Http\Controllers\LoaiThuTucController;
 use App\Http\Controllers\XaController;
 use App\Http\Controllers\HoSoController;
 use App\Http\Controllers\SoTheoDoiController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\XuatFile\MauWordController;
 use App\Http\Controllers\XuatFile\XuatExcelController;
 use App\Http\Controllers\XuatFile\XuatWordController;
@@ -28,7 +29,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
 
 Route::middleware('auth')->group(function () {
 
-    Route::get('/dashboard', fn() => view('_form'))->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::prefix('ho-so')->name('ho-so.')->group(function () {
         Route::post('/{hoSo}/ghi-chu', [HoSoController::class, 'saveGhiChu'])

@@ -1,13 +1,5 @@
 <aside class="sidebar" id="sidebar" onclick="event.stopPropagation()">
     <ul class="nav flex-column pt-3 sidebar-menu">
-
-        {{-- Dashboard --}}
-        <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
-                <i class="bi bi-speedometer2 me-2"></i> Dashboard
-            </a>
-        </li>
-
         {{-- Hồ sơ --}}
         <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('ho-so.create') ? 'active' : '' }}"
