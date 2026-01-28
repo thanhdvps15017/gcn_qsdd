@@ -21,19 +21,19 @@
     <div class="ms-auto dropdown">
         <a href="#" class="d-flex align-items-center gap-2 text-decoration-none" data-bs-toggle="dropdown">
             <i class="bi bi-person-circle user-icon"></i>
-            <span class="user-name d-none d-md-inline">Nguyễn Văn A</span>
+            <span class="user-name d-none d-md-inline">{{ Auth::user()->name }}</span>
             <i class="bi bi-chevron-down small text-muted"></i>
         </a>
 
         <ul class="dropdown-menu dropdown-menu-end shadow">
-            <li>
+            {{-- <li>
                 <a class="dropdown-item" href="#">
                     <i class="bi bi-person me-2"></i> Hồ sơ cá nhân
                 </a>
             </li>
             <li>
                 <hr class="dropdown-divider">
-            </li>
+            </li> --}}
             <li>
                 <a class="dropdown-item text-danger" href="#"
                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

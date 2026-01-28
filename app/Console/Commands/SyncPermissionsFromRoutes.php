@@ -9,7 +9,7 @@ use Spatie\Permission\Models\Permission;
 class SyncPermissionsFromRoutes extends Command
 {
     protected $signature = 'permissions:sync';
-    protected $description = 'Tự động tạo permission từ route name';
+    protected $description = 'Tự động tạo permission từ các route có middleware auth';
 
     public function handle()
     {
@@ -17,34 +17,36 @@ class SyncPermissionsFromRoutes extends Command
         $created = 0;
 
         foreach ($routes as $route) {
+            // ❌ Route không có name → bỏ
             $name = $route->getName();
-
-            if (!$name) {
+            if (! $name) {
                 continue;
             }
 
-            // ❗ Chỉ sync route cần phân quyền
-            if (! $this->isPermissionRoute($name)) {
+            // ❌ Không thuộc group auth → bỏ
+            if (! $this->isAuthRoute($route)) {
                 continue;
             }
 
             Permission::firstOrCreate([
-                'name' => $name,
+                'name'       => $name,
                 'guard_name' => 'web',
             ]);
 
             $created++;
         }
 
-        $this->info("✅ Đã sync {$created} permissions từ routes.");
+        $this->info("✅ Đã sync {$created} permissions từ route auth.");
     }
 
     /**
-     * Các route nào được phép tạo permission
+     * Kiểm tra route có middleware auth hay không
      */
-    protected function isPermissionRoute(string $name): bool
+    protected function isAuthRoute($route): bool
     {
-        return str_starts_with($name, 'roles.')
-            || $name === 'dashboard';
+        $middlewares = $route->gatherMiddleware();
+
+        return in_array('auth', $middlewares)
+            || in_array('auth:web', $middlewares);
     }
 }
