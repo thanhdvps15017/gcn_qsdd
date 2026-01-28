@@ -11,6 +11,7 @@ use App\Http\Controllers\XaController;
 use App\Http\Controllers\HoSoController;
 use App\Http\Controllers\SoTheoDoiController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\XuatFile\MauWordController;
 use App\Http\Controllers\XuatFile\XuatExcelController;
 use App\Http\Controllers\XuatFile\XuatWordController;
@@ -131,5 +132,10 @@ Route::middleware('auth')->group(function () {
             Route::delete('/folder/{folder}', [MauWordController::class, 'destroyFolder'])
                 ->name('destroy-folder');
         });
+
+        Route::get('/login-bg', [SettingController::class, 'editLoginBg'])
+            ->name('settings.login-bg.edit');
+        Route::post('/login-bg', [SettingController::class, 'updateLoginBg'])
+            ->name('settings.login-bg.update');
     });
 });

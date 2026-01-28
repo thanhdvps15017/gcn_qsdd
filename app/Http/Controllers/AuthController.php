@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -12,7 +13,8 @@ class AuthController extends Controller
     // Form đăng nhập
     public function showLogin()
     {
-        return view('auth.login');
+        $loginBg = Setting::where('key', 'login_bg')->value('value');
+        return view('auth.login', compact('loginBg'));
     }
 
     // Form đăng ký
