@@ -88,14 +88,14 @@
             </a>
 
             <ul class="submenu">
-                @can('roles.index')
+                {{-- @can('roles.index')
                     <li>
                         <a class="nav-link {{ request()->routeIs('roles.*') ? 'active' : '' }}"
                             href="{{ route('roles.index') }}">
                             Phân quyền
                         </a>
                     </li>
-                @endcan
+                @endcan --}}
 
                 @can('users.index')
                     <li>
