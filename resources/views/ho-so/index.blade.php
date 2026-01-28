@@ -23,14 +23,14 @@
                     <form method="GET" class="row g-3 align-items-end">
 
                         {{-- 🔎 Tìm kiếm --}}
-                        <div class="col-md-4 col-lg-6">
+                        <div class="col-md-4 col-lg-2">
                             <label class="fw-semibold">Tìm kiếm</label>
                             <input type="text" name="q" class="form-control" placeholder="Mã hồ sơ / Tên chủ hồ sơ"
                                 value="{{ request('q') }}">
                         </div>
 
                         {{-- 📂 Loại hồ sơ --}}
-                        <div class="col-md-4 col-lg-3">
+                        <div class="col-md-4 col-lg-2">
                             <label class="fw-semibold">Loại hồ sơ</label>
                             <select name="loai_ho_so_id" class="form-select">
                                 <option value="">-- Tất cả --</option>
@@ -44,7 +44,7 @@
                         </div>
 
                         {{-- 📄 Loại thủ tục --}}
-                        <div class="col-md-4 col-lg-3">
+                        <div class="col-md-4 col-lg-2">
                             <label class="fw-semibold">Loại thủ tục</label>
                             <select name="loai_thu_tuc_id" class="form-select">
                                 <option value="">-- Tất cả --</option>
@@ -58,7 +58,7 @@
                         </div>
 
                         {{-- 🏘️ Xã --}}
-                        <div class="col-md-4 col-lg-3">
+                        <div class="col-md-4 col-lg-2">
                             <label class="fw-semibold">Người thẩm tra</label>
                             <select name="nguoi_tham_tra_id" class="form-select">
                                 <option value="">-- Tất cả --</option>
@@ -72,7 +72,7 @@
                         </div>
 
                         {{-- 📌 Trạng thái --}}
-                        <div class="col-md-4 col-lg-3">
+                        <div class="col-md-4 col-lg-1">
                             <label class="fw-semibold">Trạng thái</label>
                             <select name="trang_thai" class="form-select">
                                 <option value="">-- Tất cả --</option>
@@ -100,7 +100,7 @@
                         </div>
 
                         {{-- ⏱️ Sắp xếp --}}
-                        <div class="col-md-4 col-lg-3">
+                        <div class="col-md-4 col-lg-1">
                             <label class="fw-semibold">Thời gian</label>
                             <select name="sort" class="form-select">
                                 <option value="desc" {{ request('sort', 'desc') === 'desc' ? 'selected' : '' }}>
@@ -113,13 +113,13 @@
                         </div>
 
                         {{-- 🔘 Nút --}}
-                        <div class="col-md-4 col-lg-3 d-flex justify-content-end gap-2">
+                        <div class="col-md-4 col-lg-2 d-flex justify-content-end gap-2">
                             <button class="btn btn-primary px-4">
-                                <i class="bi bi-search"></i> Lọc
+                                <i class="bi bi-search"></i>
                             </button>
 
                             <a href="{{ route('ho-so.index') }}" class="btn btn-outline-secondary px-4">
-                                Làm mới
+                                <i class="bi bi-arrow-clockwise"></i>
                             </a>
                         </div>
 
