@@ -72,7 +72,7 @@
     <input type="hidden" name="trang_thai"
         value="{{ old('trang_thai', $isEdit ? $hoSo->trang_thai : 'dang_giai_quyet') }}">
 
-    <div class="text-end mt-5">
+    <div class="text-end">
         <button type="submit" class="btn btn-success px-5 py-3 fw-bold">{{ $submitText }}</button>
     </div>
 </form>
@@ -97,7 +97,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         const loaiSelect = document.querySelector('select[name="loai_thu_tuc_id"]');
-        if (loaiSelect && loaiSelect.selectedIndex > 0) {
+        if (loaiSelect) {
             tinhHanTra(loaiSelect);
         }
 

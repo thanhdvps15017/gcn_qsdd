@@ -1,11 +1,11 @@
-<div class="card mb-5 shadow-sm">
+<div class="card mb-3 shadow-sm">
     <div class="card-header fw-bold bg-light d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
         data-bs-target="#collapseThongTinRieng" role="button" style="cursor:pointer;">
         <span>Thông tin sau khi biến động</span>
         <span class="toggle-icon fw-bold fs-5">−</span>
     </div>
 
-    <div id="collapseThongTinRieng" class="collapse show">
+    <div id="collapseThongTinRieng" class="collapse">
         <div class="card-body">
 
             <!-- Loại biến động -->
@@ -38,8 +38,8 @@
                                     class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2 remove-nguoi-btn">X</button>
 
                                 <div class="row g-3">
-                                    <!-- Xưng hô + Họ tên gọn gàng -->
-                                    <div class="col-12">
+                                    <!-- Họ tên + Xưng hô -->
+                                    <div class="col-12 col-md-8">
                                         <label class="form-label small">Họ tên <span
                                                 class="text-danger">*</span></label>
                                         <div class="input-group">
@@ -60,7 +60,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-6 col-md-4">
+                                    <div class="col-12 col-md-4">
                                         <label class="form-label small">Ngày sinh</label>
                                         <input type="date"
                                             name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][ngay_sinh]"
@@ -81,10 +81,12 @@
                                             class="form-control" value="{{ $nguoi['ngay_cap_cccd'] ?? '' }}">
                                     </div>
 
-                                    <div class="col-12">
+                                    <div class="col-4">
                                         <label class="form-label small">Địa chỉ</label>
-                                        <textarea name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][dia_chi]" class="form-control"
-                                            rows="2" placeholder="Địa chỉ">{{ $nguoi['dia_chi'] ?? '' }}</textarea>
+                                        <input type="text"
+                                            name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][dia_chi]"
+                                            class="form-control" value="{{ $nguoi['dia_chi'] ?? '' }}"
+                                            placeholder="Địa chỉ">
                                     </div>
                                 </div>
                             </div>
@@ -94,8 +96,7 @@
                                     class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2 remove-nguoi-btn">X</button>
 
                                 <div class="row g-3">
-                                    <!-- Xưng hô + Họ tên gọn gàng (mặc định) -->
-                                    <div class="col-12">
+                                    <div class="col-12 col-md-8">
                                         <label class="form-label small">Họ tên <span
                                                 class="text-danger">*</span></label>
                                         <div class="input-group">
@@ -109,7 +110,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-6 col-md-4">
+                                    <div class="col-12 col-md-4">
                                         <label class="form-label small">Ngày sinh</label>
                                         <input type="date"
                                             name="thong_tin_rieng[data][nguoi_lien_quan][0][ngay_sinh]"
@@ -129,21 +130,22 @@
                                             class="form-control">
                                     </div>
 
-                                    <div class="col-12">
+                                    <div class="col-4">
                                         <label class="form-label small">Địa chỉ</label>
-                                        <textarea name="thong_tin_rieng[data][nguoi_lien_quan][0][dia_chi]" class="form-control" rows="2"
-                                            placeholder="Địa chỉ"></textarea>
+                                        <input type="text"
+                                            name="thong_tin_rieng[data][nguoi_lien_quan][0][dia_chi]"
+                                            class="form-control" placeholder="Địa chỉ">
                                     </div>
                                 </div>
                             </div>
                         @endforelse
                     </div>
 
-                    <button type="button" class="btn btn-success btn-sm mt-2" onclick="addNguoiLienQuan()">+ Thêm
+                    <button type="button" class="btn btn-success btn-sm" onclick="addNguoiLienQuan()">+ Thêm
                         người liên quan</button>
                 </div>
 
-                <!-- Cột phải: Danh sách thửa đất (giữ nguyên như trước) -->
+                <!-- Cột phải: Danh sách thửa đất -->
                 <div class="col-lg-6">
                     <h6 class="fw-bold mb-3 text-success">Danh sách thửa đất sau biến động</h6>
 
@@ -154,19 +156,19 @@
                                     class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2 remove-thua-btn">X</button>
 
                                 <div class="row g-3">
-                                    <div class="col-6 col-md-3">
+                                    <div class="col-6 col-md-4">
                                         <label class="form-label small">Tờ</label>
                                         <input name="thong_tin_rieng[data][thua][{{ $idx }}][to]"
                                             class="form-control" value="{{ $t['to'] ?? '' }}" placeholder="Tờ">
                                     </div>
 
-                                    <div class="col-6 col-md-3">
+                                    <div class="col-6 col-md-4">
                                         <label class="form-label small">Thửa</label>
                                         <input name="thong_tin_rieng[data][thua][{{ $idx }}][thua]"
                                             class="form-control" value="{{ $t['thua'] ?? '' }}" placeholder="Thửa">
                                     </div>
 
-                                    <div class="col-6 col-md-3">
+                                    <div class="col-6 col-md-4">
                                         <label class="form-label small">Diện tích (m²)</label>
                                         <input name="thong_tin_rieng[data][thua][{{ $idx }}][dien_tich]"
                                             class="form-control" value="{{ $t['dien_tich'] ?? '' }}"
@@ -187,19 +189,19 @@
                                     class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2 remove-thua-btn">X</button>
 
                                 <div class="row g-3">
-                                    <div class="col-6 col-md-3">
+                                    <div class="col-6 col-md-4">
                                         <label class="form-label small">Tờ</label>
                                         <input name="thong_tin_rieng[data][thua][0][to]" class="form-control"
                                             placeholder="Tờ">
                                     </div>
 
-                                    <div class="col-6 col-md-3">
+                                    <div class="col-6 col-md-4">
                                         <label class="form-label small">Thửa</label>
                                         <input name="thong_tin_rieng[data][thua][0][thua]" class="form-control"
                                             placeholder="Thửa">
                                     </div>
 
-                                    <div class="col-6 col-md-3">
+                                    <div class="col-6 col-md-4">
                                         <label class="form-label small">Diện tích (m²)</label>
                                         <input name="thong_tin_rieng[data][thua][0][dien_tich]" class="form-control"
                                             placeholder="Diện tích">
@@ -215,7 +217,7 @@
                         @endforelse
                     </div>
 
-                    <button type="button" class="btn btn-success btn-sm mt-2" onclick="addThuaDat()">+ Thêm
+                    <button type="button" class="btn btn-success btn-sm" onclick="addThuaDat()">+ Thêm
                         thửa</button>
                 </div>
 
@@ -224,7 +226,7 @@
     </div>
 </div>
 
-<!-- JavaScript (cập nhật hàm addNguoiLienQuan để khớp layout mới) -->
+<!-- JavaScript -->
 <script>
     let nguoiLienQuanIndex = {{ $nguoiIndex ?? count($nguoiLienQuan ?? []) }};
     let thuaDatIndex = {{ count($riengThua ?? []) }};
@@ -238,8 +240,7 @@
                 <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2 remove-nguoi-btn">X</button>
 
                 <div class="row g-3">
-                    <!-- Xưng hô + Họ tên gọn gàng -->
-                    <div class="col-12">
+                    <div class="col-12 col-md-8">
                         <label class="form-label small">Họ tên <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <select name="thong_tin_rieng[data][nguoi_lien_quan][${nguoiLienQuanIndex}][xung_ho]" 
@@ -252,7 +253,7 @@
                         </div>
                     </div>
 
-                    <div class="col-6 col-md-4">
+                    <div class="col-12 col-md-4">
                         <label class="form-label small">Ngày sinh</label>
                         <input type="date" name="thong_tin_rieng[data][nguoi_lien_quan][${nguoiLienQuanIndex}][ngay_sinh]" class="form-control">
                     </div>
@@ -267,9 +268,10 @@
                         <input type="date" name="thong_tin_rieng[data][nguoi_lien_quan][${nguoiLienQuanIndex}][ngay_cap_cccd]" class="form-control">
                     </div>
 
-                    <div class="col-12">
+                    <div class="col-4">
                         <label class="form-label small">Địa chỉ</label>
-                        <textarea name="thong_tin_rieng[data][nguoi_lien_quan][${nguoiLienQuanIndex}][dia_chi]" class="form-control" rows="2" placeholder="Địa chỉ"></textarea>
+                        <input type="text" name="thong_tin_rieng[data][nguoi_lien_quan][${nguoiLienQuanIndex}][dia_chi]" 
+                               class="form-control" placeholder="Địa chỉ">
                     </div>
                 </div>
             </div>`;
@@ -278,7 +280,6 @@
         nguoiLienQuanIndex++;
     }
 
-    // Các hàm còn lại giữ nguyên
     function addThuaDat() {
         const container = document.getElementById('thua-dat-container');
         if (!container) return;
@@ -288,15 +289,15 @@
                 <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2 remove-thua-btn">X</button>
 
                 <div class="row g-3">
-                    <div class="col-6 col-md-3">
+                    <div class="col-6 col-md-4">
                         <label class="form-label small">Tờ</label>
                         <input name="thong_tin_rieng[data][thua][${thuaDatIndex}][to]" class="form-control" placeholder="Tờ">
                     </div>
-                    <div class="col-6 col-md-3">
+                    <div class="col-6 col-md-4">
                         <label class="form-label small">Thửa</label>
                         <input name="thong_tin_rieng[data][thua][${thuaDatIndex}][thua]" class="form-control" placeholder="Thửa">
                     </div>
-                    <div class="col-6 col-md-3">
+                    <div class="col-6 col-md-4">
                         <label class="form-label small">Diện tích (m²)</label>
                         <input name="thong_tin_rieng[data][thua][${thuaDatIndex}][dien_tich]" class="form-control" placeholder="Diện tích">
                     </div>

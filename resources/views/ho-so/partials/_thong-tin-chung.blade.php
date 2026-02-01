@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col-lg-6">
-        <div class="card mb-4 shadow-sm">
+        <div class="card mb-3 shadow-sm">
             <div class="card-header fw-bold bg-light">Thông tin chung</div>
             <div class="card-body">
                 <div class="row g-3">
@@ -16,7 +16,8 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">SĐT chủ hồ sơ</label>
-                        <input name="sdt_chu_ho_so" class="form-control" value="{{ $getValue('sdt_chu_ho_so') }}">
+                        <input name="sdt_chu_ho_so" class="form-control" value="{{ $getValue('sdt_chu_ho_so') }}"
+                            placeholder="SĐT chủ hồ sơ">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Loại hồ sơ</label>
