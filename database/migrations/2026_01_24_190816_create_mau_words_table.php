@@ -15,6 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('ten');
             $table->string('file_path');
+
+            $table->text('ghi_chu')
+                ->nullable();
+
+            $table->string('file_dinh_kem', 255)
+                ->nullable();
+
             $table->foreignId('folder_id')
                 ->nullable()
                 ->constrained('mau_word_folders')

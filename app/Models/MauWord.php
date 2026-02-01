@@ -15,6 +15,8 @@ class MauWord extends Model
         'ten',
         'file_path',
         'folder_id',
+        'ghi_chu',
+        'file_dinh_kem',
     ];
 
     public function folder()

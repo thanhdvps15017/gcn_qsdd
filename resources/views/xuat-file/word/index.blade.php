@@ -8,9 +8,7 @@
 
         <!-- CỘT TRÁI: MẪU WORD -->
         <div class="col-lg-4 col-xl-3">
-
             <div class="card border-0 shadow-sm rounded-3 position-sticky" style="top: 1rem;">
-
                 <div class="card-header text-white fw-bold"
                     style="background: linear-gradient(135deg, var(--primary), #0d6efd);">
                     <i class="bi bi-folder2-open me-2"></i>
@@ -18,34 +16,83 @@
                 </div>
 
                 <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
-                        @forelse ($folders as $folder)
+                    <div class="accordion accordion-flush" id="foldersAccordion">
+
+                        @forelse ($folders as $index => $folder)
                             @if ($folder->mauWords->count() > 0)
-                                <div class="list-group-item bg-light fw-bold border-0 py-2 px-3">
-                                    📁 {{ $folder->ten }}
-                                </div>
-                                @foreach ($folder->mauWords as $mau)
-                                    <button type="button"
-                                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center mau-item"
-                                        data-mau-id="{{ $mau->id }}" data-mau-ten="{{ $mau->ten }}">
-                                        <div>
-                                            <i class="bi bi-file-earmark-word-fill text-primary me-2"></i>
-                                            {{ $mau->ten }}
+                                <div class="accordion-item">
+                                    <!-- Header của folder (click để mở/rút gọn) -->
+                                    <h2 class="accordion-header" id="heading-{{ $folder->id }}">
+                                        <button class="accordion-button {{ $index === 0 ? '' : 'collapsed' }} fw-bold"
+                                            type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapse-{{ $folder->id }}"
+                                            aria-expanded="{{ $index === 0 ? 'true' : 'false' }}"
+                                            aria-controls="collapse-{{ $folder->id }}">
+                                            📁 {{ $folder->ten }}
+                                        </button>
+                                    </h2>
+
+                                    <!-- Nội dung collapse: danh sách mẫu Word -->
+                                    <div id="collapse-{{ $folder->id }}"
+                                        class="accordion-collapse collapse {{ $index === 0 ? 'show' : '' }}"
+                                        aria-labelledby="heading-{{ $folder->id }}" data-bs-parent="#foldersAccordion">
+
+                                        <div class="accordion-body p-0">
+                                            <div class="list-group list-group-flush">
+                                                @foreach ($folder->mauWords as $mau)
+                                                    <button type="button"
+                                                        class="list-group-item list-group-item-action mau-item px-4 py-3"
+                                                        data-mau-id="{{ $mau->id }}"
+                                                        data-mau-ten="{{ $mau->ten }}"
+                                                        data-mau-ghichu="{{ $mau->ghi_chu ?? '' }}"
+                                                        data-mau-dinhkem="{{ $mau->file_dinh_kem ?? '' }}">
+
+                                                        <div class="d-flex justify-content-between align-items-start">
+                                                            <div class="me-3">
+                                                                <i
+                                                                    class="bi bi-file-earmark-word-fill text-primary fs-4 me-2"></i>
+                                                                <strong>{{ $mau->ten }}</strong>
+                                                            </div>
+                                                            <small class="text-muted text-end">
+                                                                {{ $mau->created_at->diffForHumans() }}
+                                                            </small>
+                                                        </div>
+
+                                                        <!-- Ghi chú -->
+                                                        @if ($mau->ghi_chu)
+                                                            <div class="mt-1 small text-secondary">
+                                                                <i class="bi bi-journal-text me-1"></i>
+                                                                {{ Str::limit($mau->ghi_chu, 90) }}
+                                                            </div>
+                                                        @endif
+
+                                                        <!-- File đính kèm -->
+                                                        @if ($mau->file_dinh_kem)
+                                                            <div class="mt-1 small">
+                                                                <i class="bi bi-paperclip me-1 text-info"></i>
+                                                                <a href="{{ Storage::url($mau->file_dinh_kem) }}"
+                                                                    target="_blank" class="text-info text-decoration-none"
+                                                                    onclick="event.stopPropagation();">
+                                                                    File đính kèm
+                                                                </a>
+                                                            </div>
+                                                        @endif
+                                                    </button>
+                                                @endforeach
+                                            </div>
                                         </div>
-                                        <small class="text-muted">{{ $mau->created_at->diffForHumans() }}</small>
-                                    </button>
-                                @endforeach
+                                    </div>
+                                </div>
                             @endif
                         @empty
                             <div class="list-group-item text-center text-muted py-4">
                                 Chưa có mẫu Word nào
                             </div>
                         @endforelse
+
                     </div>
                 </div>
-
             </div>
-
         </div>
 
         <!-- CỘT PHẢI: DANH SÁCH HỒ SƠ -->
