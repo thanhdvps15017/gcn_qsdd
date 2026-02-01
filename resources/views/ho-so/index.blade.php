@@ -62,10 +62,10 @@
                             <label class="fw-semibold">Người thẩm tra</label>
                             <select name="nguoi_tham_tra_id" class="form-select">
                                 <option value="">-- Tất cả --</option>
-                                @foreach ($xas as $item)
-                                    <option value="{{ $item->id }}"
-                                        {{ request('nguoi_tham_tra_id') == $item->id ? 'selected' : '' }}>
-                                        {{ $item->name }}
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}"
+                                        {{ request('nguoi_tham_tra_id') == $user->id ? 'selected' : '' }}>
+                                        {{ $user->name }}
                                     </option>
                                 @endforeach
                             </select>
@@ -137,6 +137,8 @@
                                 <th class="d-none d-md-table-cell">Loại hồ sơ</th>
                                 <th class="d-none d-md-table-cell">Loại thủ tục</th>
                                 <th class="d-none d-md-table-cell">Người thẩm tra</th>
+                                <th class="d-none d-md-table-cell">Hành chính công</th>
+                                <th class="d-none d-md-table-cell">Ngày trả kêt quả</th>
                                 <th class="d-none d-md-table-cell">Ghi chú</th>
                                 <th class="d-none d-md-table-cell">Trạng thái</th>
                                 <th width="5%" class="text-end"></th>
@@ -167,7 +169,7 @@
                                     <td class="fw-medium">{{ $hoSo->ma_ho_so ?? '-' }}</td>
 
                                     <td>
-                                        {{ data_get($hoSo, 'chu_su_dung.ho_ten') ?? '-' }}
+                                        {{ $hoSo->ten_chu_ho_so ?? '-' }}
                                         @if (!empty($hoSo->sdt_chu_ho_so))
                                             <div class="text-muted small mt-1">
                                                 {{ $hoSo->sdt_chu_ho_so }}
@@ -178,6 +180,11 @@
                                     <td class="d-none d-md-table-cell">{{ optional($hoSo->loaiHoSo)->name ?? '-' }}</td>
                                     <td class="d-none d-md-table-cell">{{ optional($hoSo->loaiThuTuc)->name ?? '-' }}</td>
                                     <td class="d-none d-md-table-cell">{{ optional($hoSo->nguoiThamTra)->name ?? '-' }}
+                                    </td>
+                                    <td class="d-none d-md-table-cell">{{ optional($hoSo->xa)->name ?? '-' }}
+                                    </td>
+                                    <td class="d-none d-md-table-cell">
+                                        {{ \Carbon\Carbon::parse($hoSo->han_giai_quyet)->format('d/m/Y') ?? '-' }}
                                     </td>
                                     <td>
                                         <button type="button" class="btn btn-sm btn-outline-secondary btn-open-note"

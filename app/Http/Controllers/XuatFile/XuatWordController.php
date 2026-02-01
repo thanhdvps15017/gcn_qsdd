@@ -195,7 +195,7 @@ class XuatWordController extends Controller
                 $values[$prefix . 'Ho_Ten']   = $this->titleCaseVietnamese($nguoi['ho_ten']   ?? '');
                 $values[$prefix . 'Cccd']     = $nguoi['cccd']     ?? '';
                 $values[$prefix . 'Xung_Ho']  = $this->titleCaseVietnamese($nguoi['xung_ho']  ?? '');
-                $values[$prefix . 'Ngay_Cap'] = $this->formatNgayThang($nguoi['ngay_cap'] ?? '');
+                $values[$prefix . 'Ngay_Cap'] = $this->formatNgayThang($nguoi['ngay_cap_cccd'] ?? '');
                 $values[$prefix . 'Ngay_Sinh'] = $this->formatNgayThang($nguoi['ngay_sinh'] ?? '');
                 $values[$prefix . 'Dia_Chi']  = $this->titleCaseVietnamese($nguoi['dia_chi']  ?? '');
             }
@@ -344,7 +344,7 @@ class XuatWordController extends Controller
                 $values[$prefix . 'Ho_Ten']   = $this->titleCaseVietnamese($nguoi['ho_ten']   ?? '');
                 $values[$prefix . 'Cccd']     = $nguoi['cccd']     ?? '';
                 $values[$prefix . 'Xung_Ho']  = $this->titleCaseVietnamese($nguoi['xung_ho']  ?? '');
-                $values[$prefix . 'Ngay_Cap'] = $this->formatNgayThang($nguoi['ngay_cap'] ?? '');
+                $values[$prefix . 'Ngay_Cap'] = $this->formatNgayThang($nguoi['ngay_cap_cccd'] ?? '');
                 $values[$prefix . 'Ngay_Sinh'] = $this->formatNgayThang($nguoi['ngay_sinh'] ?? '');
                 $values[$prefix . 'Dia_Chi']  = $this->titleCaseVietnamese($nguoi['dia_chi']  ?? '');
             }

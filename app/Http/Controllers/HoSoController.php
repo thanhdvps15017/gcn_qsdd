@@ -51,7 +51,7 @@ class HoSoController extends Controller
 
         /* ⏱️ Sắp xếp */
         $sort = $request->get('sort', 'desc');
-        $query->orderBy('created_at', $sort);
+        $query->orderBy('han_giai_quyet', $sort);
 
         /* 📄 Lấy dữ liệu */
         $hoSos = $query
