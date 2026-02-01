@@ -48,7 +48,7 @@ class XuatWordController extends Controller
 
         $mau = MauWord::findOrFail($request->mau_word_id);
 
-        $templatePath = storage_path('app/' . $mau->file_path);
+        $templatePath = Storage::disk('public')->path($mau->file_path);
         if (!file_exists($templatePath)) {
             abort(404, 'Không tìm thấy file mẫu Word');
         }
@@ -155,8 +155,8 @@ class XuatWordController extends Controller
         ])->findOrFail($request->ho_so_id);
 
         $mau = MauWord::findOrFail($request->mau_word_id);
-
-        $templatePath = storage_path('app/' . $mau->file_path);
+        
+        $templatePath = Storage::disk('public')->path($mau->file_path);
         if (!file_exists($templatePath)) {
             return response()->json(['success' => false, 'message' => 'Không tìm thấy file mẫu Word'], 404);
         }
