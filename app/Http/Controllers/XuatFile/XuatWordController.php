@@ -21,14 +21,9 @@ class XuatWordController extends Controller
             return '';
         }
 
-        // Chuyển hết về lowercase trước
         $str = mb_strtolower(trim($str), 'UTF-8');
-
-        // ucwords cho từng từ (viết hoa chữ cái đầu mỗi từ)
         $str = mb_convert_case($str, MB_CASE_TITLE, 'UTF-8');
 
-        // Có thể thêm quy tắc đặc biệt nếu cần (ví dụ: không viết hoa "và", "của", "phường",...)
-        // Hiện tại giữ đơn giản, phù hợp hầu hết trường hợp tên người + địa chỉ
         return $str;
     }
 
@@ -75,6 +70,27 @@ class XuatWordController extends Controller
 
         $template = new TemplateProcessor($templatePath);
 
+        // Mapping cho Thong_Tin_Rieng_Loai
+        $loaiMap = [
+            'tachthua_chuyennhuong' => 'Tách thửa - chuyển nhượng',
+            'capdoi'                => 'Cấp đổi',
+            'chuyennhuong'          => 'Chuyển nhượng',
+            'tachthua'              => 'Tách thửa',
+            'capdoi_chuyennhuong'   => 'Cấp đổi + chuyển nhượng',
+        ];
+
+        // Mapping cho Trang_Thai (chỉ lấy text hiển thị, không cần class màu)
+        $statusMap = [
+            'dang_giai_quyet'    => 'Đang giải quyết',
+            'cho_bo_sung'        => 'Chờ bổ sung',
+            'khong_du_dieu_kien' => 'Không đủ điều kiện',
+            'chuyen_thue'        => 'Chuyển thuế',
+            'hs_niem_yet_xa'     => 'Niêm yết xã',
+            'phoi_hop_do_dac'    => 'Phối hợp đo đạc',
+            'co_phieu_bao'       => 'Có phiếu báo',
+            'in_gcn_qsdd'        => 'In GCN QSDĐ',
+        ];
+
         $values = [
             // Thông tin cơ bản
             'Id'               => $hs->id ?? '',
@@ -85,7 +101,7 @@ class XuatWordController extends Controller
             'So_Vao_So'        => $hs->so_vao_so ?? '',
             'So_Phat_Hanh'     => $hs->so_phat_hanh ?? '',
             'Ghi_Chu'          => $this->titleCaseVietnamese($hs->ghi_chu ?? ''),
-            'Trang_Thai'       => $this->titleCaseVietnamese($hs->trang_thai ?? ''),
+            'Trang_Thai'       => $statusMap[$hs->trang_thai ?? ''] ?? $this->titleCaseVietnamese($hs->trang_thai ?? ''),
             'Han_Giai_Quyet'   => optional($hs->han_giai_quyet)->format('d/m/Y') ?? '',
             'Created_At'       => optional($hs->created_at)->format('d/m/Y') ?? '',
             'Updated_At'       => optional($hs->updated_at)->format('d/m/Y H:i') ?? '',
@@ -134,8 +150,9 @@ class XuatWordController extends Controller
 
         // 4. Thông tin riêng
         $thongTinRieng = $hs->thong_tin_rieng ?? [];
-        $values['Thong_Tin_Rieng_Loai'] = $this->titleCaseVietnamese($thongTinRieng['loai'] ?? '');
-        // dd($values);
+        $loaiKey = $thongTinRieng['loai'] ?? '';
+        $values['Thong_Tin_Rieng_Loai'] = $loaiMap[$loaiKey] ?? $this->titleCaseVietnamese($loaiKey);
+
         $data = $thongTinRieng['data'] ?? [];
 
         // Thửa riêng
@@ -160,12 +177,12 @@ class XuatWordController extends Controller
                 $values[$prefix . 'Ho_Ten']   = $this->titleCaseVietnamese($nguoi['ho_ten']   ?? '');
                 $values[$prefix . 'Cccd']     = $nguoi['cccd']     ?? '';
                 $values[$prefix . 'Xung_Ho']  = $this->titleCaseVietnamese($nguoi['xung_ho']  ?? '');
-                $values[$prefix . 'Ngay_Cap'] = $nguoi['ngay_cap'] ?? '';
+                $values[$prefix . 'Ngay_Cap'] = $nguoi['ngay_cap_cccd'] ?? '';
                 $values[$prefix . 'Ngay_Sinh'] = $nguoi['ngay_sinh'] ?? '';
                 $values[$prefix . 'Dia_Chi']  = $this->titleCaseVietnamese($nguoi['dia_chi']  ?? '');
             }
         }
-
+        // dd($values);
         $template->setValues($values);
 
         $fileName = 'ho_so_' . ($hs->ma_ho_so ?: 'HS_' . $hs->id) . '_' . time() . '.docx';
@@ -204,7 +221,26 @@ class XuatWordController extends Controller
 
         $template = new TemplateProcessor($templatePath);
 
-        // === Phần values giống hệt export ===
+        // Mapping giống hệt export
+        $loaiMap = [
+            'tachthua_chuyennhuong' => 'Tách thửa - chuyển nhượng',
+            'capdoi'                => 'Cấp đổi',
+            'chuyennhuong'          => 'Chuyển nhượng',
+            'tachthua'              => 'Tách thửa',
+            'capdoi_chuyennhuong'   => 'Cấp đổi + chuyển nhượng',
+        ];
+
+        $statusMap = [
+            'dang_giai_quyet'    => 'Đang giải quyết',
+            'cho_bo_sung'        => 'Chờ bổ sung',
+            'khong_du_dieu_kien' => 'Không đủ điều kiện',
+            'chuyen_thue'        => 'Chuyển thuế',
+            'hs_niem_yet_xa'     => 'Niêm yết xã',
+            'phoi_hop_do_dac'    => 'Phối hợp đo đạc',
+            'co_phieu_bao'       => 'Có phiếu báo',
+            'in_gcn_qsdd'        => 'In GCN QSDĐ',
+        ];
+
         $values = [
             'Id'               => $hs->id ?? '',
             'Ma_Ho_So'         => $hs->ma_ho_so ?? '',
@@ -214,7 +250,7 @@ class XuatWordController extends Controller
             'So_Vao_So'        => $hs->so_vao_so ?? '',
             'So_Phat_Hanh'     => $hs->so_phat_hanh ?? '',
             'Ghi_Chu'          => $this->titleCaseVietnamese($hs->ghi_chu ?? ''),
-            'Trang_Thai'       => $this->titleCaseVietnamese($hs->trang_thai ?? ''),
+            'Trang_Thai'       => $statusMap[$hs->trang_thai ?? ''] ?? $this->titleCaseVietnamese($hs->trang_thai ?? ''),
             'Han_Giai_Quyet'   => optional($hs->han_giai_quyet)->format('d/m/Y') ?? '',
             'Created_At'       => optional($hs->created_at)->format('d/m/Y') ?? '',
             'Updated_At'       => optional($hs->updated_at)->format('d/m/Y H:i') ?? '',
@@ -259,7 +295,8 @@ class XuatWordController extends Controller
         }
 
         $thongTinRieng = $hs->thong_tin_rieng ?? [];
-        $values['Thong_Tin_Rieng_Loai'] = $this->titleCaseVietnamese($thongTinRieng['loai'] ?? '');
+        $loaiKey = $thongTinRieng['loai'] ?? '';
+        $values['Thong_Tin_Rieng_Loai'] = $loaiMap[$loaiKey] ?? $this->titleCaseVietnamese($loaiKey);
 
         $data = $thongTinRieng['data'] ?? [];
 
@@ -283,7 +320,7 @@ class XuatWordController extends Controller
                 $values[$prefix . 'Ho_Ten']   = $this->titleCaseVietnamese($nguoi['ho_ten']   ?? '');
                 $values[$prefix . 'Cccd']     = $nguoi['cccd']     ?? '';
                 $values[$prefix . 'Xung_Ho']  = $this->titleCaseVietnamese($nguoi['xung_ho']  ?? '');
-                $values[$prefix . 'Ngay_Cap'] = $nguoi['ngay_cap'] ?? '';
+                $values[$prefix . 'Ngay_Cap'] = $nguoi['ngay_cap_cccd'] ?? '';
                 $values[$prefix . 'Ngay_Sinh'] = $nguoi['ngay_sinh'] ?? '';
                 $values[$prefix . 'Dia_Chi']  = $this->titleCaseVietnamese($nguoi['dia_chi']  ?? '');
             }
