@@ -222,7 +222,16 @@ class HoSoController extends Controller
     public function show(HoSo $hoSo)
     {
         $hoSo->load(['loaiHoSo', 'loaiThuTuc', 'xa', 'nguoiThamTra', 'files', 'trangThaiLogs.user']);
-        return view('ho-so.show', compact('hoSo'));
+
+        $thuaChung = $hoSo->thua_chung ?? [];
+
+        $xaIds = collect($thuaChung)->pluck('xa_id')->filter()->unique();
+
+        $xaList = \App\Models\Xa::whereIn('id', $xaIds)
+            ->get()
+            ->keyBy('id');
+
+        return view('ho-so.show', compact('hoSo', 'xaList'));
     }
 
     public function edit(HoSo $hoSo)

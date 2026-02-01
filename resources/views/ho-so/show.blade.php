@@ -165,7 +165,7 @@
                                             <td>{{ $t['to'] ?? '—' }}</td>
                                             <td>{{ $t['thua'] ?? '—' }}</td>
                                             <td>{{ $t['dien_tich'] ?? '—' }}</td>
-                                            <td>{{ optional($t['xa_id'])->name ?? ($t['xa_id'] ? '—' : '—') }}</td>
+                                            <td>{{ $xaList[$t['xa_id']]->name ?? '—' }}</td>
                                             <td>{{ $t['ap_thon'] ?? '—' }}</td>
                                         </tr>
                                     @endforeach
@@ -326,8 +326,8 @@
                                         </a>
                                         <!-- Nếu muốn giữ nút xóa ở trang show thì uncomment -->
                                         <!-- <button type="button" class="btn btn-sm btn-danger btn-delete-file"
-                                                                        data-url="{{ route('ho-so.files.destroy', [$hoSo, $file]) }}"
-                                                                        data-id="{{ $file->id }}">Xóa</button> -->
+                                                                            data-url="{{ route('ho-so.files.destroy', [$hoSo, $file]) }}"
+                                                                            data-id="{{ $file->id }}">Xóa</button> -->
                                     </li>
                                 @endforeach
                             </ul>

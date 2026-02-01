@@ -12,6 +12,26 @@ use Illuminate\Support\Facades\Storage;
 
 class XuatWordController extends Controller
 {
+    /**
+     * Chuyển chuỗi sang Title Case, hỗ trợ tiếng Việt (UTF-8)
+     */
+    private function titleCaseVietnamese(?string $str): string
+    {
+        if (empty($str)) {
+            return '';
+        }
+
+        // Chuyển hết về lowercase trước
+        $str = mb_strtolower(trim($str), 'UTF-8');
+
+        // ucwords cho từng từ (viết hoa chữ cái đầu mỗi từ)
+        $str = mb_convert_case($str, MB_CASE_TITLE, 'UTF-8');
+
+        // Có thể thêm quy tắc đặc biệt nếu cần (ví dụ: không viết hoa "và", "của", "phường",...)
+        // Hiện tại giữ đơn giản, phù hợp hầu hết trường hợp tên người + địa chỉ
+        return $str;
+    }
+
     public function index(Request $request)
     {
         $search = $request->query('search');
@@ -56,74 +76,95 @@ class XuatWordController extends Controller
         $template = new TemplateProcessor($templatePath);
 
         $values = [
-            'id'               => $hs->id,
-            'ma_ho_so'         => $hs->ma_ho_so ?? '',
-            'xung_ho'          => $hs->xung_ho ?? '',
-            'ten_chu_ho_so'    => $hs->ten_chu_ho_so ?? '',
-            'sdt_chu_ho_so'    => $hs->sdt_chu_ho_so ?? '',
-            'ngay_cap_gcn'     => optional($hs->ngay_cap_gcn)->format('d/m/Y') ?? '',
-            'so_vao_so'        => $hs->so_vao_so ?? '',
-            'so_phat_hanh'     => $hs->so_phat_hanh ?? '',
-            'xa_ap_thon'       => $hs->xa_ap_thon ?? '',
-            'ghi_chu'          => $hs->ghi_chu ?? '',
-            'trang_thai'       => $hs->trang_thai ?? '',
-            'han_giai_quyet'   => optional($hs->han_giai_quyet)->format('d/m/Y') ?? '',
-            'created_at'       => optional($hs->created_at)->format('d/m/Y') ?? '',
-            'updated_at'       => optional($hs->updated_at)->format('d/m/Y H:i') ?? '',
+            // Thông tin cơ bản
+            'Id'               => $hs->id ?? '',
+            'Ma_Ho_So'         => $hs->ma_ho_so ?? '',
+            'Ten_Chu_Ho_So'    => $this->titleCaseVietnamese($hs->ten_chu_ho_so ?? ''),
+            'Sdt_Chu_Ho_So'    => $hs->sdt_chu_ho_so ?? '',
+            'Ngay_Cap_Gcn'     => optional($hs->ngay_cap_gcn)->format('d/m/Y') ?? '',
+            'So_Vao_So'        => $hs->so_vao_so ?? '',
+            'So_Phat_Hanh'     => $hs->so_phat_hanh ?? '',
+            'Ghi_Chu'          => $this->titleCaseVietnamese($hs->ghi_chu ?? ''),
+            'Trang_Thai'       => $this->titleCaseVietnamese($hs->trang_thai ?? ''),
+            'Han_Giai_Quyet'   => optional($hs->han_giai_quyet)->format('d/m/Y') ?? '',
+            'Created_At'       => optional($hs->created_at)->format('d/m/Y') ?? '',
+            'Updated_At'       => optional($hs->updated_at)->format('d/m/Y H:i') ?? '',
+
+            'Xa'               => $this->titleCaseVietnamese(optional($hs->xa)->name ?? ''),
+            'Nguoi_Tham_Tra'   => $this->titleCaseVietnamese(optional($hs->nguoiThamTra)->name ?? ''),
+            'Loai_Ho_So'       => $this->titleCaseVietnamese(optional($hs->loaiHoSo)->name ?? ''),
+            'Loai_Thu_Tuc'     => $this->titleCaseVietnamese(optional($hs->loaiThuTuc)->name ?? ''),
         ];
 
-        $values += [
-            'xa'               => optional($hs->xa)->name ?? '',
-            'nguoi_tham_tra'   => optional($hs->nguoiThamTra)->name ?? '',
-            'loai_ho_so'       => optional($hs->loaiHoSo)->name ?? '',
-            'loai_thu_tuc'     => optional($hs->loaiThuTuc)->name ?? '',
-        ];
+        // 1. Chủ sử dụng đất (nhiều người)
+        if (is_array($hs->chu_su_dung) && !empty($hs->chu_su_dung)) {
+            foreach ($hs->chu_su_dung as $i => $nguoi) {
+                $index = $i + 1;
+                $prefix = "Chu_Su_Dung_{$index}_";
 
-        $chuSuDung = $hs->chu_su_dung ?? [];
-        $values += [
-            'chu_su_dung_ho_ten'   => $chuSuDung['ho_ten'] ?? '',
-            'chu_su_dung_cccd'     => $chuSuDung['cccd'] ?? '',
-            'chu_su_dung_ngay_cap' => $chuSuDung['ngay_cap'] ?? '',
-            'chu_su_dung_dia_chi'  => $chuSuDung['dia_chi'] ?? '',
-        ];
+                $values[$prefix . 'Ho_Ten']   = $this->titleCaseVietnamese($nguoi['ho_ten'] ?? '');
+                $values[$prefix . 'Cccd']     = $nguoi['cccd'] ?? '';
+                $values[$prefix . 'Dia_Chi']  = $this->titleCaseVietnamese($nguoi['dia_chi'] ?? '');
+                $values[$prefix . 'Xung_Ho']  = $this->titleCaseVietnamese($nguoi['xung_ho'] ?? '');
+                $values[$prefix . 'Ngay_Cap'] = $nguoi['ngay_cap'] ?? '';
+                $values[$prefix . 'Ngay_Sinh'] = $nguoi['ngay_sinh'] ?? '';
+            }
+        }
 
+        // 2. Ủy quyền
         $uyQuyen = $hs->uy_quyen ?? [];
         $values += [
-            'uy_quyen_nguoi'    => $uyQuyen['nguoi'] ?? '',
-            'uy_quyen_giay_to'  => $uyQuyen['giay'] ?? '',
+            'Uy_Quyen_Nguoi'    => $this->titleCaseVietnamese($uyQuyen['nguoi'] ?? ''),
+            'Uy_Quyen_Giay_To'  => $this->titleCaseVietnamese($uyQuyen['giay'] ?? ''),
         ];
 
+        // 3. Thửa chung
         if (is_array($hs->thua_chung) && !empty($hs->thua_chung)) {
             foreach ($hs->thua_chung as $i => $thua) {
                 $index = $i + 1;
-                $values["thua_chung_{$index}_to"]        = $thua['to'] ?? '';
-                $values["thua_chung_{$index}_thua"]      = $thua['thua'] ?? '';
-                $values["thua_chung_{$index}_dien_tich"] = $thua['dien_tich'] ?? '';
+                $prefix = "Thua_Chung_{$index}_";
+
+                $values[$prefix . 'To']        = $thua['to'] ?? '';
+                $values[$prefix . 'Thua']      = $thua['thua'] ?? '';
+                $values[$prefix . 'Dien_Tich'] = $thua['dien_tich'] ?? '';
+                $values[$prefix . 'Ap_Thon']   = $this->titleCaseVietnamese($thua['ap_thon'] ?? '');
+                $values[$prefix . 'Xa_Id']     = $thua['xa_id'] ?? '';
             }
         }
 
+        // 4. Thông tin riêng
         $thongTinRieng = $hs->thong_tin_rieng ?? [];
-        $values['thong_tin_rieng_loai'] = $thongTinRieng['loai'] ?? '';
-
+        $values['Thong_Tin_Rieng_Loai'] = $this->titleCaseVietnamese($thongTinRieng['loai'] ?? '');
+        // dd($values);
         $data = $thongTinRieng['data'] ?? [];
-        $values += [
-            'thong_tin_rieng_ho_ten'       => $data['ho_ten'] ?? '',
-            'thong_tin_rieng_cccd'         => $data['cccd'] ?? '',
-            'thong_tin_rieng_dia_chi'      => $data['dia_chi'] ?? '',
-            'thong_tin_rieng_ngay_cap_cccd' => $data['ngay_cap_cccd'] ?? '',
-        ];
 
+        // Thửa riêng
         if (isset($data['thua']) && is_array($data['thua']) && !empty($data['thua'])) {
             foreach ($data['thua'] as $i => $thua) {
                 $index = $i + 1;
-                $values["thong_tin_rieng_thua_{$index}_to"]        = $thua['to'] ?? '';
-                $values["thong_tin_rieng_thua_{$index}_thua"]      = $thua['thua'] ?? '';
-                $values["thong_tin_rieng_thua_{$index}_dien_tich"] = $thua['dien_tich'] ?? '';
-                $values["thong_tin_rieng_thua_{$index}_ghi_chu"]   = $thua['ghi_chu'] ?? '';
+                $prefix = "Thong_Tin_Rieng_Thua_{$index}_";
+
+                $values[$prefix . 'To']        = $thua['to'] ?? '';
+                $values[$prefix . 'Thua']      = $thua['thua'] ?? '';
+                $values[$prefix . 'Dien_Tich'] = $thua['dien_tich'] ?? '';
+                $values[$prefix . 'Ghi_Chu']   = $this->titleCaseVietnamese($thua['ghi_chu'] ?? '');
             }
         }
 
-        // dd($values);
+        // 5. Người liên quan
+        if (isset($data['nguoi_lien_quan']) && is_array($data['nguoi_lien_quan']) && !empty($data['nguoi_lien_quan'])) {
+            foreach ($data['nguoi_lien_quan'] as $i => $nguoi) {
+                $index = $i + 1;
+                $prefix = "Thong_Tin_Rieng_Nguoi_Lien_Quan_{$index}_";
+
+                $values[$prefix . 'Ho_Ten']   = $this->titleCaseVietnamese($nguoi['ho_ten']   ?? '');
+                $values[$prefix . 'Cccd']     = $nguoi['cccd']     ?? '';
+                $values[$prefix . 'Xung_Ho']  = $this->titleCaseVietnamese($nguoi['xung_ho']  ?? '');
+                $values[$prefix . 'Ngay_Cap'] = $nguoi['ngay_cap'] ?? '';
+                $values[$prefix . 'Ngay_Sinh'] = $nguoi['ngay_sinh'] ?? '';
+                $values[$prefix . 'Dia_Chi']  = $this->titleCaseVietnamese($nguoi['dia_chi']  ?? '');
+            }
+        }
 
         $template->setValues($values);
 
@@ -155,7 +196,7 @@ class XuatWordController extends Controller
         ])->findOrFail($request->ho_so_id);
 
         $mau = MauWord::findOrFail($request->mau_word_id);
-        
+
         $templatePath = Storage::disk('public')->path($mau->file_path);
         if (!file_exists($templatePath)) {
             return response()->json(['success' => false, 'message' => 'Không tìm thấy file mẫu Word'], 404);
@@ -163,80 +204,95 @@ class XuatWordController extends Controller
 
         $template = new TemplateProcessor($templatePath);
 
+        // === Phần values giống hệt export ===
         $values = [
-            'id'               => $hs->id,
-            'ma_ho_so'         => $hs->ma_ho_so ?? '',
-            'xung_ho'          => $hs->xung_ho ?? '',
-            'ten_chu_ho_so'    => $hs->ten_chu_ho_so ?? '',
-            'sdt_chu_ho_so'    => $hs->sdt_chu_ho_so ?? '',
-            'ngay_cap_gcn'     => optional($hs->ngay_cap_gcn)->format('d/m/Y') ?? '',
-            'so_vao_so'        => $hs->so_vao_so ?? '',
-            'so_phat_hanh'     => $hs->so_phat_hanh ?? '',
-            'xa_ap_thon'       => $hs->xa_ap_thon ?? '',
-            'ghi_chu'          => $hs->ghi_chu ?? '',
-            'trang_thai'       => $hs->trang_thai ?? '',
-            'han_giai_quyet'   => optional($hs->han_giai_quyet)->format('d/m/Y') ?? '',
-            'created_at'       => optional($hs->created_at)->format('d/m/Y') ?? '',
-            'updated_at'       => optional($hs->updated_at)->format('d/m/Y H:i') ?? '',
+            'Id'               => $hs->id ?? '',
+            'Ma_Ho_So'         => $hs->ma_ho_so ?? '',
+            'Ten_Chu_Ho_So'    => $this->titleCaseVietnamese($hs->ten_chu_ho_so ?? ''),
+            'Sdt_Chu_Ho_So'    => $hs->sdt_chu_ho_so ?? '',
+            'Ngay_Cap_Gcn'     => optional($hs->ngay_cap_gcn)->format('d/m/Y') ?? '',
+            'So_Vao_So'        => $hs->so_vao_so ?? '',
+            'So_Phat_Hanh'     => $hs->so_phat_hanh ?? '',
+            'Ghi_Chu'          => $this->titleCaseVietnamese($hs->ghi_chu ?? ''),
+            'Trang_Thai'       => $this->titleCaseVietnamese($hs->trang_thai ?? ''),
+            'Han_Giai_Quyet'   => optional($hs->han_giai_quyet)->format('d/m/Y') ?? '',
+            'Created_At'       => optional($hs->created_at)->format('d/m/Y') ?? '',
+            'Updated_At'       => optional($hs->updated_at)->format('d/m/Y H:i') ?? '',
+
+            'Xa'               => $this->titleCaseVietnamese(optional($hs->xa)->name ?? ''),
+            'Nguoi_Tham_Tra'   => $this->titleCaseVietnamese(optional($hs->nguoiThamTra)->name ?? ''),
+            'Loai_Ho_So'       => $this->titleCaseVietnamese(optional($hs->loaiHoSo)->name ?? ''),
+            'Loai_Thu_Tuc'     => $this->titleCaseVietnamese(optional($hs->loaiThuTuc)->name ?? ''),
         ];
 
-        $values += [
-            'xa'               => optional($hs->xa)->name ?? '',
-            'nguoi_tham_tra'   => optional($hs->nguoiThamTra)->name ?? '',
-            'loai_ho_so'       => optional($hs->loaiHoSo)->name ?? '',
-            'loai_thu_tuc'     => optional($hs->loaiThuTuc)->name ?? '',
-        ];
+        if (is_array($hs->chu_su_dung) && !empty($hs->chu_su_dung)) {
+            foreach ($hs->chu_su_dung as $i => $nguoi) {
+                $index = $i + 1;
+                $prefix = "Chu_Su_Dung_{$index}_";
 
-        $chuSuDung = $hs->chu_su_dung ?? [];
-        $values += [
-            'chu_su_dung_ho_ten'   => $chuSuDung['ho_ten'] ?? '',
-            'chu_su_dung_cccd'     => $chuSuDung['cccd'] ?? '',
-            'chu_su_dung_ngay_cap' => $chuSuDung['ngay_cap'] ?? '',
-            'chu_su_dung_dia_chi'  => $chuSuDung['dia_chi'] ?? '',
-        ];
+                $values[$prefix . 'Ho_Ten']   = $this->titleCaseVietnamese($nguoi['ho_ten'] ?? '');
+                $values[$prefix . 'Cccd']     = $nguoi['cccd'] ?? '';
+                $values[$prefix . 'Dia_Chi']  = $this->titleCaseVietnamese($nguoi['dia_chi'] ?? '');
+                $values[$prefix . 'Xung_Ho']  = $this->titleCaseVietnamese($nguoi['xung_ho'] ?? '');
+                $values[$prefix . 'Ngay_Cap'] = $nguoi['ngay_cap'] ?? '';
+                $values[$prefix . 'Ngay_Sinh'] = $nguoi['ngay_sinh'] ?? '';
+            }
+        }
 
         $uyQuyen = $hs->uy_quyen ?? [];
         $values += [
-            'uy_quyen_nguoi'    => $uyQuyen['nguoi'] ?? '',
-            'uy_quyen_giay_to'  => $uyQuyen['giay'] ?? '',
+            'Uy_Quyen_Nguoi'    => $this->titleCaseVietnamese($uyQuyen['nguoi'] ?? ''),
+            'Uy_Quyen_Giay_To'  => $this->titleCaseVietnamese($uyQuyen['giay'] ?? ''),
         ];
 
         if (is_array($hs->thua_chung) && !empty($hs->thua_chung)) {
             foreach ($hs->thua_chung as $i => $thua) {
                 $index = $i + 1;
-                $values["thua_chung_{$index}_to"]        = $thua['to'] ?? '';
-                $values["thua_chung_{$index}_thua"]      = $thua['thua'] ?? '';
-                $values["thua_chung_{$index}_dien_tich"] = $thua['dien_tich'] ?? '';
+                $prefix = "Thua_Chung_{$index}_";
+
+                $values[$prefix . 'To']        = $thua['to'] ?? '';
+                $values[$prefix . 'Thua']      = $thua['thua'] ?? '';
+                $values[$prefix . 'Dien_Tich'] = $thua['dien_tich'] ?? '';
+                $values[$prefix . 'Ap_Thon']   = $this->titleCaseVietnamese($thua['ap_thon'] ?? '');
+                $values[$prefix . 'Xa_Id']     = $thua['xa_id'] ?? '';
             }
         }
 
         $thongTinRieng = $hs->thong_tin_rieng ?? [];
-        $values['thong_tin_rieng_loai'] = $thongTinRieng['loai'] ?? '';
+        $values['Thong_Tin_Rieng_Loai'] = $this->titleCaseVietnamese($thongTinRieng['loai'] ?? '');
 
         $data = $thongTinRieng['data'] ?? [];
-        $values += [
-            'thong_tin_rieng_ho_ten'       => $data['ho_ten'] ?? '',
-            'thong_tin_rieng_cccd'         => $data['cccd'] ?? '',
-            'thong_tin_rieng_dia_chi'      => $data['dia_chi'] ?? '',
-            'thong_tin_rieng_ngay_cap_cccd' => $data['ngay_cap_cccd'] ?? '',
-        ];
 
         if (isset($data['thua']) && is_array($data['thua']) && !empty($data['thua'])) {
             foreach ($data['thua'] as $i => $thua) {
                 $index = $i + 1;
-                $values["thong_tin_rieng_thua_{$index}_to"]        = $thua['to'] ?? '';
-                $values["thong_tin_rieng_thua_{$index}_thua"]      = $thua['thua'] ?? '';
-                $values["thong_tin_rieng_thua_{$index}_dien_tich"] = $thua['dien_tich'] ?? '';
-                $values["thong_tin_rieng_thua_{$index}_ghi_chu"]   = $thua['ghi_chu'] ?? '';
+                $prefix = "Thong_Tin_Rieng_Thua_{$index}_";
+
+                $values[$prefix . 'To']        = $thua['to'] ?? '';
+                $values[$prefix . 'Thua']      = $thua['thua'] ?? '';
+                $values[$prefix . 'Dien_Tich'] = $thua['dien_tich'] ?? '';
+                $values[$prefix . 'Ghi_Chu']   = $this->titleCaseVietnamese($thua['ghi_chu'] ?? '');
             }
         }
 
-        // dd($values);
+        if (isset($data['nguoi_lien_quan']) && is_array($data['nguoi_lien_quan']) && !empty($data['nguoi_lien_quan'])) {
+            foreach ($data['nguoi_lien_quan'] as $i => $nguoi) {
+                $index = $i + 1;
+                $prefix = "Thong_Tin_Rieng_Nguoi_Lien_Quan_{$index}_";
+
+                $values[$prefix . 'Ho_Ten']   = $this->titleCaseVietnamese($nguoi['ho_ten']   ?? '');
+                $values[$prefix . 'Cccd']     = $nguoi['cccd']     ?? '';
+                $values[$prefix . 'Xung_Ho']  = $this->titleCaseVietnamese($nguoi['xung_ho']  ?? '');
+                $values[$prefix . 'Ngay_Cap'] = $nguoi['ngay_cap'] ?? '';
+                $values[$prefix . 'Ngay_Sinh'] = $nguoi['ngay_sinh'] ?? '';
+                $values[$prefix . 'Dia_Chi']  = $this->titleCaseVietnamese($nguoi['dia_chi']  ?? '');
+            }
+        }
 
         $template->setValues($values);
 
         $fileName = 'preview_' . time() . '_' . ($hs->ma_ho_so ?: 'HS_' . $hs->id) . '.docx';
-        $tempDir  = storage_path('app/public/temp');
+        $tempDir  = storage_path('app/temp');
 
         if (!is_dir($tempDir)) {
             mkdir($tempDir, 0755, true);
@@ -248,8 +304,9 @@ class XuatWordController extends Controller
         $publicUrl = asset('storage/temp/' . $fileName);
 
         return response()->json([
-            'success' => true,
-            'url'     => $publicUrl,
+            'success'  => true,
+            'url'      => $publicUrl,
+            'filename' => $fileName,
         ]);
     }
 }
