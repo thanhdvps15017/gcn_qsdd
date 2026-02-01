@@ -82,7 +82,6 @@ class HoSoController extends Controller
     {
         $data = $request->validate([
             'ma_ho_so'            => 'required|unique:ho_sos,ma_ho_so',
-            'xung_ho'             => 'nullable|string',
             'ten_chu_ho_so'       => 'nullable|string',
             'sdt_chu_ho_so'       => 'nullable|string',
 
@@ -92,32 +91,41 @@ class HoSoController extends Controller
             'nguoi_tham_tra_id'   => 'required|exists:users,id',
 
             'chu_su_dung'         => 'nullable|array',
-            'chu_su_dung.*'       => 'nullable|string',
+            'chu_su_dung.*.xung_ho'   => 'nullable|in:Ông,Bà',
+            'chu_su_dung.*.ho_ten'    => 'required|string|max:255', // bắt buộc họ tên
+            'chu_su_dung.*.ngay_sinh' => 'nullable|date',
+            'chu_su_dung.*.cccd'      => 'nullable|string|max:20',
+            'chu_su_dung.*.ngay_cap'  => 'nullable|date',
+            'chu_su_dung.*.dia_chi'   => 'nullable|string|max:500',
 
             'uy_quyen'            => 'nullable|array',
-            'uy_quyen.*'          => 'nullable|string',
+            'uy_quyen.nguoi'      => 'nullable|string',
+            'uy_quyen.giay'       => 'nullable|string',
 
             'thua_chung'          => 'nullable|array',
             'thua_chung.*.to'     => 'nullable|string',
             'thua_chung.*.thua'   => 'nullable|string',
-            'thua_chung.*.dien_tich' => 'nullable|numeric',
+            'thua_chung.*.dien_tich' => 'nullable',
 
             'ngay_cap_gcn'        => 'nullable|date',
             'so_vao_so'           => 'nullable|string',
             'so_phat_hanh'        => 'nullable|string',
+            'dia_chi'             => 'nullable|string', // thêm nếu bạn vừa thêm field này
 
             'thong_tin_rieng'     => 'nullable|array',
             'thong_tin_rieng.loai' => 'nullable|string|in:tachthua_chuyennhuong,capdoi,chuyennhuong,tachthua,capdoi_chuyennhuong',
             'thong_tin_rieng.data' => 'nullable|array',
-            'thong_tin_rieng.data.ho_ten'       => 'nullable|string',
-            'thong_tin_rieng.data.cccd'         => 'nullable|string',
-            'thong_tin_rieng.data.ngay_cap_cccd' => 'nullable|date',
-            'thong_tin_rieng.data.dia_chi'      => 'nullable|string',
 
+            // Người liên quan
+            'thong_tin_rieng.data.nguoi_lien_quan'         => 'nullable|array',
+            'thong_tin_rieng.data.nguoi_lien_quan.*.ho_ten' => 'nullable|string',
+            'thong_tin_rieng.data.nguoi_lien_quan.*.cccd'   => 'nullable|string',
+
+            // Thửa sau biến động
             'thong_tin_rieng.data.thua'         => 'nullable|array',
             'thong_tin_rieng.data.thua.*.to'       => 'nullable|string',
             'thong_tin_rieng.data.thua.*.thua'     => 'nullable|string',
-            'thong_tin_rieng.data.thua.*.dien_tich' => 'nullable|numeric',
+            'thong_tin_rieng.data.thua.*.dien_tich' => 'nullable',
             'thong_tin_rieng.data.thua.*.ghi_chu'   => 'nullable|string',
 
             'ghi_chu'               => 'nullable|string',
@@ -127,59 +135,79 @@ class HoSoController extends Controller
             'trang_thai'            => 'nullable|string',
         ]);
 
-        // Chuẩn hóa thua_chung
+        // Chuẩn hóa chu_su_dung (tương tự thua_chung)
+        $chuSuDung = $request->input('chu_su_dung', []);
+        if (is_array($chuSuDung) && !empty($chuSuDung)) {
+            $normalized = $this->normalizeIndexedRows($chuSuDung);
+            // Đảm bảo mỗi phần tử có đầy đủ key
+            foreach ($normalized as &$item) {
+                $item = array_merge([
+                    'xung_ho'   => 'Ông',
+                    'ho_ten'    => '',
+                    'ngay_sinh' => null,
+                    'cccd'      => '',
+                    'ngay_cap'  => null,
+                    'dia_chi'   => '',
+                ], $item);
+            }
+            unset($item);
+            $data['chu_su_dung'] = $normalized;
+        } else {
+            $data['chu_su_dung'] = [];
+        }
+
+        // Chuẩn hóa thua_chung (giữ nguyên)
         $thuaChung = $request->input('thua_chung', []);
         if (is_array($thuaChung) && !empty($thuaChung)) {
             $data['thua_chung'] = $this->normalizeIndexedRows($thuaChung);
         }
 
-        // Chuẩn hóa thong_tin_rieng
+        // Chuẩn hóa thong_tin_rieng (giữ nguyên phần lớn, bổ sung người liên quan)
         $rieng = $request->input('thong_tin_rieng', ['loai' => null, 'data' => []]);
         $riengData = $rieng['data'] ?? [];
 
-        // Chuẩn hóa mảng thua trong thông tin riêng
+        // Chuẩn hóa thửa trong thông tin riêng
         $thuaRieng = $riengData['thua'] ?? [];
         if (is_array($thuaRieng) && !empty($thuaRieng)) {
             $normalizedRieng = $this->normalizeIndexedRows($thuaRieng);
-
-            // Đảm bảo mỗi thửa có đầy đủ key mặc định
             foreach ($normalizedRieng as &$item) {
                 $item = array_merge([
                     'to'       => '',
                     'thua'     => '',
                     'dien_tich' => null,
                     'ghi_chu'  => '',
-                ], (array) $item);
+                ], $item);
             }
             unset($item);
-
             $rieng['data']['thua'] = $normalizedRieng;
+        }
+
+        // Chuẩn hóa người liên quan
+        $nguoiLienQuan = $riengData['nguoi_lien_quan'] ?? [];
+        if (is_array($nguoiLienQuan) && !empty($nguoiLienQuan)) {
+            $rieng['data']['nguoi_lien_quan'] = $this->normalizeIndexedRows($nguoiLienQuan);
         }
 
         $data['thong_tin_rieng'] = $rieng;
 
-        // Tính hạn giải quyết tự động nếu chưa có
+        // Tính hạn giải quyết (giữ nguyên)
         if ($request->filled('loai_thu_tuc_id') && empty($data['han_giai_quyet'])) {
             $loaiThuTuc = LoaiThuTuc::find($request->loai_thu_tuc_id);
             if ($loaiThuTuc && $loaiThuTuc->ngay_tra_ket_qua !== null) {
                 $ngayTiepNhan = Carbon::today();
-                $han = $ngayTiepNhan->copy()->addDays((int) $loaiThuTuc->ngay_tra_ket_qua);
+                $han = $ngayTiepNhan->copy()->addWeekdays((int) $loaiThuTuc->ngay_tra_ket_qua);
                 $data['han_giai_quyet'] = $han->toDateString();
             }
         }
 
-        // Trạng thái mặc định
         $data['trang_thai'] = $data['trang_thai'] ?? 'dang_giai_quyet';
 
         $hoSo = HoSo::create($data);
 
+        // Xử lý file (giữ nguyên)
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $file) {
-                $path = $file->store(
-                    'ho_so_files/' . $hoSo->id,
-                    'public'
-                );
-
+                $path = $file->store('ho_so_files/' . $hoSo->id, 'public');
                 $hoSo->files()->create([
                     'ten_file'   => $file->getClientOriginalName(),
                     'duong_dan'  => $path,
@@ -188,8 +216,6 @@ class HoSoController extends Controller
                 ]);
             }
         }
-
-
         return redirect()->route('ho-so.index')->with('success', 'Đã lưu hồ sơ thành công!');
     }
 
@@ -214,7 +240,6 @@ class HoSoController extends Controller
     {
         $data = $request->validate([
             'ma_ho_so'            => 'required|unique:ho_sos,ma_ho_so,' . $hoSo->id,
-            'xung_ho'             => 'nullable|string',
             'ten_chu_ho_so'       => 'nullable|string',
             'sdt_chu_ho_so'       => 'nullable|string',
 
@@ -223,39 +248,71 @@ class HoSoController extends Controller
             'xa_id'               => 'required|exists:xas,id',
             'nguoi_tham_tra_id'   => 'required|exists:users,id',
 
-            'chu_su_dung'         => 'nullable|array',
-            'chu_su_dung.*'       => 'nullable|string',
+            // Chuẩn hóa validation cho nhiều chủ sử dụng
+            'chu_su_dung'              => 'nullable|array',
+            'chu_su_dung.*.xung_ho'    => 'nullable|in:Ông,Bà',
+            'chu_su_dung.*.ho_ten'     => 'required|string|max:255', // bắt buộc tên
+            'chu_su_dung.*.ngay_sinh'  => 'nullable|date',
+            'chu_su_dung.*.cccd'       => 'nullable|string|max:20',
+            'chu_su_dung.*.ngay_cap'   => 'nullable|date',
+            'chu_su_dung.*.dia_chi'    => 'nullable|string|max:500',
 
-            'uy_quyen'            => 'nullable|array',
-            'uy_quyen.*'          => 'nullable|string',
+            'uy_quyen'                 => 'nullable|array',
+            'uy_quyen.nguoi'           => 'nullable|string',
+            'uy_quyen.giay'            => 'nullable|string',
 
-            'thua_chung'          => 'nullable|array',
-            'thua_chung.*.to'     => 'nullable|string',
-            'thua_chung.*.thua'   => 'nullable|string',
-            'thua_chung.*.dien_tich' => 'nullable|numeric',
+            'thua_chung'               => 'nullable|array',
+            'thua_chung.*.to'          => 'nullable|string',
+            'thua_chung.*.thua'        => 'nullable|string',
+            'thua_chung.*.dien_tich'   => 'nullable',
 
-            'ngay_cap_gcn'        => 'nullable|date',
-            'so_vao_so'           => 'nullable|string',
-            'so_phat_hanh'        => 'nullable|string',
+            'dia_chi'                  => 'nullable|string|max:500', // nếu bạn thêm field này
+            'ngay_cap_gcn'             => 'nullable|date',
+            'so_vao_so'                => 'nullable|string',
+            'so_phat_hanh'             => 'nullable|string',
 
-            'thong_tin_rieng'     => 'nullable|array',
-            'thong_tin_rieng.loai' => 'nullable|string|in:tachthua_chuyennhuong,capdoi,chuyennhuong,tachthua,capdoi_chuyennhuong',
-            'thong_tin_rieng.data' => 'nullable|array',
-            'thong_tin_rieng.data.ho_ten'       => 'nullable|string',
-            'thong_tin_rieng.data.cccd'         => 'nullable|string',
-            'thong_tin_rieng.data.ngay_cap_cccd' => 'nullable|date',
-            'thong_tin_rieng.data.dia_chi'      => 'nullable|string',
+            'thong_tin_rieng'          => 'nullable|array',
+            'thong_tin_rieng.loai'     => 'nullable|string|in:tachthua_chuyennhuong,capdoi,chuyennhuong,tachthua,capdoi_chuyennhuong',
+            'thong_tin_rieng.data'     => 'nullable|array',
 
-            'thong_tin_rieng.data.thua'         => 'nullable|array',
-            'thong_tin_rieng.data.thua.*.to'       => 'nullable|string',
-            'thong_tin_rieng.data.thua.*.thua'     => 'nullable|string',
-            'thong_tin_rieng.data.thua.*.dien_tich' => 'nullable|numeric',
-            'thong_tin_rieng.data.thua.*.ghi_chu'   => 'nullable|string',
+            // Người liên quan
+            'thong_tin_rieng.data.nguoi_lien_quan'              => 'nullable|array',
+            'thong_tin_rieng.data.nguoi_lien_quan.*.ho_ten'     => 'nullable|string',
+            'thong_tin_rieng.data.nguoi_lien_quan.*.cccd'       => 'nullable|string',
+            'thong_tin_rieng.data.nguoi_lien_quan.*.ngay_cap_cccd' => 'nullable|date',
+            'thong_tin_rieng.data.nguoi_lien_quan.*.dia_chi'    => 'nullable|string',
 
-            'ghi_chu'             => 'nullable|string',
-            'han_giai_quyet'      => 'nullable|date',
-            'trang_thai'          => 'nullable|string',
+            // Thửa sau biến động
+            'thong_tin_rieng.data.thua'              => 'nullable|array',
+            'thong_tin_rieng.data.thua.*.to'         => 'nullable|string',
+            'thong_tin_rieng.data.thua.*.thua'       => 'nullable|string',
+            'thong_tin_rieng.data.thua.*.dien_tich'  => 'nullable',
+            'thong_tin_rieng.data.thua.*.ghi_chu'    => 'nullable|string',
+
+            'ghi_chu'                  => 'nullable|string',
+            'han_giai_quyet'           => 'nullable|date',
+            'trang_thai'               => 'nullable|string',
         ]);
+
+        // Chuẩn hóa chu_su_dung (giống store)
+        $chuSuDung = $request->input('chu_su_dung', []);
+        if (is_array($chuSuDung) && !empty($chuSuDung)) {
+            $normalized = $this->normalizeIndexedRows($chuSuDung);
+            foreach ($normalized as &$item) {
+                $item = array_merge([
+                    'xung_ho'   => 'Ông',
+                    'ho_ten'    => '',
+                    'ngay_sinh' => null,
+                    'cccd'      => '',
+                    'ngay_cap'  => null,
+                    'dia_chi'   => '',
+                ], $item);
+            }
+            unset($item);
+            $data['chu_su_dung'] = $normalized;
+        } else {
+            $data['chu_su_dung'] = [];
+        }
 
         // Chuẩn hóa thua_chung
         $thuaChung = $request->input('thua_chung', []);
@@ -267,10 +324,10 @@ class HoSoController extends Controller
         $rieng = $request->input('thong_tin_rieng', ['loai' => null, 'data' => []]);
         $riengData = $rieng['data'] ?? [];
 
+        // Thửa sau biến động
         $thuaRieng = $riengData['thua'] ?? [];
         if (is_array($thuaRieng) && !empty($thuaRieng)) {
             $normalizedRieng = $this->normalizeIndexedRows($thuaRieng);
-
             foreach ($normalizedRieng as &$item) {
                 $item = array_merge([
                     'to'       => '',
@@ -280,25 +337,42 @@ class HoSoController extends Controller
                 ], (array) $item);
             }
             unset($item);
-
             $rieng['data']['thua'] = $normalizedRieng;
+        }
+
+        // Người liên quan
+        $nguoiLienQuan = $riengData['nguoi_lien_quan'] ?? [];
+        if (is_array($nguoiLienQuan) && !empty($nguoiLienQuan)) {
+            $rieng['data']['nguoi_lien_quan'] = $this->normalizeIndexedRows($nguoiLienQuan);
         }
 
         $data['thong_tin_rieng'] = $rieng;
 
-        // Cập nhật hạn giải quyết nếu thay đổi loại thủ tục
+        // Cập nhật hạn giải quyết nếu thay đổi loại thủ tục và chưa có giá trị
         if ($request->filled('loai_thu_tuc_id') && empty($data['han_giai_quyet'])) {
             $loaiThuTuc = LoaiThuTuc::find($request->loai_thu_tuc_id);
             if ($loaiThuTuc && $loaiThuTuc->ngay_tra_ket_qua !== null) {
                 $ngayTiepNhan = Carbon::today();
-                $han = $ngayTiepNhan->copy()->addDays((int) $loaiThuTuc->ngay_tra_ket_qua);
+                $han = $ngayTiepNhan->copy()->addWeekdays((int) $loaiThuTuc->ngay_tra_ket_qua); // dùng addWeekdays để bỏ cuối tuần
                 $data['han_giai_quyet'] = $han->toDateString();
             }
         }
 
-        // Trạng thái: nếu không gửi thì giữ nguyên cũ
+        // Trạng thái: giữ nguyên nếu không gửi mới
         if (empty($data['trang_thai'])) {
             $data['trang_thai'] = $hoSo->trang_thai ?? 'dang_giai_quyet';
+        }
+
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $file) {
+                $path = $file->store('ho_so_files/' . $hoSo->id, 'public');
+                $hoSo->files()->create([
+                    'ten_file'   => $file->getClientOriginalName(),
+                    'duong_dan'  => $path,
+                    'loai_file'  => $file->getClientOriginalExtension(),
+                    'kich_thuoc' => $file->getSize(),
+                ]);
+            }
         }
 
         $hoSo->update($data);
