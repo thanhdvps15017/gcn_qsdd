@@ -9,8 +9,8 @@ class HoSoTrangThaiLog extends Model
 {
     protected $fillable = [
         'ho_so_id',
-        'trang_thai_cu',
-        'trang_thai_moi',
+        'old_status',
+        'new_status',
         'user_id',
     ];
 

@@ -18,11 +18,11 @@ return new class extends Migration
                 ->constrained('ho_sos')
                 ->cascadeOnDelete();
 
-            $table->string('ten_file');
-            $table->string('duong_dan');
-            $table->string('loai_file')->nullable();
-            $table->unsignedBigInteger('kich_thuoc')->nullable();
-            $table->string('ghi_chu')->nullable();
+            $table->string('file_name');
+            $table->string('file_path');
+            $table->string('file_type')->nullable();
+            $table->unsignedBigInteger('file_size')->nullable();
+            $table->string('notes')->nullable();
 
             $table->timestamps();
         });

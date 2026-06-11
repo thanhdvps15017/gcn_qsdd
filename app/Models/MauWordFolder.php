@@ -11,7 +11,7 @@ class MauWordFolder extends Model
 
     protected $table = "mau_word_folders";
 
-    protected $fillable = ['ten'];
+    protected $fillable = ['name'];
 
     public function mauWords()
     {

@@ -7,7 +7,7 @@
         style="background: linear-gradient(135deg, var(--primary), #0d6efd);">
         <h5 class="mb-0 fw-bold">
             <i class="bi bi-file-earmark-text-fill me-3"></i>
-            Hồ sơ: {{ $hoSo->ma_ho_so ?? '—' }}
+            Hồ sơ: {{ $hoSo->dossier_code ?? '—' }}
         </h5>
         <div class="d-flex gap-2 flex-wrap">
             <a href="{{ route('ho-so.index') }}" class="btn btn-light btn-md px-3">
@@ -41,11 +41,11 @@
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="small text-muted">Tên chủ hồ sơ</label>
-                            <p class="mb-0 fs-5 fw-medium">{{ $hoSo->ten_chu_ho_so ?? '—' }}</p>
+                            <p class="mb-0 fs-5 fw-medium">{{ $hoSo->owner_name ?? '—' }}</p>
                         </div>
                         <div class="col-md-4">
                             <label class="small text-muted">SĐT</label>
-                            <p class="mb-0">{{ $hoSo->sdt_chu_ho_so ?? '—' }}</p>
+                            <p class="mb-0">{{ $hoSo->owner_phone ?? '—' }}</p>
                         </div>
                         <div class="col-md-4">
                             <label class="small text-muted">Người thẩm tra</label>
@@ -62,7 +62,7 @@
                         <div class="col-md-3">
                             <label class="small text-muted">Hạn giải quyết</label>
                             <p class="mb-0">
-                                {{ $hoSo->han_giai_quyet ? $hoSo->han_giai_quyet->format('d/m/Y') : '—' }}
+                                {{ $hoSo->deadline ? $hoSo->deadline->format('d/m/Y') : '—' }}
                             </p>
                         </div>
                         <div class="col-md-3">
@@ -80,10 +80,10 @@
                 </div>
                 <div class="card-body">
                     @php
-                        $chuList = is_array($hoSo->chu_su_dung)
-                            ? $hoSo->chu_su_dung
-                            : ($hoSo->chu_su_dung
-                                ? [$hoSo->chu_su_dung]
+                        $chuList = is_array($hoSo->land_owners)
+                            ? $hoSo->land_owners
+                            : ($hoSo->land_owners
+                                ? [$hoSo->land_owners]
                                 : []);
                     @endphp
                     @forelse ($chuList as $chu)
@@ -92,28 +92,28 @@
                                 <div class="col-md-8">
                                     <label class="small text-muted">Họ tên</label>
                                     <p class="mb-0 fw-medium">
-                                        {{ $chu['xung_ho'] ?? '' }} {{ $chu['ho_ten'] ?? '—' }}
+                                        {{ $chu['salutation'] ?? '' }} {{ $chu['full_name'] ?? '—' }}
                                     </p>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="small text-muted">Ngày sinh</label>
                                     <p class="mb-0">
-                                        {{ !empty($chu['ngay_sinh']) ? \Carbon\Carbon::parse($chu['ngay_sinh'])->format('d/m/Y') : '—' }}
+                                        {{ !empty($chu['date_of_birth']) ? \Carbon\Carbon::parse($chu['date_of_birth'])->format('d/m/Y') : '—' }}
                                     </p>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="small text-muted">CCCD/CMND</label>
-                                    <p class="mb-0">{{ $chu['cccd'] ?? '—' }}</p>
+                                    <p class="mb-0">{{ $chu['id_card'] ?? '—' }}</p>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="small text-muted">Ngày cấp</label>
                                     <p class="mb-0">
-                                        {{ !empty($chu['ngay_cap']) ? \Carbon\Carbon::parse($chu['ngay_cap'])->format('d/m/Y') : '—' }}
+                                        {{ !empty($chu['issue_date']) ? \Carbon\Carbon::parse($chu['issue_date'])->format('d/m/Y') : '—' }}
                                     </p>
                                 </div>
                                 <div class="col-12">
                                     <label class="small text-muted">Địa chỉ</label>
-                                    <p class="mb-0">{{ $chu['dia_chi'] ?? '—' }}</p>
+                                    <p class="mb-0">{{ $chu['address'] ?? '—' }}</p>
                                 </div>
                             </div>
                         </div>
@@ -121,17 +121,17 @@
                         <p class="text-muted text-center py-3">Không có thông tin chủ sử dụng</p>
                     @endforelse
                 </div>
-                @php $uy = $hoSo->uy_quyen ?? []; @endphp
-                @if (!empty($uy['nguoi']) || !empty($uy['giay']))
+                @php $uy = $hoSo->authorization ?? []; @endphp
+                @if (!empty($uy['person']) || !empty($uy['paper']))
                     <div class="card-footer bg-light border-0">
                         <div class="row g-3 small text-muted">
                             <div class="col-md-4">
                                 <strong>Người ủy quyền:</strong>
-                                {{ $uy['nguoi'] ?? '—' }}
+                                {{ $uy['person'] ?? '—' }}
                             </div>
                             <div class="col-md-4">
                                 <strong>Giấy ủy quyền:</strong>
-                                {{ $uy['giay'] ?? '—' }}
+                                {{ $uy['paper'] ?? '—' }}
                             </div>
                         </div>
                     </div>
@@ -144,7 +144,7 @@
                     <i class="bi bi-geo-alt-fill me-2"></i> Thửa - tờ - diện tích
                 </div>
                 <div class="card-body p-0">
-                    @php $thuaChung = $hoSo->thua_chung ?? []; @endphp
+                    @php $thuaChung = $hoSo->shared_plots ?? []; @endphp
                     @if (!empty($thuaChung))
                         <div class="table-responsive">
                             <table class="table table-hover mb-0">
@@ -180,13 +180,13 @@
                     <div class="row g-3 small text-muted">
                         <div class="col-md-4">
                             <strong>Ngày cấp GCN:</strong>
-                            {{ $hoSo->ngay_cap_gcn ? $hoSo->ngay_cap_gcn->format('d/m/Y') : '—' }}
+                            {{ $hoSo->certificate_issue_date ? $hoSo->certificate_issue_date->format('d/m/Y') : '—' }}
                         </div>
                         <div class="col-md-4">
-                            <strong>Số vào sổ:</strong> {{ $hoSo->so_vao_so ?? '—' }}
+                            <strong>Số vào sổ:</strong> {{ $hoSo->registration_book_number ?? '—' }}
                         </div>
                         <div class="col-md-4">
-                            <strong>Số phát hành:</strong> {{ $hoSo->so_phat_hanh ?? '—' }}
+                            <strong>Số phát hành:</strong> {{ $hoSo->publication_number ?? '—' }}
                         </div>
                     </div>
                 </div>
@@ -199,11 +199,11 @@
                 </div>
                 <div class="card-body">
                     @php
-                        $rieng = $hoSo->thong_tin_rieng ?? [];
-                        $loai = $rieng['loai'] ?? null;
+                        $rieng = $hoSo->private_info ?? [];
+                        $type = $rieng['type'] ?? null;
                         $data = $rieng['data'] ?? [];
-                        $nguoiLienQuan = $data['nguoi_lien_quan'] ?? [];
-                        $thuaRieng = $data['thua'] ?? [];
+                        $nguoiLienQuan = $data['related_person'] ?? [];
+                        $thuaRieng = $data['plot_number'] ?? [];
                         $loaiMap = [
                             'tachthua_chuyennhuong' => 'Tách thửa - chuyển nhượng',
                             'capdoi' => 'Cấp đổi',
@@ -215,7 +215,7 @@
 
                     <div class="mb-4">
                         <label class="small text-muted fw-semibold">Loại biến động</label>
-                        <p class="fs-5 mb-0 fw-medium">{{ $loaiMap[$loai] ?? '—' }}</p>
+                        <p class="fs-5 mb-0 fw-medium">{{ $loaiMap[$type] ?? '—' }}</p>
                     </div>
 
                     <h6 class="fw-bold mb-3">Người liên quan / Bên nhận chuyển nhượng</h6>
@@ -235,11 +235,11 @@
                                     @foreach ($nguoiLienQuan as $i => $ng)
                                         <tr>
                                             <td class="text-center">{{ $i + 1 }}</td>
-                                            <td>{{ $ng['ho_ten'] ?? '—' }}</td>
-                                            <td>{{ $ng['cccd'] ?? '—' }}</td>
-                                            <td>{{ !empty($ng['ngay_cap_cccd']) ? \Carbon\Carbon::parse($ng['ngay_cap_cccd'])->format('d/m/Y') : '—' }}
+                                            <td>{{ $ng['full_name'] ?? '—' }}</td>
+                                            <td>{{ $ng['id_card'] ?? '—' }}</td>
+                                            <td>{{ !empty($ng['id_issue_date']) ? \Carbon\Carbon::parse($ng['id_issue_date'])->format('d/m/Y') : '—' }}
                                             </td>
-                                            <td>{{ $ng['dia_chi'] ?? '—' }}</td>
+                                            <td>{{ $ng['address'] ?? '—' }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -266,10 +266,10 @@
                                     @foreach ($thuaRieng as $i => $t)
                                         <tr>
                                             <td class="text-center">{{ $i + 1 }}</td>
-                                            <td>{{ $t['to'] ?? '—' }}</td>
-                                            <td>{{ $t['thua'] ?? '—' }}</td>
-                                            <td>{{ $t['dien_tich'] ?? '—' }}</td>
-                                            <td>{{ $t['ghi_chu'] ?? '—' }}</td>
+                                            <td>{{ $t['map_sheet'] ?? '—' }}</td>
+                                            <td>{{ $t['plot_number'] ?? '—' }}</td>
+                                            <td>{{ $t['area'] ?? '—' }}</td>
+                                            <td>{{ $t['notes'] ?? '—' }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -298,7 +298,7 @@
                 <div id="collapseGhiChu" class="collapse show">
                     <div class="card-body">
                         <div class="p-3 bg-light rounded border">
-                            {{ $hoSo->ghi_chu ?: 'Không có ghi chú nào' }}
+                            {{ $hoSo->notes ?: 'Không có ghi chú nào' }}
                         </div>
                     </div>
                 </div>
@@ -320,9 +320,9 @@
                                 @foreach ($hoSo->files as $file)
                                     <li
                                         class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
-                                        <a href="{{ asset('storage/' . $file->duong_dan) }}" target="_blank"
+                                        <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank"
                                             class="text-decoration-none fw-medium">
-                                            {{ $file->ten_file }}
+                                            {{ $file->file_name }}
                                         </a>
                                         <!-- Nếu muốn giữ nút xóa ở trang show thì uncomment -->
                                         <!-- <button type="button" class="btn btn-sm btn-danger btn-delete-file"
@@ -360,10 +360,11 @@
                                     'phoi_hop_do_dac' => ['Phối hợp đo đạc', 'bg-purple text-white'],
                                     'co_phieu_bao' => ['Có phiếu báo', 'bg-success text-white'],
                                     'in_gcn_qsdd' => ['In GCN QSDĐ', 'bg-dark text-white'],
+                                    'hoan_thanh' => ['Hoàn thành', 'bg-success text-white'],
                                 ];
-                                [$oldText, $oldClass] = $statusMap[$log->trang_thai_cu] ?? ['—', 'bg-light text-dark'];
-                                [$newText, $newClass] = $statusMap[$log->trang_thai_moi] ?? [
-                                    str_replace('_', ' ', ucwords($log->trang_thai_moi)),
+                                [$oldText, $oldClass] = $statusMap[$log->old_status] ?? ['—', 'bg-light text-dark'];
+                                [$newText, $newClass] = $statusMap[$log->new_status] ?? [
+                                    str_replace('_', ' ', ucwords($log->new_status)),
                                     'bg-primary text-white',
                                 ];
                             @endphp
@@ -392,9 +393,9 @@
                                         <i class="bi bi-person-circle me-1"></i>
                                         {{ $log->user->name ?? 'Hệ thống' }}
                                     </div>
-                                    @if ($log->ghi_chu)
+                                    @if ($log->notes)
                                         <div class="fst-italic text-secondary small bg-light p-2 rounded border">
-                                            “{{ $log->ghi_chu }}”
+                                            “{{ $log->notes }}”
                                         </div>
                                     @endif
                                 </div>

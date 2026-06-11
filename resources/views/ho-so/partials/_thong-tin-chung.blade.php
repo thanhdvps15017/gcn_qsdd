@@ -10,28 +10,28 @@
 
                     <div class="col-md-6">
                         <label class="form-label">Mã hồ sơ</label>
-                        <input name="ma_ho_so" class="form-control" required
-                            value="{{ $isEdit ? $getValue('ma_ho_so') : 'H19.151-' . $getValue('ma_ho_so') }}">
+                        <input name="dossier_code" class="form-control" required
+                            value="{{ $isEdit ? $getValue('dossier_code') : 'H19.151-' . $getValue('dossier_code') }}">
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Tên chủ hồ sơ</label>
-                        <input name="ten_chu_ho_so" class="form-control" placeholder="Họ và tên"
-                            value="{{ $getValue('ten_chu_ho_so') }}">
+                        <input name="owner_name" class="form-control" placeholder="Họ và tên"
+                            value="{{ $getValue('owner_name') }}">
                     </div>
 
                     <div class="col-md-4">
                         <label class="form-label">SĐT chủ hồ sơ</label>
-                        <input name="sdt_chu_ho_so" class="form-control" placeholder="SĐT chủ hồ sơ"
-                            value="{{ $getValue('sdt_chu_ho_so') }}">
+                        <input name="owner_phone" class="form-control" placeholder="SĐT chủ hồ sơ"
+                            value="{{ $getValue('owner_phone') }}">
                     </div>
 
                     <div class="col-md-4">
                         <label class="form-label">Loại hồ sơ</label>
-                        <select name="loai_ho_so_id" class="form-select">
+                        <select name="dossier_type_id" class="form-select">
                             @foreach ($loaiHoSos as $l)
                                 <option value="{{ $l->id }}"
-                                    {{ old('loai_ho_so_id', $isEdit ? $hoSo->loai_ho_so_id : '') == $l->id ? 'selected' : '' }}>
+                                    {{ old('dossier_type_id', $isEdit ? $hoSo->dossier_type_id : '') == $l->id ? 'selected' : '' }}>
                                     {{ $l->name }}
                                 </option>
                             @endforeach
@@ -40,10 +40,10 @@
 
                     <div class="col-md-4">
                         <label class="form-label">Loại thủ tục</label>
-                        <select name="loai_thu_tuc_id" class="form-select" id="thoi_han" onchange="tinhHanTra(this)">
+                        <select name="procedure_type_id" class="form-select" id="thoi_han" onchange="tinhHanTra(this)">
                             @foreach ($loaiThuTucs as $l)
-                                <option value="{{ $l->id }}" data-days="{{ $l->ngay_tra_ket_qua }}"
-                                    {{ old('loai_thu_tuc_id', $isEdit ? $hoSo->loai_thu_tuc_id : '') == $l->id ? 'selected' : '' }}>
+                                <option value="{{ $l->id }}" data-days="{{ $l->processing_days }}"
+                                    {{ old('procedure_type_id', $isEdit ? $hoSo->procedure_type_id : '') == $l->id ? 'selected' : '' }}>
                                     {{ $l->name }}
                                 </option>
                             @endforeach
@@ -52,16 +52,16 @@
 
                     <div class="col-md-4">
                         <label class="form-label">Ngày trả kết quả</label>
-                        <input type="date" name="han_giai_quyet" id="han_giai_quyet" class="form-control" readonly
-                            value="{{ old('han_giai_quyet', $isEdit ? optional($hoSo->han_giai_quyet)->format('Y-m-d') : '') }}">
+                        <input type="date" name="deadline" id="deadline" class="form-control" readonly
+                            value="{{ old('deadline', $isEdit ? optional($hoSo->deadline)->format('Y-m-d') : '') }}">
                     </div>
 
                     <div class="col-md-4">
                         <label class="form-label">Hành chính công (Xã)</label>
-                        <select name="xa_id" class="form-select">
+                        <select name="ward_id" class="form-select">
                             @foreach ($xas as $x)
                                 <option value="{{ $x->id }}"
-                                    {{ old('xa_id', $isEdit ? $hoSo->xa_id : '') == $x->id ? 'selected' : '' }}>
+                                    {{ old('ward_id', $isEdit ? $hoSo->ward_id : '') == $x->id ? 'selected' : '' }}>
                                     {{ $x->name }}
                                 </option>
                             @endforeach
@@ -70,10 +70,10 @@
 
                     <div class="col-md-4">
                         <label class="form-label">Người thẩm tra</label>
-                        <select name="nguoi_tham_tra_id" class="form-select">
+                        <select name="inspector_id" class="form-select">
                             @foreach ($users as $u)
                                 <option value="{{ $u->id }}"
-                                    {{ old('nguoi_tham_tra_id', $isEdit ? $hoSo->nguoi_tham_tra_id : '') == $u->id ? 'selected' : '' }}>
+                                    {{ old('inspector_id', $isEdit ? $hoSo->inspector_id : '') == $u->id ? 'selected' : '' }}>
                                     {{ $u->name }}
                                 </option>
                             @endforeach
@@ -94,7 +94,7 @@
 
                 <div class="mb-3">
                     <label class="form-label">Ghi chú</label>
-                    <textarea name="ghi_chu" class="form-control" rows="1">{{ old('ghi_chu', $isEdit ? $hoSo->ghi_chu : '') }}</textarea>
+                    <textarea name="notes" class="form-control" rows="1">{{ old('notes', $isEdit ? $hoSo->notes : '') }}</textarea>
                 </div>
 
                 <div class="mb-3">
@@ -117,9 +117,9 @@
                                 </button>
 
                                 <!-- FILE NAME -->
-                                <a href="{{ asset('storage/' . $file->duong_dan) }}" target="_blank"
-                                    class="file-name text-primary text-decoration-none" title="{{ $file->ten_file }}">
-                                    {{ $file->ten_file }}
+                                <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank"
+                                    class="file-name text-primary text-decoration-none" title="{{ $file->file_name }}">
+                                    {{ $file->file_name }}
                                 </a>
 
                             </div>

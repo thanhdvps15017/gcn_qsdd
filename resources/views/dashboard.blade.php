@@ -125,7 +125,7 @@
                                     @forelse ($theoXa as $index => $item)
                                         <tr>
                                             <td>{{ $index + 1 }}</td>
-                                            <td>{{ $item->xa?->ten ?? '—' }}</td>
+                                            <td>{{ $item->xa?->name ?? '—' }}</td>
                                             <td class="font-weight-bold">{{ $item->tong }}</td>
                                         </tr>
                                     @empty
@@ -148,7 +148,7 @@
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex justify-content-between align-items-center">
                         <h6 class="m-0 font-weight-bold text-primary">Hồ sơ cần xử lý gấp (hạn gần nhất)</h6>
-                        <a href="{{ route('admin.hoso.index') }}" class="btn btn-sm btn-primary">Xem tất cả</a>
+                        <a href="{{ route('ho-so.index') }}" class="btn btn-sm btn-primary">Xem tất cả</a>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -167,19 +167,19 @@
                                 <tbody>
                                     @forelse ($hoSoGap as $hs)
                                         <tr
-                                            class="{{ $hs->han_giai_quyet && $hs->han_giai_quyet->isPast() ? 'table-danger' : '' }}">
-                                            <td>{{ $hs->ma_ho_so }}</td>
-                                            <td>{{ $hs->ten_chu_ho_so }}</td>
+                                            class="{{ $hs->deadline && $hs->deadline->isPast() ? 'table-danger' : '' }}">
+                                            <td>{{ $hs->dossier_code }}</td>
+                                            <td>{{ $hs->owner_name }}</td>
                                             <td>
                                                 <span class="badge bg-{{ $hs->trang_thai_meta['color'] }}">
                                                     {{ $hs->trang_thai_meta['text'] }}
                                                 </span>
                                             </td>
-                                            <td>{{ $hs->han_giai_quyet?->format('d/m/Y') ?? '—' }}</td>
+                                            <td>{{ $hs->deadline?->format('d/m/Y') ?? '—' }}</td>
                                             <td class="fw-bold">
-                                                {{ $hs->han_giai_quyet ? $hs->han_giai_quyet->diffForHumans() : '—' }}
+                                                {{ $hs->deadline ? $hs->deadline->diffForHumans() : '—' }}
                                             </td>
-                                            <td>{{ $hs->xa?->ten ?? '—' }}</td>
+                                            <td>{{ $hs->xa?->name ?? '—' }}</td>
                                             <td>{{ $hs->nguoiThamTra?->name ?? 'Chưa phân' }}</td>
                                         </tr>
                                     @empty

@@ -47,8 +47,8 @@
                                                     Chỉnh sửa
                                                 </button>
 
-                                                <form action="{{ route('xa.destroy', $item) }}" method="POST"
-                                                    onsubmit="return confirm('Xoá xã {{ addslashes($item->name) }}?')">
+                                                <form action="{{ route('settings.xa.destroy', $item) }}" method="POST"
+                                                    onsubmit="confirmDelete(event, this, 'Xoá xã {{ addslashes($item->name) }}?')">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit"
@@ -88,12 +88,13 @@
 
                 <form id="xaForm" method="POST">
                     @csrf
-                    <input type="hidden" id="xaMethod">
+                    <input type="hidden" id="xaMethod" name="_method" value="{{ old('_method') }}">
+                    <input type="hidden" id="xaId" name="id" value="{{ old('id') }}">
 
                     <div class="modal-body p-4">
                         <label class="fw-bold">Tên xã / phường *</label>
                         <input name="name" id="xaName" class="form-control @error('name') is-invalid @enderror"
-                            value="{{ old('name') }}" required>
+                            value="{{ old('name') }}" placeholder="Nhập tên xã / phường">
 
                         @error('name')
                             <div class="invalid-feedback d-block mt-2">
@@ -121,8 +122,10 @@
 
         function openCreateXa() {
             xaForm.reset();
-            xaForm.action = "{{ route('xa.store') }}";
-            document.getElementById('xaMethod').innerHTML = '';
+            xaForm.action = "{{ route('settings.xa.store') }}";
+            document.getElementById('xaMethod').value = '';
+            document.getElementById('xaMethod').disabled = true;
+            document.getElementById('xaId').value = '';
             document.getElementById('xaModalTitle').innerText = 'Thêm xã / phường';
             xaModal.show();
         }
@@ -130,18 +133,28 @@
         function openEditXa(id, name) {
             xaForm.reset();
             xaForm.action = `/settings/xa/${id}`;
-            document.getElementById('xaMethod').innerHTML =
-                '<input type="hidden" name="_method" value="PUT">';
+            document.getElementById('xaMethod').disabled = false;
+            document.getElementById('xaMethod').value = 'PUT';
+            document.getElementById('xaId').value = id;
             document.getElementById('xaModalTitle').innerText = 'Cập nhật xã / phường';
             document.getElementById('xaName').value = name;
             xaModal.show();
         }
 
         // Tự mở modal khi validate lỗi
-        @if ($errors->has('name'))
-            document.addEventListener('DOMContentLoaded', () => {
-                openCreateXa();
-            });
-        @endif
+        document.addEventListener('DOMContentLoaded', () => {
+            @if ($errors->any())
+                @if (old('_method') == 'PUT')
+                    xaForm.action = `/settings/xa/{{ old('id') }}`;
+                    document.getElementById('xaModalTitle').innerText = 'Cập nhật xã / phường';
+                    document.getElementById('xaMethod').disabled = false;
+                @else
+                    xaForm.action = "{{ route('settings.xa.store') }}";
+                    document.getElementById('xaModalTitle').innerText = 'Thêm xã / phường';
+                    document.getElementById('xaMethod').disabled = true;
+                @endif
+                xaModal.show();
+            @endif
+        });
     </script>
 @endpush

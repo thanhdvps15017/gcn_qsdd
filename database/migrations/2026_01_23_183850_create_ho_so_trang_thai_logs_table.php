@@ -18,8 +18,8 @@ return new class extends Migration
                 ->constrained('ho_sos')
                 ->cascadeOnDelete();
 
-            $table->string('trang_thai_cu')->nullable();
-            $table->string('trang_thai_moi');
+            $table->string('old_status')->nullable()->index();
+            $table->string('new_status')->index();
 
             $table->foreignId('user_id')->nullable()
                 ->constrained('users')

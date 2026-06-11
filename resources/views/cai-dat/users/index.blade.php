@@ -70,8 +70,8 @@
                                                     Chỉnh sửa
                                                 </button>
 
-                                                <form action="{{ route('users.destroy', $user) }}" method="POST"
-                                                    onsubmit="return confirm('Bạn chắc chắn muốn xoá user này?')">
+                                                <form action="{{ route('settings.users.destroy', $user) }}" method="POST"
+                                                    onsubmit="confirmDelete(event, this, 'Bạn chắc chắn muốn xoá user này?')">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit"
@@ -111,43 +111,53 @@
 
                 <form id="userForm" method="POST">
                     @csrf
-                    <input type="hidden" id="methodField">
+                    <input type="hidden" id="methodField" name="_method" value="{{ old('_method') }}">
+                    <input type="hidden" id="userId" name="id" value="{{ old('id') }}">
 
                     <div class="modal-body row g-3 p-4">
 
                         <div class="col-md-6">
                             <label class="fw-bold">Username *</label>
-                            <input name="username" id="username" class="form-control" required>
+                            <input name="username" id="username" class="form-control @error('username') is-invalid @enderror" value="{{ old('username') }}" placeholder="Nhập tên đăng nhập">
+                            @error('username')
+                                <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-6">
                             <label class="fw-bold">Tên</label>
-                            <input name="name" id="name" class="form-control">
+                            <input name="name" id="name" class="form-control" placeholder="Nhập họ và tên">
                         </div>
 
                         <div class="col-md-6">
                             <label class="fw-bold">Email</label>
-                            <input name="email" id="email" class="form-control">
+                            <input name="email" id="email" class="form-control" placeholder="Nhập email">
                         </div>
 
                         <div class="col-md-6">
                             <label class="fw-bold">Số điện thoại</label>
-                            <input name="phone" id="phone" class="form-control">
+                            <input name="phone" id="phone" class="form-control" placeholder="Nhập số điện thoại">
                         </div>
 
                         <div class="col-12">
                             <label class="fw-bold">Mật khẩu</label>
-                            <input type="password" name="password" id="password" class="form-control">
+                            <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" placeholder="Nhập mật khẩu (để trống nếu không đổi)">
+                            @error('password')
+                                <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-12">
                             <label class="fw-bold">Role *</label>
-                            <select name="role" id="roleSelect" class="form-select" required>
+                            <select name="role" id="roleSelect" class="form-select" data-container="body">
                                 <option value="">-- Chọn role --</option>
                                 @foreach ($roles as $role)
-                                    <option value="{{ $role->name }}">{{ $role->name }}</option>
+                                    <option value="{{ $role->name }}" @selected(old('role') == $role->name)>{{ $role->name }}</option>
                                 @endforeach
                             </select>
+                            @error('role')
+                                <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
                     </div>
@@ -195,8 +205,11 @@
 
         function openCreateUser() {
             form.reset();
-            form.action = "{{ route('users.store') }}";
-            document.getElementById('methodField').innerHTML = '';
+            $('#roleSelect').selectpicker('refresh');
+            form.action = "{{ route('settings.users.store') }}";
+            document.getElementById('methodField').value = '';
+            document.getElementById('methodField').disabled = true;
+            document.getElementById('userId').value = '';
             document.getElementById('userModalTitle').innerText = 'Thêm User';
             userModal.show();
         }
@@ -206,15 +219,16 @@
             form.action = `/settings/users/${user.id}`;
 
             document.getElementById('userModalTitle').innerText = 'Sửa tài khoản';
-            document.getElementById('methodField').innerHTML =
-                '<input type="hidden" name="_method" value="PUT">';
+            document.getElementById('methodField').disabled = false;
+            document.getElementById('methodField').value = 'PUT';
+            document.getElementById('userId').value = user.id;
 
             document.getElementById('username').value = user.username;
             document.getElementById('name').value = user.name || '';
             document.getElementById('email').value = user.email || '';
             document.getElementById('phone').value = user.phone || '';
 
-            document.getElementById('roleSelect').value = currentRole || '';
+            $('#roleSelect').val(currentRole || '').selectpicker('refresh');
 
             userModal.show();
         }
@@ -233,5 +247,20 @@
                     showModal.show();
                 });
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            @if ($errors->any())
+                @if (old('_method') == 'PUT')
+                    form.action = `/settings/users/{{ old('id') }}`;
+                    document.getElementById('userModalTitle').innerText = 'Sửa tài khoản';
+                    document.getElementById('methodField').disabled = false;
+                @else
+                    form.action = "{{ route('settings.users.store') }}";
+                    document.getElementById('userModalTitle').innerText = 'Thêm User';
+                    document.getElementById('methodField').disabled = true;
+                @endif
+                userModal.show();
+            @endif
+        });
     </script>
 @endpush

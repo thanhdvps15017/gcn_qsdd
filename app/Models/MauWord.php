@@ -12,11 +12,11 @@ class MauWord extends Model
     protected $table = "mau_words";
 
     protected $fillable = [
-        'ten',
+        'name',
         'file_path',
         'folder_id',
-        'ghi_chu',
-        'file_dinh_kem',
+        'notes',
+        'attachment',
     ];
 
     public function folder()

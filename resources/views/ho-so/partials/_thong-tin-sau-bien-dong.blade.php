@@ -11,7 +11,7 @@
             <!-- Loại biến động -->
             <div class="mb-4">
                 <label class="form-label fw-bold">Loại biến động</label>
-                <select name="thong_tin_rieng[loai]" class="form-select" id="loaiBienDong">
+                <select name="private_info[type]" class="form-select" id="loaiBienDong">
                     <option value="">-- Chọn loại biến động --</option>
                     <option value="tachthua_chuyennhuong"
                         {{ $riengLoai === 'tachthua_chuyennhuong' ? 'selected' : '' }}>Tách thửa - chuyển nhượng
@@ -31,11 +31,11 @@
                 <div class="col-lg-6">
                     <h6 class="fw-bold mb-3 text-success">Người liên quan / Bên nhận chuyển nhượng</h6>
 
-                    <div id="nguoi-lien-quan-container">
-                        @forelse ($nguoiLienQuan as $idx => $nguoi)
-                            <div class="nguoi-lien-quan-item border rounded p-3 mb-3 bg-light position-relative">
+                    <div id="person-lien-quan-container">
+                        @forelse ($nguoiLienQuan as $idx => $person)
+                            <div class="person-lien-quan-item border rounded p-3 mb-3 bg-light position-relative">
                                 <button type="button"
-                                    class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2 remove-nguoi-btn">X</button>
+                                    class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2 remove-person-btn">X</button>
 
                                 <div class="row g-3">
                                     <!-- Họ tên + Xưng hô -->
@@ -44,18 +44,18 @@
                                                 class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <select
-                                                name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][xung_ho]"
+                                                name="private_info[data][related_person][{{ $idx }}][salutation]"
                                                 class="form-select" style="max-width: 90px;">
                                                 <option value="Ông"
-                                                    {{ ($nguoi['xung_ho'] ?? '') == 'Ông' ? 'selected' : '' }}>Ông
+                                                    {{ ($person['salutation'] ?? '') == 'Ông' ? 'selected' : '' }}>Ông
                                                 </option>
                                                 <option value="Bà"
-                                                    {{ ($nguoi['xung_ho'] ?? '') == 'Bà' ? 'selected' : '' }}>Bà
+                                                    {{ ($person['salutation'] ?? '') == 'Bà' ? 'selected' : '' }}>Bà
                                                 </option>
                                             </select>
                                             <input
-                                                name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][ho_ten]"
-                                                class="form-control" value="{{ $nguoi['ho_ten'] ?? '' }}"
+                                                name="private_info[data][related_person][{{ $idx }}][full_name]"
+                                                class="form-control" value="{{ $person['full_name'] ?? '' }}"
                                                 placeholder="Họ và tên" required>
                                         </div>
                                     </div>
@@ -63,49 +63,49 @@
                                     <div class="col-12 col-md-4">
                                         <label class="form-label small">Ngày sinh</label>
                                         <input type="date"
-                                            name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][ngay_sinh]"
-                                            class="form-control" value="{{ $nguoi['ngay_sinh'] ?? '' }}">
+                                            name="private_info[data][related_person][{{ $idx }}][date_of_birth]"
+                                            class="form-control" value="{{ $person['date_of_birth'] ?? '' }}">
                                     </div>
 
                                     <div class="col-6 col-md-4">
                                         <label class="form-label small">CCCD/CMND</label>
-                                        <input name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][cccd]"
-                                            class="form-control" value="{{ $nguoi['cccd'] ?? '' }}"
+                                        <input name="private_info[data][related_person][{{ $idx }}][id_card]"
+                                            class="form-control" value="{{ $person['id_card'] ?? '' }}"
                                             placeholder="CCCD/CMND">
                                     </div>
 
                                     <div class="col-6 col-md-4">
                                         <label class="form-label small">Ngày cấp</label>
                                         <input type="date"
-                                            name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][ngay_cap_cccd]"
-                                            class="form-control" value="{{ $nguoi['ngay_cap_cccd'] ?? '' }}">
+                                            name="private_info[data][related_person][{{ $idx }}][id_issue_date]"
+                                            class="form-control" value="{{ $person['id_issue_date'] ?? '' }}">
                                     </div>
 
                                     <div class="col-4">
                                         <label class="form-label small">Địa chỉ</label>
                                         <input type="text"
-                                            name="thong_tin_rieng[data][nguoi_lien_quan][{{ $idx }}][dia_chi]"
-                                            class="form-control" value="{{ $nguoi['dia_chi'] ?? '' }}"
+                                            name="private_info[data][related_person][{{ $idx }}][address]"
+                                            class="form-control" value="{{ $person['address'] ?? '' }}"
                                             placeholder="Địa chỉ">
                                     </div>
                                 </div>
                             </div>
                         @empty
-                            <div class="nguoi-lien-quan-item border rounded p-3 mb-3 bg-light position-relative">
+                            <div class="person-lien-quan-item border rounded p-3 mb-3 bg-light position-relative">
                                 <button type="button"
-                                    class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2 remove-nguoi-btn">X</button>
+                                    class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2 remove-person-btn">X</button>
 
                                 <div class="row g-3">
                                     <div class="col-12 col-md-8">
                                         <label class="form-label small">Họ tên <span
                                                 class="text-danger">*</span></label>
                                         <div class="input-group">
-                                            <select name="thong_tin_rieng[data][nguoi_lien_quan][0][xung_ho]"
+                                            <select name="private_info[data][related_person][0][salutation]"
                                                 class="form-select" style="max-width: 90px;">
                                                 <option value="Ông">Ông</option>
                                                 <option value="Bà">Bà</option>
                                             </select>
-                                            <input name="thong_tin_rieng[data][nguoi_lien_quan][0][ho_ten]"
+                                            <input name="private_info[data][related_person][0][full_name]"
                                                 class="form-control" placeholder="Họ và tên" required>
                                         </div>
                                     </div>
@@ -113,27 +113,27 @@
                                     <div class="col-12 col-md-4">
                                         <label class="form-label small">Ngày sinh</label>
                                         <input type="date"
-                                            name="thong_tin_rieng[data][nguoi_lien_quan][0][ngay_sinh]"
+                                            name="private_info[data][related_person][0][date_of_birth]"
                                             class="form-control">
                                     </div>
 
                                     <div class="col-6 col-md-4">
                                         <label class="form-label small">CCCD/CMND</label>
-                                        <input name="thong_tin_rieng[data][nguoi_lien_quan][0][cccd]"
+                                        <input name="private_info[data][related_person][0][id_card]"
                                             class="form-control" placeholder="CCCD/CMND">
                                     </div>
 
                                     <div class="col-6 col-md-4">
                                         <label class="form-label small">Ngày cấp</label>
                                         <input type="date"
-                                            name="thong_tin_rieng[data][nguoi_lien_quan][0][ngay_cap_cccd]"
+                                            name="private_info[data][related_person][0][id_issue_date]"
                                             class="form-control">
                                     </div>
 
                                     <div class="col-4">
                                         <label class="form-label small">Địa chỉ</label>
                                         <input type="text"
-                                            name="thong_tin_rieng[data][nguoi_lien_quan][0][dia_chi]"
+                                            name="private_info[data][related_person][0][address]"
                                             class="form-control" placeholder="Địa chỉ">
                                     </div>
                                 </div>
@@ -158,27 +158,27 @@
                                 <div class="row g-3">
                                     <div class="col-6 col-md-4">
                                         <label class="form-label small">Tờ</label>
-                                        <input name="thong_tin_rieng[data][thua][{{ $idx }}][to]"
-                                            class="form-control" value="{{ $t['to'] ?? '' }}" placeholder="Tờ">
+                                        <input name="private_info[data][thua][{{ $idx }}][to]"
+                                            class="form-control" value="{{ $t['map_sheet'] ?? '' }}" placeholder="Tờ">
                                     </div>
 
                                     <div class="col-6 col-md-4">
                                         <label class="form-label small">Thửa</label>
-                                        <input name="thong_tin_rieng[data][thua][{{ $idx }}][thua]"
-                                            class="form-control" value="{{ $t['thua'] ?? '' }}" placeholder="Thửa">
+                                        <input name="private_info[data][thua][{{ $idx }}][thua]"
+                                            class="form-control" value="{{ $t['plot_number'] ?? '' }}" placeholder="Thửa">
                                     </div>
 
                                     <div class="col-6 col-md-4">
                                         <label class="form-label small">Diện tích (m²)</label>
-                                        <input name="thong_tin_rieng[data][thua][{{ $idx }}][dien_tich]"
-                                            class="form-control" value="{{ $t['dien_tich'] ?? '' }}"
+                                        <input name="private_info[data][thua][{{ $idx }}][area]"
+                                            class="form-control" value="{{ $t['area'] ?? '' }}"
                                             placeholder="Diện tích">
                                     </div>
 
                                     <div class="col-12">
                                         <label class="form-label small">Ghi chú</label>
-                                        <input name="thong_tin_rieng[data][thua][{{ $idx }}][ghi_chu]"
-                                            class="form-control" value="{{ $t['ghi_chu'] ?? '' }}"
+                                        <input name="private_info[data][thua][{{ $idx }}][notes]"
+                                            class="form-control" value="{{ $t['notes'] ?? '' }}"
                                             placeholder="Ghi chú (nếu có)">
                                     </div>
                                 </div>
@@ -191,25 +191,25 @@
                                 <div class="row g-3">
                                     <div class="col-6 col-md-4">
                                         <label class="form-label small">Tờ</label>
-                                        <input name="thong_tin_rieng[data][thua][0][to]" class="form-control"
+                                        <input name="private_info[data][thua][0][to]" class="form-control"
                                             placeholder="Tờ">
                                     </div>
 
                                     <div class="col-6 col-md-4">
                                         <label class="form-label small">Thửa</label>
-                                        <input name="thong_tin_rieng[data][thua][0][thua]" class="form-control"
+                                        <input name="private_info[data][thua][0][thua]" class="form-control"
                                             placeholder="Thửa">
                                     </div>
 
                                     <div class="col-6 col-md-4">
                                         <label class="form-label small">Diện tích (m²)</label>
-                                        <input name="thong_tin_rieng[data][thua][0][dien_tich]" class="form-control"
+                                        <input name="private_info[data][thua][0][area]" class="form-control"
                                             placeholder="Diện tích">
                                     </div>
 
                                     <div class="col-12">
                                         <label class="form-label small">Ghi chú</label>
-                                        <input name="thong_tin_rieng[data][thua][0][ghi_chu]" class="form-control"
+                                        <input name="private_info[data][thua][0][notes]" class="form-control"
                                             placeholder="Ghi chú (nếu có)">
                                     </div>
                                 </div>
@@ -232,45 +232,45 @@
     let thuaDatIndex = {{ count($riengThua ?? []) }};
 
     function addNguoiLienQuan() {
-        const container = document.getElementById('nguoi-lien-quan-container');
+        const container = document.getElementById('person-lien-quan-container');
         if (!container) return;
 
         const html = `
-            <div class="nguoi-lien-quan-item border rounded p-3 mb-3 bg-light position-relative">
-                <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2 remove-nguoi-btn">X</button>
+            <div class="person-lien-quan-item border rounded p-3 mb-3 bg-light position-relative">
+                <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2 remove-person-btn">X</button>
 
                 <div class="row g-3">
                     <div class="col-12 col-md-8">
                         <label class="form-label small">Họ tên <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <select name="thong_tin_rieng[data][nguoi_lien_quan][${nguoiLienQuanIndex}][xung_ho]" 
+                            <select name="private_info[data][related_person][${nguoiLienQuanIndex}][salutation]" 
                                     class="form-select" style="max-width: 90px;">
                                 <option value="Ông">Ông</option>
                                 <option value="Bà">Bà</option>
                             </select>
-                            <input name="thong_tin_rieng[data][nguoi_lien_quan][${nguoiLienQuanIndex}][ho_ten]" 
+                            <input name="private_info[data][related_person][${nguoiLienQuanIndex}][full_name]" 
                                    class="form-control" placeholder="Họ và tên" required>
                         </div>
                     </div>
 
                     <div class="col-12 col-md-4">
                         <label class="form-label small">Ngày sinh</label>
-                        <input type="date" name="thong_tin_rieng[data][nguoi_lien_quan][${nguoiLienQuanIndex}][ngay_sinh]" class="form-control">
+                        <input type="date" name="private_info[data][related_person][${nguoiLienQuanIndex}][date_of_birth]" class="form-control">
                     </div>
 
                     <div class="col-6 col-md-4">
                         <label class="form-label small">CCCD/CMND</label>
-                        <input name="thong_tin_rieng[data][nguoi_lien_quan][${nguoiLienQuanIndex}][cccd]" class="form-control" placeholder="CCCD/CMND">
+                        <input name="private_info[data][related_person][${nguoiLienQuanIndex}][id_card]" class="form-control" placeholder="CCCD/CMND">
                     </div>
 
                     <div class="col-6 col-md-4">
                         <label class="form-label small">Ngày cấp</label>
-                        <input type="date" name="thong_tin_rieng[data][nguoi_lien_quan][${nguoiLienQuanIndex}][ngay_cap_cccd]" class="form-control">
+                        <input type="date" name="private_info[data][related_person][${nguoiLienQuanIndex}][id_issue_date]" class="form-control">
                     </div>
 
                     <div class="col-4">
                         <label class="form-label small">Địa chỉ</label>
-                        <input type="text" name="thong_tin_rieng[data][nguoi_lien_quan][${nguoiLienQuanIndex}][dia_chi]" 
+                        <input type="text" name="private_info[data][related_person][${nguoiLienQuanIndex}][address]" 
                                class="form-control" placeholder="Địa chỉ">
                     </div>
                 </div>
@@ -291,19 +291,19 @@
                 <div class="row g-3">
                     <div class="col-6 col-md-4">
                         <label class="form-label small">Tờ</label>
-                        <input name="thong_tin_rieng[data][thua][${thuaDatIndex}][to]" class="form-control" placeholder="Tờ">
+                        <input name="private_info[data][thua][${thuaDatIndex}][to]" class="form-control" placeholder="Tờ">
                     </div>
                     <div class="col-6 col-md-4">
                         <label class="form-label small">Thửa</label>
-                        <input name="thong_tin_rieng[data][thua][${thuaDatIndex}][thua]" class="form-control" placeholder="Thửa">
+                        <input name="private_info[data][thua][${thuaDatIndex}][thua]" class="form-control" placeholder="Thửa">
                     </div>
                     <div class="col-6 col-md-4">
                         <label class="form-label small">Diện tích (m²)</label>
-                        <input name="thong_tin_rieng[data][thua][${thuaDatIndex}][dien_tich]" class="form-control" placeholder="Diện tích">
+                        <input name="private_info[data][thua][${thuaDatIndex}][area]" class="form-control" placeholder="Diện tích">
                     </div>
                     <div class="col-12">
                         <label class="form-label small">Ghi chú</label>
-                        <input name="thong_tin_rieng[data][thua][${thuaDatIndex}][ghi_chu]" class="form-control" placeholder="Ghi chú (nếu có)">
+                        <input name="private_info[data][thua][${thuaDatIndex}][notes]" class="form-control" placeholder="Ghi chú (nếu có)">
                     </div>
                 </div>
             </div>`;
@@ -313,13 +313,13 @@
     }
 
     document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-nguoi-btn')) {
-            const items = document.querySelectorAll('.nguoi-lien-quan-item');
+        if (e.target.classList.contains('remove-person-btn')) {
+            const items = document.querySelectorAll('.person-lien-quan-item');
             if (items.length <= 1) {
                 alert('Phải có ít nhất một người liên quan!');
                 return;
             }
-            e.target.closest('.nguoi-lien-quan-item').remove();
+            e.target.closest('.person-lien-quan-item').remove();
         }
 
         if (e.target.classList.contains('remove-thua-btn')) {

@@ -10,15 +10,15 @@
             <div class="card-body">
                 <div class="mb-3">
                     <label class="form-label fw-bold">Tên sổ <span class="text-danger">*</span></label>
-                    <input type="text" name="ten_so" class="form-control" value="{{ old('ten_so') }}" required>
-                    @error('ten_so')
+                    <input type="text" name="book_name" class="form-control" value="{{ old('book_name') }}" required>
+                    @error('book_name')
                         <div class="text-danger small">{{ $message }}</div>
                     @enderror
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Mô tả</label>
-                    <textarea name="mo_ta" class="form-control" rows="4">{{ old('mo_ta') }}</textarea>
+                    <textarea name="description" class="form-control" rows="4">{{ old('description') }}</textarea>
                 </div>
             </div>
             <div class="card-footer bg-light text-end">

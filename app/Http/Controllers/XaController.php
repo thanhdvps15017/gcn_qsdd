@@ -3,43 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\Xa;
 use Illuminate\Http\Request;
+use App\Services\XaService;
 
 class XaController extends Controller
 {
+    protected $xaService;
+
+    public function __construct(XaService $xaService)
+    {
+        $this->xaService = $xaService;
+    }
+
     public function index()
     {
-        $items = Xa::orderBy('id', 'desc')->get();
-        return view('xa.index', compact('items'));
+        $items = $this->xaService->getAllXas();
+        return view('cai-dat.xa-phuong.index', compact('items'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required'
+            'name' => 'required|string|max:255|unique:xas,name'
         ], [
             'name.required' => 'Vui lòng nhập tên xã.',
             'name.unique' => 'Tên xã này đã tồn tại trong hệ thống.'
         ]);
 
-        Xa::create($request->only('name'));
+        $this->xaService->createXa($request->only('name'));
 
         return back()->with('success', 'Thêm xã thành công!');
     }
 
     public function update(Request $request, $id)
     {
-        $item = Xa::findOrFail($id);
-
         $request->validate([
-            'name' => 'required' . $id
+            'name' => 'required|string|max:255|unique:xas,name,' . $id
         ], [
             'name.required' => 'Vui lòng nhập tên xã.',
-            'name.unique'    => 'Tên xã này đã tồn tại trong hệ thống.'
+            'name.unique'   => 'Tên xã này đã tồn tại trong hệ thống.'
         ]);
 
-        $item->update($request->only('name'));
+        $this->xaService->updateXa($id, $request->only('name'));
 
         return back()->with('success', 'Cập nhật xã thành công!')
             ->with('editing_id', $id);
@@ -47,7 +52,7 @@ class XaController extends Controller
 
     public function destroy($id)
     {
-        Xa::findOrFail($id)->delete();
+        $this->xaService->deleteXa($id);
         return back()->with('success', 'Xóa xã thành công!');
     }
 }

@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('mau_words', function (Blueprint $table) {
             $table->id();
-            $table->string('ten');
+            $table->string('name');
             $table->string('file_path');
 
-            $table->text('ghi_chu')
+            $table->text('notes')
                 ->nullable();
 
-            $table->string('file_dinh_kem', 255)
+            $table->string('attachment', 255)
                 ->nullable();
 
             $table->foreignId('folder_id')

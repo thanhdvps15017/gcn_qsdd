@@ -5,7 +5,7 @@
     <div class="card-header text-white d-flex justify-content-between align-items-center rounded-1"
         style="background: linear-gradient(135deg, var(--primary), #0d6efd);">
         <h5 class="mb-0 fw-bold">
-            Sổ: {{ $group->ma_so }} - {{ $group->ten_so }}
+            Sổ: {{ $group->book_code }} - {{ $group->book_name }}
         </h5>
 
         <a href="{{ route('so-theo-doi.index') }}" class="btn btn-light btn-sm">
@@ -32,7 +32,7 @@
                             style="min-height:350px">
                             @foreach ($hoSosChuaThem as $hs)
                                 <option value="{{ $hs->id }}">
-                                    {{ $hs->ma_ho_so }} - {{ $hs->ten_chu_ho_so ?? 'Không tên' }}
+                                    {{ $hs->dossier_code }} - {{ $hs->owner_name ?? 'Không tên' }}
                                 </option>
                             @endforeach
                         </select>
@@ -82,9 +82,9 @@
                                             <td>
                                                 <input type="checkbox" name="ho_so_ids[]" value="{{ $hs->id }}">
                                             </td>
-                                            <td>{{ $hs->pivot->thu_tu }}</td>
-                                            <td>{{ $hs->ma_ho_so }}</td>
-                                            <td>{{ $hs->ten_chu_ho_so }}</td>
+                                            <td>{{ $hs->pivot->order_index }}</td>
+                                            <td>{{ $hs->dossier_code }}</td>
+                                            <td>{{ $hs->owner_name }}</td>
                                             <td>{{ $hs->loaiHoSo->name }}</td>
                                             <td>{{ $hs->loaiThuTuc->name }}</td>
                                             <td>{{ $hs->nguoiThamTra->name }}</td>
@@ -92,7 +92,7 @@
                                                 <button type="button"
                                                     class="btn btn-sm btn-outline-secondary btn-open-note"
                                                     data-ho-so-id="{{ $hs->id }}"
-                                                    data-ghi-chu="{{ $hs->pivot->ghi_chu }}">
+                                                    data-ghi-chu="{{ $hs->pivot->notes }}">
                                                     <i class="bi bi-journal-text"></i> Ghi chú
                                                 </button>
                                                 <a href="{{ route('ho-so.show', $hs) }}"
@@ -171,7 +171,7 @@
                             'Accept': 'application/json'
                         },
                         body: JSON.stringify({
-                            ghi_chu: ghiChu
+                            notes: ghiChu
                         })
                     })
                     .then(res => {
@@ -227,7 +227,7 @@
                     data.forEach(hs => {
                         select.innerHTML += `
                     <option value="${hs.id}">
-                        ${hs.ma_ho_so} - ${hs.ten_chu_ho_so ?? 'Không tên'}
+                        ${hs.dossier_code} - ${hs.owner_name ?? 'Không tên'}
                     </option>`;
                     });
                 });
@@ -252,9 +252,9 @@
                         tbody.innerHTML += `
                 <tr>
                     <td><input type="checkbox" name="ho_so_ids[]" value="${hs.id}"></td>
-                    <td>${hs.ma_ho_so}</td>
-                    <td>${hs.chu_su_dung?.ho_ten ?? '-'}</td>
-                    <td>${hs.trang_thai ?? ''}</td>
+                    <td>${hs.dossier_code}</td>
+                    <td>${hs.land_owners?.full_name ?? '-'}</td>
+                    <td>${hs.status ?? ''}</td>
                     <td>
                         <a href="/ho-so/${hs.id}" class="btn btn-sm btn-outline-primary">Xem</a>
                     </td>

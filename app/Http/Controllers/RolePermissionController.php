@@ -2,76 +2,64 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use App\Services\RolePermissionService;
 
 class RolePermissionController extends Controller
 {
-    public function index()
-    {
-        $roles = Role::with('permissions')->get();
-        $permissions = Permission::orderBy('name')->get();
+    protected $service;
 
-        return view('roles.index', compact('roles', 'permissions'));
+    public function __construct(RolePermissionService $service) {
+        $this->service = $service;
     }
 
-    public function store(Request $request)
-    {
-        $request->validate(['name' => 'required|unique:roles,name']);
-        Role::create(['name' => $request->name]);
+    public function index() {
+        $roles = $this->service->getAllRolesWithPermissions();
+        $permissions = $this->service->getAllPermissions();
+        return view('cai-dat.roles.index', compact('roles', 'permissions'));
+    }
 
+    public function store(Request $request) {
+        $request->validate(['name' => 'required|unique:roles,name']);
+        $this->service->createRole(['name' => $request->name]);
         return back()->with('success', 'Tạo role thành công');
     }
 
-    public function edit(Role $role)
-    {
-        $permissions = Permission::orderBy('name')->get();
+    public function edit(Role $role) {
+        $permissions = $this->service->getAllPermissions();
         $rolePermissions = $role->permissions->pluck('name')->toArray();
-
-        return view('roles.edit', compact('role', 'permissions', 'rolePermissions'));
+        return view('cai-dat.roles.edit', compact('role', 'permissions', 'rolePermissions'));
     }
 
-    public function update(Request $request, Role $role)
-    {
+    public function update(Request $request, Role $role) {
         $request->validate(['name' => 'required']);
-        $role->update(['name' => $request->name]);
-
         $permissions = array_filter($request->permissions ?? []);
-        $role->syncPermissions($permissions);
-
+        $this->service->updateRole($role, ['name' => $request->name], $permissions);
         return back()->with('success', 'Cập nhật role + permission thành công');
     }
 
-    public function destroy(Role $role)
-    {
-        $role->delete();
+    public function destroy(Role $role) {
+        $this->service->deleteRole($role);
         return back()->with('success', 'Xoá role thành công');
     }
 
-    public function assignPermission(Request $request, Role $role)
-    {
+    public function assignPermission(Request $request, Role $role) {
         $permissions = array_filter($request->permissions ?? []);
-        $role->syncPermissions($permissions);
-
+        $this->service->assignPermission($role, $permissions);
         return back()->with('success', 'Gán quyền cho role thành công');
     }
 
-    public function userRoles(User $user)
-    {
-        $roles = Role::all();
+    public function userRoles(User $user) {
+        $roles = $this->service->getAllRoles();
         $userRoles = $user->roles->pluck('name')->toArray();
-
-        return view('roles.user_roles', compact('user', 'roles', 'userRoles'));
+        return view('cai-dat.roles.user_roles', compact('user', 'roles', 'userRoles'));
     }
 
-    public function assignUserRole(Request $request, User $user)
-    {
+    public function assignUserRole(Request $request, User $user) {
         $roles = array_filter($request->roles ?? []);
-        $user->syncRoles($roles);
-
+        $this->service->assignUserRole($user, $roles);
         return back()->with('success', 'Gán role cho user thành công');
     }
 }

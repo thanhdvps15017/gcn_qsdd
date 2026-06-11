@@ -4,15 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use App\Services\UserService;
+use Exception;
 
 class UserController extends Controller
 {
+    protected $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     public function index()
     {
-        return view('users.index', [
-            'users' => User::with('roles')->latest()->get(),
+        return view('cai-dat.users.index', [
+            'users' => $this->userService->getAllUsers(),
             'roles' => Role::all(),
         ]);
     }
@@ -28,10 +36,7 @@ class UserController extends Controller
             'role'     => 'required|exists:roles,name',
         ]);
 
-        $data['password'] = Hash::make($data['password']);
-
-        $user = User::create($data);
-        $user->syncRoles([$request->role]);
+        $this->userService->createUser($data);
 
         return back()->with('success', 'Tạo user thành công');
     }
@@ -47,14 +52,7 @@ class UserController extends Controller
             'role'     => 'required|exists:roles,name',
         ]);
 
-        if ($request->filled('password')) {
-            $data['password'] = Hash::make($request->password);
-        } else {
-            unset($data['password']);
-        }
-
-        $user->update($data);
-        $user->syncRoles([$request->role]);
+        $this->userService->updateUser($user, $data);
 
         return back()->with('success', 'Cập nhật thành công');
     }
@@ -74,14 +72,13 @@ class UserController extends Controller
         ]);
     }
 
-
     public function destroy(User $user)
     {
-        if ($user->hasRole('superadmin')) {
-            return back()->with('error', 'Không thể xoá superadmin');
+        try {
+            $this->userService->deleteUser($user);
+            return back()->with('success', 'Đã xoá user');
+        } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
         }
-
-        $user->delete();
-        return back()->with('success', 'Đã xoá user');
     }
 }

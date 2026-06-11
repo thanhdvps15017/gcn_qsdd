@@ -47,8 +47,7 @@
 
                         <div class="mb-4">
                             <label class="fw-semibold d-block mb-2">Chọn ảnh background mới</label>
-                            <input type="file" name="login_bg"
-                                class="form-control @error('login_bg') is-invalid @enderror" accept="image/*" required>
+                            <input type="file" name="login_bg" class="form-control @error('login_bg') is-invalid @enderror" accept="image/*">
                             @error('login_bg')
                                 <div class="invalid-feedback">
                                     {{ $message }}

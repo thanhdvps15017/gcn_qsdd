@@ -28,7 +28,7 @@
                                             data-bs-target="#collapse-{{ $folder->id }}"
                                             aria-expanded="{{ $index === 0 ? 'true' : 'false' }}"
                                             aria-controls="collapse-{{ $folder->id }}">
-                                            📁 {{ $folder->ten }}
+                                            📁 {{ $folder->name }}
                                         </button>
                                     </h2>
 
@@ -43,15 +43,15 @@
                                                     <button type="button"
                                                         class="list-group-item list-group-item-action mau-item px-4 py-3"
                                                         data-mau-id="{{ $mau->id }}"
-                                                        data-mau-ten="{{ $mau->ten }}"
-                                                        data-mau-ghichu="{{ $mau->ghi_chu ?? '' }}"
-                                                        data-mau-dinhkem="{{ $mau->file_dinh_kem ?? '' }}">
+                                                        data-mau-ten="{{ $mau->name }}"
+                                                        data-mau-ghichu="{{ $mau->notes ?? '' }}"
+                                                        data-mau-dinhkem="{{ $mau->attachment ?? '' }}">
 
                                                         <div class="d-flex justify-content-between align-items-start">
                                                             <div class="me-3">
                                                                 <i
                                                                     class="bi bi-file-earmark-word-fill text-primary fs-4 me-2"></i>
-                                                                <strong>{{ $mau->ten }}</strong>
+                                                                <strong>{{ $mau->name }}</strong>
                                                             </div>
                                                             <small class="text-muted text-end">
                                                                 {{ $mau->created_at->diffForHumans() }}
@@ -59,18 +59,18 @@
                                                         </div>
 
                                                         <!-- Ghi chú -->
-                                                        @if ($mau->ghi_chu)
+                                                        @if ($mau->notes)
                                                             <div class="mt-1 small text-secondary">
                                                                 <i class="bi bi-journal-text me-1"></i>
-                                                                {{ Str::limit($mau->ghi_chu, 90) }}
+                                                                {{ Str::limit($mau->notes, 90) }}
                                                             </div>
                                                         @endif
 
                                                         <!-- File đính kèm -->
-                                                        @if ($mau->file_dinh_kem)
+                                                        @if ($mau->attachment)
                                                             <div class="mt-1 small">
                                                                 <i class="bi bi-paperclip me-1 text-info"></i>
-                                                                <a href="{{ Storage::url($mau->file_dinh_kem) }}"
+                                                                <a href="{{ Storage::url($mau->attachment) }}"
                                                                     target="_blank" class="text-info text-decoration-none"
                                                                     onclick="event.stopPropagation();">
                                                                     File đính kèm
@@ -159,13 +159,13 @@
                                 <tr class="hoso-row" data-id="{{ $hs->id }}">
                                     <td>
                                         <input type="radio" name="selected_hoso" class="check-hoso form-check-input"
-                                            value="{{ $hs->id }}" data-ma="{{ $hs->ma_ho_so ?? '—' }}"
-                                            data-ten="{{ addslashes($hs->ten_chu_ho_so) }}">
+                                            value="{{ $hs->id }}" data-ma="{{ $hs->dossier_code ?? '—' }}"
+                                            data-ten="{{ addslashes($hs->owner_name) }}">
                                     </td>
                                     <td>{{ $loop->iteration + ($hoSos->currentPage() - 1) * $hoSos->perPage() }}</td>
-                                    <td class="fw-bold">{{ $hs->ma_ho_so ?? '—' }}</td>
-                                    <td>{{ $hs->ten_chu_ho_so }}</td>
-                                    <td class="d-none d-md-table-cell">{{ optional($hs->xa)->ten ?? '—' }}</td>
+                                    <td class="fw-bold">{{ $hs->dossier_code ?? '—' }}</td>
+                                    <td>{{ $hs->owner_name }}</td>
+                                    <td class="d-none d-md-table-cell">{{ optional($hs->xa)->name ?? '—' }}</td>
                                 </tr>
                             @empty
                                 <tr>

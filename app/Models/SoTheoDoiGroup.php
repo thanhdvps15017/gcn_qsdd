@@ -12,31 +12,31 @@ class SoTheoDoiGroup extends Model
     protected $table = "so_theo_doi_groups";
 
     protected $fillable = [
-        'ten_so',
-        'ma_so',
-        'mo_ta',
-        'nguoi_tao_id'
+        'book_name',
+        'book_code',
+        'description',
+        'creator_id'
     ];
 
     public function hoSos()
     {
         return $this->belongsToMany(HoSo::class, 'ho_so_so_theo_doi')
-            ->withPivot(['ghi_chu', 'thu_tu'])
+            ->withPivot(['notes', 'order_index'])
             ->withTimestamps()
-            ->orderBy('ho_so_so_theo_doi.thu_tu');
+            ->orderBy('ho_so_so_theo_doi.order_index');
     }
 
     public function nguoiTao()
     {
-        return $this->belongsTo(User::class, 'nguoi_tao_id');
+        return $this->belongsTo(User::class, 'creator_id');
     }
 
     protected static function booted()
     {
         static::creating(function ($model) {
-            if (!$model->ma_so) {
+            if (!$model->book_code) {
                 $max = static::max('id') + 1;
-                $model->ma_so = 'SO-' . str_pad($max, 4, '0', STR_PAD_LEFT);
+                $model->book_code = 'SO-' . str_pad($max, 4, '0', STR_PAD_LEFT);
             }
         });
     }

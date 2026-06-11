@@ -80,149 +80,126 @@ Route::middleware('auth')->group(function () {
     });
 
     /* ================= Sổ theo dõi ================= */
-    Route::prefix('so-theo-doi')->name('so-theo-doi.')->group(function () {
+    Route::prefix('so-theo-doi')->name('so-theo-doi.')->middleware('can:so-theo-doi.index')->group(function () {
 
         Route::get('/', [SoTheoDoiController::class, 'index'])
-            ->name('index')
-            ->middleware('can:so-theo-doi.index');
+            ->name('index');
 
         Route::get('/create', [SoTheoDoiController::class, 'create'])
-            ->name('create')
-            ->middleware('can:so-theo-doi.create');
+            ->name('create');
 
         Route::post('/', [SoTheoDoiController::class, 'store'])
-            ->name('store')
-            ->middleware('can:so-theo-doi.store');
+            ->name('store');
 
         Route::get('/{group}', [SoTheoDoiController::class, 'show'])
-            ->name('show')
-            ->middleware('can:so-theo-doi.show');
+            ->name('show');
 
         Route::get('/{group}/edit', [SoTheoDoiController::class, 'edit'])
-            ->name('edit')
-            ->middleware('can:so-theo-doi.edit');
+            ->name('edit');
 
         Route::put('/{group}', [SoTheoDoiController::class, 'update'])
-            ->name('update')
-            ->middleware('can:so-theo-doi.update');
+            ->name('update');
 
         Route::delete('/{group}', [SoTheoDoiController::class, 'destroy'])
-            ->name('destroy')
-            ->middleware('can:so-theo-doi.destroy');
+            ->name('destroy');
 
         Route::post('/{group}/batch-add', [SoTheoDoiController::class, 'batchAdd'])
-            ->name('batch-add')
-            ->middleware('can:so-theo-doi.batch-add');
+            ->name('batch-add');
 
         Route::post('/{group}/batch-remove', [SoTheoDoiController::class, 'batchRemove'])
-            ->name('batch-remove')
-            ->middleware('can:so-theo-doi.batch-remove');
+            ->name('batch-remove');
 
         Route::get('/{group}/export-excel', [SoTheoDoiController::class, 'exportExcel'])
-            ->name('export-excel')
-            ->middleware('can:so-theo-doi.export-excel');
+            ->name('export-excel');
 
         Route::get('/{group}/export-word', [SoTheoDoiController::class, 'exportWord'])
-            ->name('export-word')
-            ->middleware('can:so-theo-doi.export-word');
+            ->name('export-word');
 
         Route::get('/{group}/search-chua-them', [SoTheoDoiController::class, 'searchHoSoChuaThem'])
-            ->name('search-chua-them')
-            ->middleware('can:so-theo-doi.search-chua-them');
+            ->name('search-chua-them');
 
         Route::get('/{group}/search-trong-so', [SoTheoDoiController::class, 'searchHoSoTrongSo'])
-            ->name('search-trong-so')
-            ->middleware('can:so-theo-doi.search-trong-so');
+            ->name('search-trong-so');
     });
 
     /* ================= Xuất file ================= */
-    Route::prefix('xuat-excel')->name('xuat-excel.')->group(function () {
+    Route::prefix('xuat-excel')->name('xuat-excel.')->middleware('can:xuat-excel.index')->group(function () {
         Route::get('/', [XuatExcelController::class, 'index'])
-            ->name('index')
-            ->middleware('can:xuat-excel.index');
+            ->name('index');
 
         Route::get('/export', [XuatExcelController::class, 'export'])
-            ->name('export')
-            ->middleware('can:xuat-excel.export');
+            ->name('export');
     });
 
-    Route::prefix('xuat-word')->name('xuat-word.')->group(function () {
+    Route::prefix('xuat-word')->name('xuat-word.')->middleware('can:xuat-word.index')->group(function () {
         Route::get('/', [XuatWordController::class, 'index'])
-            ->name('index')
-            ->middleware('can:xuat-word.index');
+            ->name('index');
 
         Route::post('/export', [XuatWordController::class, 'export'])
-            ->name('export')
-            ->middleware('can:xuat-word.export');
+            ->name('export');
 
         Route::post('/preview', [XuatWordController::class, 'preview'])
-            ->name('preview')
-            ->middleware('can:xuat-word.preview');
+            ->name('preview');
     });
 
     /* ================= Settings ================= */
-    Route::prefix('settings')->group(function () {
+    Route::prefix('settings')->name('settings.')->group(function () {
 
         Route::resource('roles', RolePermissionController::class)
             ->except(['create', 'show'])
-            ->middleware('can:roles.index');
+            ->middleware('can:settings.roles.index');
 
         Route::post('roles/{role}/assign-permission', [RolePermissionController::class, 'assignPermission'])
             ->name('roles.assign-permission')
-            ->middleware('can:roles.assign-permission');
+            ->middleware('can:settings.roles.index');
 
         Route::get('roles/user/{user}', [RolePermissionController::class, 'userRoles'])
             ->name('roles.user.roles')
-            ->middleware('can:roles.user.roles');
+            ->middleware('can:settings.roles.index');
 
         Route::post('roles/user/{user}', [RolePermissionController::class, 'assignUserRole'])
             ->name('roles.user.assign')
-            ->middleware('can:roles.user.assign');
+            ->middleware('can:settings.roles.index');
 
         Route::resource('users', UserController::class)
             ->except(['create', 'edit'])
-            ->middleware('can:users.index');
+            ->middleware('can:settings.users.index');
 
         Route::resource('loai-ho-so', LoaiHoSoController::class)
             ->only(['index', 'store', 'update', 'destroy'])
-            ->middleware('can:loai-ho-so.index');
+            ->middleware('can:settings.loai-ho-so.index');
 
         Route::resource('loai-thu-tuc', LoaiThuTucController::class)
             ->only(['index', 'store', 'update', 'destroy'])
-            ->middleware('can:loai-thu-tuc.index');
+            ->middleware('can:settings.loai-thu-tuc.index');
 
         Route::resource('xa', XaController::class)
             ->only(['index', 'store', 'update', 'destroy'])
-            ->middleware('can:xa.index');
+            ->middleware('can:settings.xa.index');
 
-        Route::prefix('mau-word')->name('mau-word.')->group(function () {
+        Route::prefix('mau-word')->name('mau-word.')->middleware('can:settings.mau-word.index')->group(function () {
             Route::get('/', [MauWordController::class, 'index'])
-                ->name('index')
-                ->middleware('can:mau-word.index');
+                ->name('index');
 
             Route::post('/upload', [MauWordController::class, 'store'])
-                ->name('store')
-                ->middleware('can:mau-word.store');
+                ->name('store');
 
             Route::put('/{mauWord}', [MauWordController::class, 'update'])
-                ->name('update')
-                ->middleware('can:mau-word.update');
+                ->name('update');
 
             Route::delete('/{mauWord}', [MauWordController::class, 'destroy'])
-                ->name('destroy')
-                ->middleware('can:mau-word.destroy');
+                ->name('destroy');
 
             Route::delete('/folder/{folder}', [MauWordController::class, 'destroyFolder'])
-                ->name('destroy-folder')
-                ->middleware('can:mau-word.destroy-folder');
+                ->name('destroy-folder');
         });
 
         Route::get('/login-bg', [SettingController::class, 'editLoginBg'])
-            ->name('settings.login-bg.edit')
+            ->name('login-bg.edit')
             ->middleware('can:settings.login-bg.edit');
 
         Route::post('/login-bg', [SettingController::class, 'updateLoginBg'])
-            ->name('settings.login-bg.update')
-            ->middleware('can:settings.login-bg.update');
+            ->name('login-bg.update')
+            ->middleware('can:settings.login-bg.edit');
     });
 });

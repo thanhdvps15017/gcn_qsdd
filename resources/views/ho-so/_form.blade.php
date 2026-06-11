@@ -10,24 +10,24 @@
     $getValue = fn($key, $default = '') => old($key, $isEdit ? data_get($hoSo, $key, $default) : $default);
 
     // Dữ liệu động
-    $uyQuyen = old('uy_quyen', $isEdit ? $hoSo->uy_quyen ?? [] : []);
-    $thuaChung = old('thua_chung', $isEdit ? array_values((array) ($hoSo->thua_chung ?? [])) : []);
-    $thongTinRieng = old('thong_tin_rieng', $isEdit ? $hoSo->thong_tin_rieng ?? [] : []);
-    $riengLoai = $thongTinRieng['loai'] ?? '';
+    $uyQuyen = old('authorization', $isEdit ? $hoSo->authorization ?? [] : []);
+    $thuaChung = old('shared_plots', $isEdit ? array_values((array) ($hoSo->shared_plots ?? [])) : []);
+    $thongTinRieng = old('private_info', $isEdit ? $hoSo->private_info ?? [] : []);
+    $riengLoai = $thongTinRieng['type'] ?? '';
     $riengData = $thongTinRieng['data'] ?? [];
-    $riengThua = array_values((array) ($riengData['thua'] ?? []));
+    $riengThua = array_values((array) ($riengData['plot_number'] ?? []));
 
     if (empty($thuaChung)) {
-        $thuaChung = [['to' => '', 'thua' => '', 'dien_tich' => '']];
+        $thuaChung = [['map_sheet' => '', 'plot_number' => '', 'area' => '']];
     }
 
     // Chuẩn bị index cho JS
-    $chuSuDungList = old('chu_su_dung', []);
+    $chuSuDungList = old('land_owners', []);
     if ($isEdit) {
-        $chuSuDungList = is_array($hoSo->chu_su_dung)
-            ? array_values($hoSo->chu_su_dung)
-            : ($hoSo->chu_su_dung
-                ? [$hoSo->chu_su_dung]
+        $chuSuDungList = is_array($hoSo->land_owners)
+            ? array_values($hoSo->land_owners)
+            : ($hoSo->land_owners
+                ? [$hoSo->land_owners]
                 : [[]]);
     }
     if (empty($chuSuDungList)) {
@@ -35,7 +35,7 @@
     }
     $chuSuDungIndex = count($chuSuDungList);
 
-    $nguoiLienQuan = old('thong_tin_rieng.data.nguoi_lien_quan', $riengData['nguoi_lien_quan'] ?? []);
+    $nguoiLienQuan = old('private_info.data.related_person', $riengData['related_person'] ?? []);
     $nguoiIndex = count($nguoiLienQuan) ?: 1;
 @endphp
 
@@ -69,8 +69,8 @@
         'ho-so.partials._thong-tin-sau-bien-dong',
         compact('isEdit', 'hoSo', 'riengLoai', 'nguoiLienQuan', 'nguoiIndex', 'riengThua'))
 
-    <input type="hidden" name="trang_thai"
-        value="{{ old('trang_thai', $isEdit ? $hoSo->trang_thai : 'dang_giai_quyet') }}">
+    <input type="hidden" name="status"
+        value="{{ old('status', $isEdit ? $hoSo->status : 'dang_giai_quyet') }}">
 
     <div class="text-end">
         <button type="submit" class="btn btn-success px-5 py-3 fw-bold">{{ $submitText }}</button>
@@ -92,12 +92,13 @@
             if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) soNgayDaCong++;
         }
 
-        document.getElementById('han_giai_quyet').value = currentDate.toISOString().split('T')[0];
+        document.getElementById('deadline').value = currentDate.toISOString().split('T')[0];
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        const loaiSelect = document.querySelector('select[name="loai_thu_tuc_id"]');
-        if (loaiSelect) {
+        const loaiSelect = document.querySelector('select[name="procedure_type_id"]');
+        const hanGiaiQuyetInput = document.getElementById('deadline');
+        if (loaiSelect && hanGiaiQuyetInput && !hanGiaiQuyetInput.value) {
             tinhHanTra(loaiSelect);
         }
 

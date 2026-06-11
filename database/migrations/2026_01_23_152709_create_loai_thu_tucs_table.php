@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('loai_thu_tucs', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('ngay_tra_ket_qua')->nullable();
+            $table->integer('processing_days')->nullable();
             $table->timestamps();
         });
     }

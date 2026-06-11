@@ -17,8 +17,8 @@
             <div class="col-md-6 col-lg-4">
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
-                        <h5 class="card-title">{{ $group->ma_so }} - {{ $group->ten_so }}</h5>
-                        <p class="card-text text-muted">{{ $group->mo_ta ?? 'Không có mô tả' }}</p>
+                        <h5 class="card-title">{{ $group->book_code }} - {{ $group->book_name }}</h5>
+                        <p class="card-text text-muted">{{ $group->description ?? 'Không có mô tả' }}</p>
                         <p class="card-text"><strong>{{ $group->ho_sos_count }}</strong> hồ sơ</p>
                         <p class="card-text small text-muted">
                             Tạo bởi: {{ optional($group->nguoiTao)->name ?? 'Hệ thống' }}<br>
@@ -32,7 +32,7 @@
                         </a>
 
                         <button class="btn btn-outline-warning btn-sm flex-fill rounded-1"
-                            onclick="openEditModal({{ $group->id }}, '{{ addslashes($group->ten_so) }}', '{{ addslashes($group->mo_ta ?? '') }}')">
+                            onclick="openEditModal({{ $group->id }}, '{{ addslashes($group->book_name) }}', '{{ addslashes($group->description ?? '') }}')">
                             <i class="bi bi-pencil"></i> Sửa
                         </button>
 
@@ -78,17 +78,17 @@
                     <div class="modal-body p-4">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Tên sổ <span class="text-danger">*</span></label>
-                            <input type="text" name="ten_so" id="tenSo" class="form-control" required
-                                value="{{ old('ten_so') }}">
-                            @error('ten_so')
+                            <input type="text" name="book_name" id="tenSo" class="form-control" required
+                                value="{{ old('book_name') }}">
+                            @error('book_name')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Mô tả</label>
-                            <textarea name="mo_ta" id="moTa" class="form-control" rows="4">{{ old('mo_ta') }}</textarea>
-                            @error('mo_ta')
+                            <textarea name="description" id="moTa" class="form-control" rows="4">{{ old('description') }}</textarea>
+                            @error('description')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
                         </div>
@@ -144,13 +144,13 @@
             window.modalTitle.textContent = 'Tạo sổ theo dõi mới';
             window.submitBtn.innerHTML = '<i class="bi bi-save me-1"></i> Tạo sổ';
 
-            window.tenSoInput.value = "{{ old('ten_so') }}";
-            window.moTaInput.value = "{{ old('mo_ta') }}";
+            window.tenSoInput.value = "{{ old('book_name') }}";
+            window.moTaInput.value = "{{ old('description') }}";
 
             window.soModal.show();
         };
 
-        window.openEditModal = function(id, ten_so, mo_ta) {
+        window.openEditModal = function(id, book_name, description) {
             if (!window.soModal) return;
 
             window.soForm.action = `/so-theo-doi/${id}`;
@@ -158,8 +158,8 @@
             window.modalTitle.textContent = 'Sửa sổ theo dõi';
             window.submitBtn.innerHTML = '<i class="bi bi-save me-1"></i> Cập nhật';
 
-            window.tenSoInput.value = ten_so;
-            window.moTaInput.value = mo_ta || '';
+            window.tenSoInput.value = book_name;
+            window.moTaInput.value = description || '';
 
             window.soModal.show();
         };

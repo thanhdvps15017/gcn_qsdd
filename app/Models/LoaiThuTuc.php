@@ -11,6 +11,6 @@ class LoaiThuTuc extends Model
     protected $table = 'loai_thu_tucs';
     protected $fillable = [
         'name',
-        'ngay_tra_ket_qua'
+        'processing_days'
     ];
 }

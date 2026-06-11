@@ -67,69 +67,70 @@ class HoSoExport implements FromCollection, WithHeadings, WithMapping, ShouldAut
     public function map($hoSo): array
     {
         // Đảm bảo các trường JSON là mảng (dù cast hay chuỗi)
-        $chuSuDung     = $this->toArray($hoSo->chu_su_dung);
-        $uyQuyen       = $this->toArray($hoSo->uy_quyen);
-        $thuaChung     = $this->toArray($hoSo->thua_chung);
-        $thongTinRieng = $this->toArray($hoSo->thong_tin_rieng);
+        $chuSuDung     = $this->toArray($hoSo->land_owners);
+        $chuSuDungFirst = $chuSuDung[0] ?? [];
+        $uyQuyen       = $this->toArray($hoSo->authorization);
+        $thuaChung     = $this->toArray($hoSo->shared_plots);
+        $thongTinRieng = $this->toArray($hoSo->private_info);
         $dataRieng     = $this->toArray($thongTinRieng['data'] ?? []);
 
-        // Chỉ lấy thửa đầu tiên của thua_chung
+        // Chỉ lấy thửa đầu tiên của shared_plots
         $thuaChungItem = $thuaChung[0] ?? [];
-        $thuaChungTo   = $thuaChungItem['to']        ?? '';
-        $thuaChungThua = $thuaChungItem['thua']      ?? '';
-        $thuaChungDT   = $thuaChungItem['dien_tich'] ?? '';
+        $thuaChungTo   = $thuaChungItem['map_sheet']        ?? '';
+        $thuaChungThua = $thuaChungItem['plot_number']      ?? '';
+        $thuaChungDT   = $thuaChungItem['area'] ?? '';
 
-        // Chỉ lấy thửa đầu tiên của thong_tin_rieng['data']['thua']
-        $thuaRiengList = $dataRieng['thua'] ?? [];
+        // Chỉ lấy thửa đầu tiên của private_info['data']['plot_number']
+        $thuaRiengList = $dataRieng['plot_number'] ?? [];
         $thuaRiengItem = $thuaRiengList[0] ?? [];
-        $thuaRiengTo   = $thuaRiengItem['to']        ?? '';
-        $thuaRiengThua = $thuaRiengItem['thua']      ?? '';
-        $thuaRiengDT   = $thuaRiengItem['dien_tich'] ?? '';
+        $thuaRiengTo   = $thuaRiengItem['map_sheet']        ?? '';
+        $thuaRiengThua = $thuaRiengItem['plot_number']      ?? '';
+        $thuaRiengDT   = $thuaRiengItem['area'] ?? '';
 
         return [
-            $hoSo->ma_ho_so ?? '',
-            $hoSo->xung_ho ?? '',
-            $hoSo->ten_chu_ho_so ?? '',
-            $hoSo->sdt_chu_ho_so ?? '',
+            $hoSo->dossier_code ?? '',
+            $hoSo->salutation ?? '',
+            $hoSo->owner_name ?? '',
+            $hoSo->owner_phone ?? '',
 
             optional($hoSo->loaiHoSo)->name ?? '—',
             optional($hoSo->loaiThuTuc)->name ?? '—',
             optional($hoSo->xa)->name ?? '—',
             optional($hoSo->nguoiThamTra)->name ?? '—',
 
-            // chu_su_dung
-            $chuSuDung['ho_ten']   ?? '',
-            $chuSuDung['cccd']     ?? '',
-            $chuSuDung['ngay_cap'] ?? '',
-            $chuSuDung['dia_chi']  ?? '',
+            // land_owners
+            $chuSuDungFirst['full_name']   ?? '',
+            $chuSuDungFirst['id_card']     ?? '',
+            $chuSuDungFirst['issue_date'] ?? '',
+            $chuSuDungFirst['address']  ?? '',
 
-            // uy_quyen
-            $uyQuyen['nguoi'] ?? '',
-            $uyQuyen['giay']  ?? '',
+            // authorization
+            $uyQuyen['person'] ?? '',
+            $uyQuyen['paper']  ?? '',
 
-            // thua_chung - chỉ thửa 1
+            // shared_plots - chỉ thửa 1
             $thuaChungTo,
             $thuaChungThua,
             $thuaChungDT,
 
-            // thong_tin_rieng
-            $thongTinRieng['loai']       ?? '',
-            $dataRieng['ho_ten']         ?? '',
-            $dataRieng['cccd']           ?? '',
-            $dataRieng['ngay_cap_cccd']  ?? '',
-            $dataRieng['dia_chi']        ?? '',
+            // private_info
+            $thongTinRieng['type']       ?? '',
+            $dataRieng['full_name']         ?? '',
+            $dataRieng['id_card']           ?? '',
+            $dataRieng['id_issue_date']  ?? '',
+            $dataRieng['address']        ?? '',
             $thuaRiengTo,
             $thuaRiengThua,
             $thuaRiengDT,
 
             // còn lại
-            $hoSo->ngay_cap_gcn ? $hoSo->ngay_cap_gcn->format('d/m/Y') : '',
-            $hoSo->so_vao_so ?? '',
-            $hoSo->so_phat_hanh ?? '',
-            $hoSo->xa_ap_thon ?? '',
-            $hoSo->ghi_chu ?? '',
-            $hoSo->han_giai_quyet ? $hoSo->han_giai_quyet->format('d/m/Y') : '',
-            $hoSo->trang_thai_meta['text'] ?? ($hoSo->trang_thai ?? '—'),
+            $hoSo->certificate_issue_date ? $hoSo->certificate_issue_date->format('d/m/Y') : '',
+            $hoSo->registration_book_number ?? '',
+            $hoSo->publication_number ?? '',
+            $hoSo->address_details ?? '',
+            $hoSo->notes ?? '',
+            $hoSo->deadline ? $hoSo->deadline->format('d/m/Y') : '',
+            $hoSo->trang_thai_meta['text'] ?? ($hoSo->status ?? '—'),
             $hoSo->created_at?->format('d/m/Y H:i') ?? '',
             $hoSo->updated_at?->format('d/m/Y H:i') ?? '',
         ];

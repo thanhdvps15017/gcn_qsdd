@@ -69,12 +69,12 @@
         {{-- ================= Cài đặt ================= --}}
         @php
             $settingOpen = request()->routeIs([
-                'roles.*',
-                'users.*',
-                'loai-ho-so.*',
-                'loai-thu-tuc.*',
-                'xa.*',
-                'mau-word.*',
+                'settings.roles.*',
+                'settings.users.*',
+                'settings.loai-ho-so.*',
+                'settings.loai-thu-tuc.*',
+                'settings.xa.*',
+                'settings.mau-word.*',
                 'settings.login-bg.*',
             ]);
         @endphp
@@ -88,55 +88,55 @@
             </a>
 
             <ul class="submenu">
-                {{-- @can('roles.index')
+                @can('settings.roles.index')
                     <li>
-                        <a class="nav-link {{ request()->routeIs('roles.*') ? 'active' : '' }}"
-                            href="{{ route('roles.index') }}">
+                        <a class="nav-link {{ request()->routeIs('settings.roles.*') ? 'active' : '' }}"
+                            href="{{ route('settings.roles.index') }}">
                             Phân quyền
                         </a>
                     </li>
-                @endcan --}}
+                @endcan
 
-                @can('users.index')
+                @can('settings.users.index')
                     <li>
-                        <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}"
-                            href="{{ route('users.index') }}">
+                        <a class="nav-link {{ request()->routeIs('settings.users.*') ? 'active' : '' }}"
+                            href="{{ route('settings.users.index') }}">
                             Tài khoản
                         </a>
                     </li>
                 @endcan
 
-                @can('loai-ho-so.index')
+                @can('settings.loai-ho-so.index')
                     <li>
-                        <a class="nav-link {{ request()->routeIs('loai-ho-so.*') ? 'active' : '' }}"
-                            href="{{ route('loai-ho-so.index') }}">
+                        <a class="nav-link {{ request()->routeIs('settings.loai-ho-so.*') ? 'active' : '' }}"
+                            href="{{ route('settings.loai-ho-so.index') }}">
                             Loại hồ sơ
                         </a>
                     </li>
                 @endcan
 
-                @can('loai-thu-tuc.index')
+                @can('settings.loai-thu-tuc.index')
                     <li>
-                        <a class="nav-link {{ request()->routeIs('loai-thu-tuc.*') ? 'active' : '' }}"
-                            href="{{ route('loai-thu-tuc.index') }}">
+                        <a class="nav-link {{ request()->routeIs('settings.loai-thu-tuc.*') ? 'active' : '' }}"
+                            href="{{ route('settings.loai-thu-tuc.index') }}">
                             Loại thủ tục
                         </a>
                     </li>
                 @endcan
 
-                @can('xa.index')
+                @can('settings.xa.index')
                     <li>
-                        <a class="nav-link {{ request()->routeIs('xa.*') ? 'active' : '' }}"
-                            href="{{ route('xa.index') }}">
+                        <a class="nav-link {{ request()->routeIs('settings.xa.*') ? 'active' : '' }}"
+                            href="{{ route('settings.xa.index') }}">
                             Xã - phường
                         </a>
                     </li>
                 @endcan
 
-                @can('mau-word.index')
+                @can('settings.mau-word.index')
                     <li>
-                        <a class="nav-link {{ request()->routeIs('mau-word.*') ? 'active' : '' }}"
-                            href="{{ route('mau-word.index') }}">
+                        <a class="nav-link {{ request()->routeIs('settings.mau-word.*') ? 'active' : '' }}"
+                            href="{{ route('settings.mau-word.index') }}">
                             Template Word
                         </a>
                     </li>
@@ -167,17 +167,26 @@
     .has-submenu .submenu {
         max-height: 0;
         overflow: hidden;
-        transition: max-height .3s ease;
-        padding-left: 1.5rem;
+        transition: max-height 0.3s ease;
+        padding-left: 2.2rem;
     }
 
     .has-submenu.open .submenu {
         max-height: 500px;
+        margin-top: 0.25rem;
     }
 
     .submenu .nav-link {
-        font-size: .9rem;
-        padding: .5rem 1rem;
+        font-size: 0.85rem;
+        padding: 0.4rem 1rem;
+        color: rgba(255, 255, 255, 0.7) !important;
+        background: transparent !important;
+    }
+    
+    .submenu .nav-link:hover,
+    .submenu .nav-link.active {
+        color: #FFFFFF !important;
+        font-weight: 600;
     }
 
     .sidebar-menu .nav-link {
@@ -187,6 +196,7 @@
 
     .sidebar-menu .arrow {
         margin-left: auto;
+        font-size: 0.8rem;
     }
 
     .arrow {

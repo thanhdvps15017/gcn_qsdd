@@ -2,52 +2,47 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
-use App\Models\Setting;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use App\Services\AuthService;
+use App\Services\SettingService;
 
 class AuthController extends Controller
 {
-    // Form đăng nhập
-    public function showLogin()
-    {
-        $loginBg = Setting::where('key', 'login_bg')->value('value');
+    protected $authService;
+    protected $settingService;
+
+    public function __construct(AuthService $authService, SettingService $settingService) {
+        $this->authService = $authService;
+        $this->settingService = $settingService;
+    }
+
+    public function showLogin() {
+        $loginBg = $this->settingService->getLoginBg();
         return view('auth.login', compact('loginBg'));
     }
 
-    // Form đăng ký
-    public function showRegister()
-    {
+    public function showRegister() {
         return view('auth.register');
     }
 
-    // XỬ LÝ ĐĂNG KÝ
-    public function register(Request $request)
-    {
+    public function register(Request $request) {
         $request->validate([
             'username' => 'required|unique:users,username|min:4',
             'password' => 'required|min:6|confirmed',
         ]);
 
-        User::create([
-            'username' => $request->username,
-            'password' => Hash::make($request->password),
-        ]);
+        $this->authService->register($request->only('username', 'password'));
 
         return redirect('/login')->with('success', 'Đăng ký thành công');
     }
 
-    // XỬ LÝ ĐĂNG NHẬP
-    public function login(Request $request)
-    {
+    public function login(Request $request) {
         $credentials = $request->validate([
             'username' => 'required',
             'password' => 'required',
         ]);
 
-        if (Auth::attempt($credentials)) {
+        if ($this->authService->attemptLogin($credentials)) {
             $request->session()->regenerate();
             return redirect('/ho-so');
         }
@@ -57,12 +52,8 @@ class AuthController extends Controller
         ]);
     }
 
-    // ĐĂNG XUẤT
-    public function logout(Request $request)
-    {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+    public function logout(Request $request) {
+        $this->authService->logout($request);
         return redirect('/login');
     }
 }

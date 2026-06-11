@@ -7,203 +7,106 @@ use App\Models\HoSo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
-
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SoTheoDoiExport;
+use App\Services\SoTheoDoiService;
 
 class SoTheoDoiController extends Controller
 {
-    public function index()
-    {
-        $groups = SoTheoDoiGroup::withCount('hoSos')
-            ->with('nguoiTao')
-            ->latest()
-            ->paginate(15);
+    protected $service;
 
+    public function __construct(SoTheoDoiService $service) {
+        $this->service = $service;
+    }
+
+    public function index() {
+        $groups = $this->service->getPaginatedGroups();
         return view('so-theo-doi.index', compact('groups'));
     }
 
-    public function create()
-    {
+    public function create() {
         return view('so-theo-doi.create');
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $request->validate([
-            'ten_so' => 'required|string|max:255|unique:so_theo_doi_groups,ten_so',
-            'mo_ta'  => 'nullable|string|max:1000',
+            'book_name' => 'required|string|max:255|unique:so_theo_doi_groups,book_name',
+            'description'  => 'nullable|string|max:1000',
         ]);
-
-        SoTheoDoiGroup::create([
-            'ten_so'       => $request->ten_so,
-            'mo_ta'        => $request->mo_ta,
-            'nguoi_tao_id' => Auth::id(),
+        
+        $this->service->createGroup([
+            'book_name'       => $request->book_name,
+            'description'     => $request->description,
+            'creator_id'      => Auth::id(),
         ]);
-
-        return redirect()->route('so-theo-doi.index')
-            ->with('success', 'Đã tạo sổ theo dõi mới!');
+        
+        return redirect()->route('so-theo-doi.index')->with('success', 'Đã tạo sổ theo dõi mới!');
     }
 
-    public function show(SoTheoDoiGroup $group)
-    {
-        $hoSosTrongSo = $group->hoSos()
-            ->with(['loaiHoSo', 'loaiThuTuc', 'xa'])
-            ->paginate(20);
-
-        $hoSosChuaThem = HoSo::whereNotIn('id', $group->hoSos->pluck('id'))
-            ->select('id', 'ma_ho_so', 'ten_chu_ho_so')
-            ->orderBy('ma_ho_so')
-            ->get();
-
+    public function show(SoTheoDoiGroup $group) {
+        $hoSosTrongSo = $this->service->getHoSosTrongSo($group);
+        $hoSosChuaThem = $this->service->getHoSosChuaThem($group);
         return view('so-theo-doi.show', compact('group', 'hoSosTrongSo', 'hoSosChuaThem'));
     }
 
-    public function edit(SoTheoDoiGroup $group)
-    {
+    public function edit(SoTheoDoiGroup $group) {
         return view('so-theo-doi.edit', compact('group'));
     }
 
-    public function update(Request $request, SoTheoDoiGroup $group)
-    {
+    public function update(Request $request, SoTheoDoiGroup $group) {
         $request->validate([
-            'ten_so' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('so_theo_doi_groups', 'ten_so')->ignore($group->id),
-            ],
-            'mo_ta'  => 'nullable|string|max:1000',
+            'book_name' => [ 'required', 'string', 'max:255', Rule::unique('so_theo_doi_groups', 'book_name')->ignore($group->id) ],
+            'description'  => 'nullable|string|max:1000',
         ]);
 
-        $group->update($request->only(['ten_so', 'mo_ta']));
-
-        return redirect()->route('so-theo-doi.index', $group)
-            ->with('success', 'Đã cập nhật sổ!');
+        $this->service->updateGroup($group, $request->only(['book_name', 'description']));
+        return redirect()->route('so-theo-doi.index', $group)->with('success', 'Đã cập nhật sổ!');
     }
 
-    public function destroy(SoTheoDoiGroup $group)
-    {
-        $group->delete();
-
-        return redirect()->route('so-theo-doi.index')
-            ->with('success', 'Đã xóa sổ!');
+    public function destroy(SoTheoDoiGroup $group) {
+        $this->service->deleteGroup($group);
+        return redirect()->route('so-theo-doi.index')->with('success', 'Đã xóa sổ!');
     }
 
-    public function batchAdd(Request $request, SoTheoDoiGroup $group)
-    {
+    public function batchAdd(Request $request, SoTheoDoiGroup $group) {
         $request->validate([
             'ho_so_ids' => 'required|array',
             'ho_so_ids.*' => 'exists:ho_sos,id',
         ]);
 
-        $existingIds = $group->hoSos()->pluck('ho_sos.id')->toArray();
-
-        $newHoSoIds = array_values(array_diff($request->ho_so_ids, $existingIds));
-
-        if (empty($newHoSoIds)) {
-            return back()->with('warning', 'Các hồ sơ đã tồn tại trong sổ');
-        }
-
-        $todayPrefix = now()->format('dmy'); // ddmmyy
-
-        $lastThuTu = $group->hoSos()
-            ->where('ho_so_so_theo_doi.thu_tu', 'like', $todayPrefix . '-%')
-            ->orderByDesc('ho_so_so_theo_doi.thu_tu')
-            ->value('ho_so_so_theo_doi.thu_tu');
-
-        $startNumber = 0;
-        if ($lastThuTu) {
-            $startNumber = (int) substr($lastThuTu, -6);
-        }
-
-        foreach ($newHoSoIds as $index => $hoSoId) {
-            $number = $startNumber + $index + 1;
-
-            $thuTu = $todayPrefix . '-' .$group->id . '-' . str_pad($number, 6, '0', STR_PAD_LEFT);
-
-            $group->hoSos()->attach($hoSoId, [
-                'thu_tu' => $thuTu,
-            ]);
-        }
-
-        return back()->with(
-            'success',
-            'Đã thêm ' . count($newHoSoIds) . ' hồ sơ'
-        );
+        $added = $this->service->batchAddHoSo($group, $request->ho_so_ids);
+        if ($added === 0) return back()->with('warning', 'Các hồ sơ đã tồn tại trong sổ');
+        
+        return back()->with('success', "Đã thêm $added hồ sơ");
     }
 
-    public function batchRemove(Request $request, SoTheoDoiGroup $group)
-    {
+    public function batchRemove(Request $request, SoTheoDoiGroup $group) {
         $request->validate([
             'ho_so_ids' => 'required|array',
             'ho_so_ids.*' => 'exists:ho_sos,id',
         ]);
 
-        $count = count($request->ho_so_ids);
-        $group->hoSos()->detach($request->ho_so_ids);
-
-        return redirect()->back()->with('success', "Đã xóa $count hồ sơ!");
+        $removed = $this->service->batchRemoveHoSo($group, $request->ho_so_ids);
+        return redirect()->back()->with('success', "Đã xóa $removed hồ sơ!");
     }
 
-    public function exportExcel(SoTheoDoiGroup $group)
-    {
-        return Excel::download(new SoTheoDoiExport($group), 'so_theo_doi_' . $group->ma_so . '.xlsx');
+    public function exportExcel(SoTheoDoiGroup $group) {
+        return Excel::download(new SoTheoDoiExport($group), 'so_theo_doi_' . $group->book_code . '.xlsx');
     }
 
-    public function searchHoSoChuaThem(Request $request, SoTheoDoiGroup $group)
-    {
-        $keyword = $request->q;
-
-        $ids = $group->hoSos()->pluck('ho_sos.id');
-
-        $data = HoSo::whereNotIn('id', $ids)
-            ->when($keyword, function ($q) use ($keyword) {
-                $q->where('ma_ho_so', 'like', "%{$keyword}%")
-                    ->orWhere('ten_chu_ho_so', 'like', "%{$keyword}%");
-            })
-            ->orderBy('ma_ho_so')
-            ->limit(50)
-            ->get(['id', 'ma_ho_so', 'ten_chu_ho_so']);
-
-        return response()->json($data);
+    public function searchHoSoChuaThem(Request $request, SoTheoDoiGroup $group) {
+        return response()->json($this->service->searchHoSoChuaThem($group, $request->q));
     }
 
-    public function searchHoSoTrongSo(Request $request, SoTheoDoiGroup $group)
-    {
-        $keyword = $request->q;
-
-        $data = $group->hoSos()
-            ->when($keyword, function ($q) use ($keyword) {
-                $q->where('ma_ho_so', 'like', "%{$keyword}%")
-                    ->orWhere('ten_chu_ho_so', 'like', "%{$keyword}%");
-            })
-            ->with('chuSuDung:id,ho_ten')
-            ->limit(50)
-            ->get();
-
-        return response()->json($data);
+    public function searchHoSoTrongSo(Request $request, SoTheoDoiGroup $group) {
+        return response()->json($this->service->searchHoSoTrongSo($group, $request->q));
     }
 
-    public function saveGhiChu(Request $request, SoTheoDoiGroup $soTheoDoiGroup, HoSo $hoSo)
-    {
-        $request->validate([
-            'ghi_chu' => 'nullable|string|max:1000',
-        ]);
-
-        if (! $soTheoDoiGroup->hoSos()->where('ho_so_id', $hoSo->id)->exists()) {
-            return response()->json([
-                'message' => 'Hồ sơ không thuộc sổ này'
-            ], 404);
-        }
-
-        $soTheoDoiGroup->hoSos()->updateExistingPivot(
-            $hoSo->id,
-            ['ghi_chu' => $request->ghi_chu]
-        );
-
-        return response()->json([
-            'message' => 'Lưu ghi chú thành công'
-        ]);
+    public function saveGhiChu(Request $request, SoTheoDoiGroup $group, HoSo $hoSo) {
+        $request->validate(['notes' => 'nullable|string|max:1000']);
+        $success = $this->service->saveGhiChu($group, $hoSo, $request->notes);
+        
+        if (!$success) return response()->json(['message' => 'Hồ sơ không thuộc sổ này'], 404);
+        return response()->json(['message' => 'Lưu ghi chú thành công']);
     }
 }

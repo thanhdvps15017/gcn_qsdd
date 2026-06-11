@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('so_theo_doi_groups', function (Blueprint $table) {
             $table->id();
-            $table->string('ten_so')->unique();
-            $table->string('ma_so')->unique()->nullable();
-            $table->text('mo_ta')->nullable();
-            $table->foreignId('nguoi_tao_id')->constrained('users');
+            $table->string('book_name')->unique();
+            $table->string('book_code')->unique()->nullable();
+            $table->text('description')->nullable();
+            $table->foreignId('creator_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('so_theo_doi_group_tables');
+        Schema::dropIfExists('so_theo_doi_groups');
     }
 };

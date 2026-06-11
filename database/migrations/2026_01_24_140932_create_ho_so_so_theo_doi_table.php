@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('ho_so_so_theo_doi', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ho_so_id')->constrained('ho_sos')->cascadeOnDelete();
-            $table->foreignId('so_theo_doi_group_id')->constrained('so_theo_doi_groups')->cascadeOnDelete();
-            $table->string('ghi_chu')->nullable();
-            $table->string('thu_tu')->nullable();
+            $table->foreignId('tracking_book_id')->constrained('so_theo_doi_groups')->cascadeOnDelete();
+            $table->string('notes')->nullable();
+            $table->integer('order_index')->default(0);
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ho_so_so_theo_doi_tables');
+        Schema::dropIfExists('ho_so_so_theo_doi');
     }
 };

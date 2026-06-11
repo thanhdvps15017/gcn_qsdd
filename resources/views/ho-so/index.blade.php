@@ -32,11 +32,11 @@
                         {{-- 📂 Loại hồ sơ --}}
                         <div class="col-md-4 col-lg-2">
                             <label class="fw-semibold">Loại hồ sơ</label>
-                            <select name="loai_ho_so_id" class="form-select">
+                            <select name="dossier_type_id" class="form-select">
                                 <option value="">-- Tất cả --</option>
                                 @foreach ($loaiHoSos as $item)
                                     <option value="{{ $item->id }}"
-                                        {{ request('loai_ho_so_id') == $item->id ? 'selected' : '' }}>
+                                        {{ request('dossier_type_id') == $item->id ? 'selected' : '' }}>
                                         {{ $item->name }}
                                     </option>
                                 @endforeach
@@ -46,21 +46,21 @@
                         {{-- 📄 Loại thủ tục --}}
                         <div class="col-md-4 col-lg-2">
                             <label class="fw-semibold">Loại thủ tục</label>
-                            <select name="loai_thu_tuc_id" class="form-select">
+                            <select name="procedure_type_id" class="form-select">
                                 <option value="">-- Tất cả --</option>
                                 @foreach ($loaiThuTucs as $item)
                                     <option value="{{ $item->id }}"
-                                        {{ request('loai_thu_tuc_id') == $item->id ? 'selected' : '' }}>
+                                        {{ request('procedure_type_id') == $item->id ? 'selected' : '' }}>
                                         {{ $item->name }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
 
-                        {{-- 🏘️ Xã --}}
+                        {{-- 🏘️ Xã/Phường --}}
                         <div class="col-md-4 col-lg-2">
-                            <label class="fw-semibold">Người thẩm tra</label>
-                            <select name="nguoi_tham_tra_id" class="form-select">
+                            <label class="fw-semibold">Xã/Phường</label>
+                            <select name="ward_id" class="form-select">
                                 <option value="">-- Tất cả --</option>
                                 @foreach ($users as $user)
                                     <option value="{{ $user->id }}"
@@ -74,7 +74,7 @@
                         {{-- 📌 Trạng thái --}}
                         <div class="col-md-4 col-lg-1">
                             <label class="fw-semibold">Trạng thái</label>
-                            <select name="trang_thai" class="form-select">
+                            <select name="status" class="form-select">
                                 <option value="">-- Tất cả --</option>
                                 @php
                                     $statuses = [
@@ -92,7 +92,7 @@
 
                                 @foreach ($statuses as $key => $label)
                                     <option value="{{ $key }}"
-                                        {{ request('trang_thai') === $key ? 'selected' : '' }}>
+                                        {{ request('status') === $key ? 'selected' : '' }}>
                                         {{ $label }}
                                     </option>
                                 @endforeach
@@ -157,7 +157,7 @@
                                         default => '',
                                     };
 
-                                    if ($hoSo->trang_thai === 'hoan_thanh') {
+                                    if ($hoSo->status === 'hoan_thanh') {
                                         $rowClass = 'table-success';
                                     }
                                 @endphp
@@ -166,13 +166,13 @@
                                     <td class="text-muted fw-medium">
                                         {{ $loop->iteration + ($hoSos->currentPage() - 1) * $hoSos->perPage() }}
                                     </td>
-                                    <td class="fw-medium">{{ $hoSo->ma_ho_so ?? '-' }}</td>
+                                    <td class="fw-medium">{{ $hoSo->dossier_code ?? '-' }}</td>
 
                                     <td>
                                         {{ $hoSo->ten_chu_ho_so ?? '-' }}
                                         @if (!empty($hoSo->sdt_chu_ho_so))
                                             <div class="text-muted small mt-1">
-                                                {{ $hoSo->sdt_chu_ho_so }}
+                                                {{ $hoSo->owner_phone }}
                                             </div>
                                         @endif
                                     </td>
@@ -189,7 +189,7 @@
                                     <td>
                                         <button type="button" class="btn btn-sm btn-outline-secondary btn-open-note"
                                             data-ho-so-id="{{ $hoSo->id }}"
-                                            data-ghi-chu="{{ addslashes($hoSo->ghi_chu ?? '') }}">
+                                            data-ghi-chu="{{ addslashes($hoSo->notes ?? '') }}">
                                             <i class="bi bi-journal-text"></i> Ghi chú
                                         </button>
                                     </td>
@@ -245,7 +245,7 @@
                                                 </a>
 
                                                 <form action="{{ route('ho-so.destroy', $hoSo) }}" method="POST"
-                                                    onsubmit="return confirm('Bạn chắc chắn muốn xóa hồ sơ {{ $hoSo->ma_ho_so ? '«' . addslashes($hoSo->ma_ho_so) . '»' : '' }} ?');">
+                                                    onsubmit="return confirm('Bạn chắc chắn muốn xóa hồ sơ {{ $hoSo->dossier_code ? '«' . addslashes($hoSo->dossier_code) . '»' : '' }} ?');">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit"
@@ -343,7 +343,7 @@
                             'Accept': 'application/json'
                         },
                         body: JSON.stringify({
-                            ghi_chu: ghiChu
+                            notes: ghiChu
                         })
                     });
 
@@ -392,7 +392,7 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        trang_thai: status
+                        status: status
                     })
                 })
                 .then(res => res.json())

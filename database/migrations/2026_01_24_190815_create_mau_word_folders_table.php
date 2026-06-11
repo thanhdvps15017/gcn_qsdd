@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('mau_word_folders', function (Blueprint $table) {
             $table->id();
-            $table->string('ten');
+            $table->string('name')->unique();
             $table->timestamps();
         });
     }

@@ -44,14 +44,14 @@
                                             </button>
 
                                             <div class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
-                                                <a href="{{ route('roles.edit', $role) }}"
+                                                <a href="{{ route('settings.roles.edit', $role) }}"
                                                     class="dropdown-item d-flex align-items-center gap-2 text-warning">
                                                     <i class="bi bi-pencil-square"></i>
                                                     Sửa
                                                 </a>
 
-                                                <form action="{{ route('roles.destroy', $role) }}" method="POST"
-                                                    onsubmit="return confirm('Bạn chắc chắn muốn xoá role này?')">
+                                                <form action="{{ route('settings.roles.destroy', $role) }}" method="POST"
+                                                    onsubmit="confirmDelete(event, this, 'Bạn chắc chắn muốn xoá role này?')">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit"
@@ -92,12 +92,12 @@
                 </div>
 
                 <div class="modal-body p-4">
-                    <form id="roleForm" method="POST" action="{{ route('roles.store') }}">
+                    <form id="roleForm" method="POST" action="{{ route('settings.roles.store') }}">
                         @csrf
 
                         <div class="mb-3">
                             <label class="form-label">Tên Role</label>
-                            <input type="text" name="name" class="form-control" value="{{ old('name') }}">
+                            <input type="text" name="name" class="form-control" value="{{ old('name') }}" placeholder="Nhập tên Role">
                             @error('name')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
@@ -116,3 +116,13 @@
         </div>
     </div>
 @endsection
+
+@push('script')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            @if ($errors->any())
+                new bootstrap.Modal(document.getElementById('roleModal')).show();
+            @endif
+        });
+    </script>
+@endpush

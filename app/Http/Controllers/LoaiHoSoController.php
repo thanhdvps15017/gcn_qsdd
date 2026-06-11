@@ -2,15 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LoaiHoSo;
 use Illuminate\Http\Request;
+use App\Services\LoaiHoSoService;
 
 class LoaiHoSoController extends Controller
 {
+    protected $loaiHoSoService;
+
+    public function __construct(LoaiHoSoService $loaiHoSoService)
+    {
+        $this->loaiHoSoService = $loaiHoSoService;
+    }
+
     public function index()
     {
-        $items = LoaiHoSo::orderBy('id', 'desc')->get();
-        return view('loai-ho-so.index', compact('items'));
+        $items = $this->loaiHoSoService->getAllLoaiHoSos();
+        return view('cai-dat.loai-ho-so.index', compact('items'));
     }
 
     public function store(Request $request)
@@ -19,36 +26,29 @@ class LoaiHoSoController extends Controller
             'name' => 'required|string|max:255|unique:loai_ho_sos,name',
         ]);
 
-        LoaiHoSo::create([
-            'name' => $request->name,
-        ]);
+        $this->loaiHoSoService->createLoaiHoSo(['name' => $request->name]);
 
-        return redirect()->route('loai-ho-so.index')
+        return redirect()->route('settings.loai-ho-so.index')
             ->with('success', 'Thêm loại hồ sơ thành công');
     }
 
     public function update(Request $request, $id)
     {
-        $item = LoaiHoSo::findOrFail($id);
-
         $request->validate([
-            'name' => 'required|string|max:255|unique:loai_ho_sos,name,' . $item->id,
+            'name' => 'required|string|max:255|unique:loai_ho_sos,name,' . $id,
         ]);
 
-        $item->update([
-            'name' => $request->name,
-        ]);
+        $this->loaiHoSoService->updateLoaiHoSo($id, ['name' => $request->name]);
 
-        return redirect()->route('loai-ho-so.index')
+        return redirect()->route('settings.loai-ho-so.index')
             ->with('success', 'Cập nhật loại hồ sơ thành công');
     }
 
     public function destroy($id)
     {
-        $item = LoaiHoSo::findOrFail($id);
-        $item->delete();
+        $this->loaiHoSoService->deleteLoaiHoSo($id);
 
-        return redirect()->route('loai-ho-so.index')
+        return redirect()->route('settings.loai-ho-so.index')
             ->with('success', 'Đã xoá loại hồ sơ');
     }
 }

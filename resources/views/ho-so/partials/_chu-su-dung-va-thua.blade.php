@@ -22,48 +22,48 @@
                             <div class="col-md-8">
                                 <label class="form-label">Họ tên <span class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <select name="chu_su_dung[{{ $idx }}][xung_ho]" class="form-select"
+                                    <select name="land_owners[{{ $idx }}][salutation]" class="form-select"
                                         style="max-width: 90px;">
-                                        <option value="Ông" {{ ($chu['xung_ho'] ?? '') == 'Ông' ? 'selected' : '' }}>
+                                        <option value="Ông" {{ ($chu['salutation'] ?? '') == 'Ông' ? 'selected' : '' }}>
                                             Ông</option>
-                                        <option value="Bà" {{ ($chu['xung_ho'] ?? '') == 'Bà' ? 'selected' : '' }}>
+                                        <option value="Bà" {{ ($chu['salutation'] ?? '') == 'Bà' ? 'selected' : '' }}>
                                             Bà</option>
                                     </select>
 
-                                    <input name="chu_su_dung[{{ $idx }}][ho_ten]" class="form-control"
-                                        value="{{ old("chu_su_dung.$idx.ho_ten", $chu['ho_ten'] ?? '') }}"
+                                    <input name="land_owners[{{ $idx }}][full_name]" class="form-control"
+                                        value="{{ old("land_owners.$idx.full_name", $chu['full_name'] ?? '') }}"
                                         placeholder="Nhập họ và tên đầy đủ" required>
                                 </div>
                             </div>
 
                             <div class="col-md-4">
                                 <label class="form-label">Ngày sinh</label>
-                                <input type="date" name="chu_su_dung[{{ $idx }}][ngay_sinh]"
+                                <input type="date" name="land_owners[{{ $idx }}][date_of_birth]"
                                     class="form-control"
-                                    value="{{ old("chu_su_dung.$idx.ngay_sinh", $chu['ngay_sinh'] ?? '') }}"
+                                    value="{{ old("land_owners.$idx.date_of_birth", $chu['date_of_birth'] ?? '') }}"
                                     placeholder="YYYY-MM-DD">
                             </div>
 
                             <div class="col-md-4">
                                 <label class="form-label">CCCD/CMND</label>
-                                <input name="chu_su_dung[{{ $idx }}][cccd]" class="form-control"
-                                    value="{{ old("chu_su_dung.$idx.cccd", $chu['cccd'] ?? '') }}"
+                                <input name="land_owners[{{ $idx }}][id_card]" class="form-control"
+                                    value="{{ old("land_owners.$idx.id_card", $chu['id_card'] ?? '') }}"
                                     placeholder="Nhập số CCCD/CMND">
                             </div>
 
                             <div class="col-md-4">
                                 <label class="form-label">Ngày cấp</label>
-                                <input type="date" name="chu_su_dung[{{ $idx }}][ngay_cap]"
+                                <input type="date" name="land_owners[{{ $idx }}][issue_date]"
                                     class="form-control"
-                                    value="{{ old("chu_su_dung.$idx.ngay_cap", $chu['ngay_cap'] ?? '') }}"
+                                    value="{{ old("land_owners.$idx.issue_date", $chu['issue_date'] ?? '') }}"
                                     placeholder="YYYY-MM-DD">
                             </div>
 
                             <div class="col-4">
                                 <label class="form-label">Địa chỉ</label>
-                                <input type="text" name="chu_su_dung[{{ $idx }}][dia_chi]"
+                                <input type="text" name="land_owners[{{ $idx }}][address]"
                                     class="form-control"
-                                    value="{{ old("chu_su_dung.$idx.dia_chi", $chu['dia_chi'] ?? '') }}"
+                                    value="{{ old("land_owners.$idx.address", $chu['address'] ?? '') }}"
                                     placeholder="Số nhà, đường, xã/phường...">
                             </div>
 
@@ -77,16 +77,16 @@
 
                     <div class="col-md-6">
                         <label class="form-label">Người uỷ quyền</label>
-                        <input type="text" name="uy_quyen[nguoi]" class="form-control"
+                        <input type="text" name="authorization[person]" class="form-control"
                             placeholder="Nhập tên người ủy quyền"
-                            value="{{ old('uy_quyen.nguoi', $uyQuyen['nguoi'] ?? '') }}">
+                            value="{{ old('authorization.person', $uyQuyen['person'] ?? '') }}">
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Giấy uỷ quyền</label>
-                        <input type="text" name="uy_quyen[giay]" class="form-control"
+                        <input type="text" name="authorization[paper]" class="form-control"
                             placeholder="Số giấy ủy quyền / ngày ký"
-                            value="{{ old('uy_quyen.giay', $uyQuyen['giay'] ?? '') }}">
+                            value="{{ old('authorization.paper', $uyQuyen['paper'] ?? '') }}">
                     </div>
 
                 </div>
@@ -116,28 +116,28 @@
 
                             <div class="col-md-4">
                                 <label class="form-label">Tờ</label>
-                                <input name="thua_chung[{{ $idx }}][to]" class="form-control"
-                                    value="{{ $row['to'] ?? '' }}" placeholder="Số tờ bản đồ">
+                                <input name="shared_plots[{{ $idx }}][to]" class="form-control"
+                                    value="{{ $row['map_sheet'] ?? '' }}" placeholder="Số tờ bản đồ">
                             </div>
 
                             <div class="col-md-4">
                                 <label class="form-label">Thửa</label>
-                                <input name="thua_chung[{{ $idx }}][thua]" class="form-control"
-                                    value="{{ $row['thua'] ?? '' }}" placeholder="Số thửa">
+                                <input name="shared_plots[{{ $idx }}][thua]" class="form-control"
+                                    value="{{ $row['plot_number'] ?? '' }}" placeholder="Số thửa">
                             </div>
 
                             <div class="col-md-4">
                                 <label class="form-label">Diện tích (m²)</label>
-                                <input name="thua_chung[{{ $idx }}][dien_tich]" class="form-control"
-                                    value="{{ $row['dien_tich'] ?? '' }}" placeholder="VD: 120.5">
+                                <input name="shared_plots[{{ $idx }}][area]" class="form-control"
+                                    value="{{ $row['area'] ?? '' }}" placeholder="VD: 120.5">
                             </div>
 
                             <div class="col-md-4">
                                 <label class="form-label">Xã</label>
-                                <select name="thua_chung[{{ $idx }}][xa_id]" class="form-select">
+                                <select name="shared_plots[{{ $idx }}][ward_id]" class="form-select">
                                     @foreach ($xas as $x)
                                         <option value="{{ $x->id }}"
-                                            {{ ($row['xa_id'] ?? '') == $x->id ? 'selected' : '' }}>
+                                            {{ ($row['ward_id'] ?? '') == $x->id ? 'selected' : '' }}>
                                             {{ $x->name }}
                                         </option>
                                     @endforeach
@@ -146,8 +146,8 @@
 
                             <div class="col-md-8">
                                 <label class="form-label">Ấp / Thôn</label>
-                                <input name="thua_chung[{{ $idx }}][ap_thon]" class="form-control"
-                                    value="{{ $row['ap_thon'] ?? '' }}" placeholder="Tên ấp / thôn">
+                                <input name="shared_plots[{{ $idx }}][hamlet]" class="form-control"
+                                    value="{{ $row['hamlet'] ?? '' }}" placeholder="Tên ấp / thôn">
                             </div>
 
                         </div>
@@ -160,20 +160,20 @@
 
                     <div class="col-md-4">
                         <label class="form-label">Ngày cấp GCN</label>
-                        <input type="date" name="ngay_cap_gcn" class="form-control" placeholder="YYYY-MM-DD"
-                            value="{{ old('ngay_cap_gcn', $isEdit ? optional($hoSo->ngay_cap_gcn)->format('Y-m-d') : '') }}">
+                        <input type="date" name="certificate_issue_date" class="form-control" placeholder="YYYY-MM-DD"
+                            value="{{ old('certificate_issue_date', $isEdit ? optional($hoSo->certificate_issue_date)->format('Y-m-d') : '') }}">
                     </div>
 
                     <div class="col-md-4">
                         <label class="form-label">Số vào sổ</label>
-                        <input name="so_vao_so" class="form-control" placeholder="Nhập số vào sổ"
-                            value="{{ $getValue('so_vao_so') }}">
+                        <input name="registration_book_number" class="form-control" placeholder="Nhập số vào sổ"
+                            value="{{ $getValue('registration_book_number') }}">
                     </div>
 
                     <div class="col-md-4">
                         <label class="form-label">Số phát hành</label>
-                        <input name="so_phat_hanh" class="form-control" placeholder="Nhập số phát hành"
-                            value="{{ $getValue('so_phat_hanh') }}">
+                        <input name="publication_number" class="form-control" placeholder="Nhập số phát hành"
+                            value="{{ $getValue('publication_number') }}">
                     </div>
 
                 </div>
@@ -202,32 +202,32 @@
                 <div class="col-md-8">
                     <label class="form-label">Họ tên <span class="text-danger">*</span></label>
                     <div class="input-group">
-                        <select name="chu_su_dung[${chuSuDungIndex}][xung_ho]" class="form-select" style="max-width: 90px;">
+                        <select name="land_owners[${chuSuDungIndex}][salutation]" class="form-select" style="max-width: 90px;">
                             <option value="Ông">Ông</option>
                             <option value="Bà">Bà</option>
                         </select>
-                        <input name="chu_su_dung[${chuSuDungIndex}][ho_ten]" class="form-control" placeholder="Nhập họ và tên đầy đủ" required>
+                        <input name="land_owners[${chuSuDungIndex}][full_name]" class="form-control" placeholder="Nhập họ và tên đầy đủ" required>
                     </div>
                 </div>
     
                 <div class="col-md-4">
                     <label class="form-label">Ngày sinh</label>
-                    <input type="date" name="chu_su_dung[${chuSuDungIndex}][ngay_sinh]" class="form-control" placeholder="YYYY-MM-DD">
+                    <input type="date" name="land_owners[${chuSuDungIndex}][date_of_birth]" class="form-control" placeholder="YYYY-MM-DD">
                 </div>
     
                 <div class="col-md-4">
                     <label class="form-label">CCCD/CMND</label>
-                    <input name="chu_su_dung[${chuSuDungIndex}][cccd]" class="form-control" placeholder="Nhập số CCCD/CMND">
+                    <input name="land_owners[${chuSuDungIndex}][id_card]" class="form-control" placeholder="Nhập số CCCD/CMND">
                 </div>
     
                 <div class="col-md-4">
                     <label class="form-label">Ngày cấp</label>
-                    <input type="date" name="chu_su_dung[${chuSuDungIndex}][ngay_cap]" class="form-control" placeholder="YYYY-MM-DD">
+                    <input type="date" name="land_owners[${chuSuDungIndex}][issue_date]" class="form-control" placeholder="YYYY-MM-DD">
                 </div>
     
                 <div class="col-4">
                     <label class="form-label">Địa chỉ</label>
-                    <input type="text" name="chu_su_dung[${chuSuDungIndex}][dia_chi]" class="form-control" placeholder="Số nhà, đường, xã/phường...">
+                    <input type="text" name="land_owners[${chuSuDungIndex}][address]" class="form-control" placeholder="Số nhà, đường, xã/phường...">
                 </div>
     
             </div>
@@ -255,22 +255,22 @@
     
                 <div class="col-md-4">
                     <label class="form-label">Tờ</label>
-                    <input name="thua_chung[${thuaChungIndex}][to]" class="form-control" placeholder="Số tờ bản đồ">
+                    <input name="shared_plots[${thuaChungIndex}][to]" class="form-control" placeholder="Số tờ bản đồ">
                 </div>
     
                 <div class="col-md-4">
                     <label class="form-label">Thửa</label>
-                    <input name="thua_chung[${thuaChungIndex}][thua]" class="form-control" placeholder="Số thửa">
+                    <input name="shared_plots[${thuaChungIndex}][thua]" class="form-control" placeholder="Số thửa">
                 </div>
     
                 <div class="col-md-4">
                     <label class="form-label">Diện tích (m²)</label>
-                    <input name="thua_chung[${thuaChungIndex}][dien_tich]" class="form-control" placeholder="VD: 120.5">
+                    <input name="shared_plots[${thuaChungIndex}][area]" class="form-control" placeholder="VD: 120.5">
                 </div>
     
                 <div class="col-md-4">
                     <label class="form-label">Xã</label>
-                    <select name="thua_chung[${thuaChungIndex}][xa_id]" class="form-select">
+                    <select name="shared_plots[${thuaChungIndex}][ward_id]" class="form-select">
                         @foreach ($xas as $x)
                             <option value="{{ $x->id }}">{{ $x->name }}</option>
                         @endforeach
@@ -279,7 +279,7 @@
     
                 <div class="col-md-8">
                     <label class="form-label">Ấp / Thôn</label>
-                    <input name="thua_chung[${thuaChungIndex}][ap_thon]" class="form-control" placeholder="Tên ấp / thôn">
+                    <input name="shared_plots[${thuaChungIndex}][hamlet]" class="form-control" placeholder="Tên ấp / thôn">
                 </div>
     
             </div>

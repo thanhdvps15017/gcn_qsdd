@@ -10,34 +10,34 @@ use Illuminate\Support\Facades\Storage;
 class HoSo extends Model
 {
     protected $fillable = [
-        'ma_ho_so',
-        'xung_ho',
-        'ten_chu_ho_so',
-        'sdt_chu_ho_so',
-        'loai_ho_so_id',
-        'loai_thu_tuc_id',
-        'xa_id',
-        'nguoi_tham_tra_id',
-        'chu_su_dung',
-        'uy_quyen',
-        'thua_chung',
-        'ngay_cap_gcn',
-        'so_vao_so',
-        'so_phat_hanh',
-        'xa_ap_thon',
-        'thong_tin_rieng',
-        'ghi_chu',
-        'han_giai_quyet',
-        'trang_thai',
+        'dossier_code',
+        'salutation',
+        'owner_name',
+        'owner_phone',
+        'dossier_type_id',
+        'procedure_type_id',
+        'ward_id',
+        'inspector_id',
+        'land_owners',
+        'authorization',
+        'shared_plots',
+        'certificate_issue_date',
+        'registration_book_number',
+        'publication_number',
+        'address_details',
+        'private_info',
+        'notes',
+        'deadline',
+        'status',
     ];
 
     protected $casts = [
-        'chu_su_dung'       => 'array',
-        'uy_quyen'          => 'array',
-        'thua_chung'        => 'array',
-        'thong_tin_rieng'   => 'array',
-        'han_giai_quyet'    => 'date:Y-m-d',
-        'ngay_cap_gcn'      => 'date:Y-m-d',
+        'land_owners'       => 'array',
+        'authorization'          => 'array',
+        'shared_plots'        => 'array',
+        'private_info'   => 'array',
+        'deadline'    => 'date:Y-m-d',
+        'certificate_issue_date'      => 'date:Y-m-d',
         'created_at'        => 'datetime',
         'updated_at'        => 'datetime',
     ];
@@ -52,29 +52,24 @@ class HoSo extends Model
         return $this->hasMany(HoSoFile::class);
     }
 
-    public function chuSuDung()
-    {
-        return $this->belongsTo(User::class, 'chu_su_dung_id');
-    }
-
     public function loaiHoSo(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\LoaiHoSo::class, 'loai_ho_so_id');
+        return $this->belongsTo(\App\Models\LoaiHoSo::class, 'dossier_type_id');
     }
 
     public function loaiThuTuc(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\LoaiThuTuc::class, 'loai_thu_tuc_id');
+        return $this->belongsTo(\App\Models\LoaiThuTuc::class, 'procedure_type_id');
     }
 
     public function xa(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\Xa::class, 'xa_id');
+        return $this->belongsTo(\App\Models\Xa::class, 'ward_id');
     }
 
     public function nguoiThamTra(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'nguoi_tham_tra_id');
+        return $this->belongsTo(\App\Models\User::class, 'inspector_id');
     }
 
     public function soTheoDoiGroups()
@@ -84,7 +79,7 @@ class HoSo extends Model
 
     public function getTrangThaiMetaAttribute()
     {
-        if ($this->trang_thai === 'hoan_thanh') {
+        if ($this->status === 'hoan_thanh') {
             return [
                 'text'  => 'Hoàn thành',
                 'color' => 'success',
@@ -102,7 +97,7 @@ class HoSo extends Model
             'in_gcn_qsdd'           => 'In GCN QSDĐ',
         ];
 
-        $daysLeft = now()->diffInDays($this->han_giai_quyet, false);
+        $daysLeft = now()->diffInDays($this->deadline, false);
 
         $color = match (true) {
             $daysLeft >= 5   => 'primary',
@@ -114,7 +109,7 @@ class HoSo extends Model
         };
 
         return [
-            'text'  => $map[$this->trang_thai] ?? '—',
+            'text'  => $map[$this->status] ?? '—',
             'color' => $color,
         ];
     }
@@ -123,16 +118,16 @@ class HoSo extends Model
     {
         static::deleting(function ($hoSo) {
             foreach ($hoSo->files as $file) {
-                Storage::disk('public')->delete($file->duong_dan);
+                Storage::disk('public')->delete($file->file_path);
             }
             $hoSo->files()->delete();
         });
 
         static::updating(function ($hoSo) {
-            if ($hoSo->isDirty('trang_thai')) {
+            if ($hoSo->isDirty('status')) {
                 $hoSo->trangThaiLogs()->create([
-                    'trang_thai_cu'  => $hoSo->getOriginal('trang_thai'),
-                    'trang_thai_moi' => $hoSo->trang_thai,
+                    'old_status'  => $hoSo->getOriginal('status'),
+                    'new_status' => $hoSo->status,
                     'user_id'        => auth()->id(),
                 ]);
             }

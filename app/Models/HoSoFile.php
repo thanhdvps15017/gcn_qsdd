@@ -12,11 +12,11 @@ class HoSoFile extends Model
     protected $table = "ho_so_files";
     protected $fillable = [
         'ho_so_id',
-        'ten_file',
-        'duong_dan',
-        'loai_file',
-        'kich_thuoc',
-        'ghi_chu',
+        'file_name',
+        'file_path',
+        'file_type',
+        'file_size',
+        'notes',
     ];
 
     public function hoSo(): BelongsTo

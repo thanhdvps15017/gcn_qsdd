@@ -1,6 +1,6 @@
 @extends('welcome')
 
-@section('title', 'Quản lý loại thủ tục')
+@section('title', 'Quản lý loại hồ sơ')
 
 @section('content')
 
@@ -12,7 +12,7 @@
                 <div class="card-header text-white d-flex justify-content-between align-items-center"
                     style="background: linear-gradient(135deg, var(--primary), #0d6efd);">
                     <h5 class="mb-0 fw-bold">
-                        <i class="bi bi-file-earmark-text me-2"></i>DANH SÁCH LOẠI THỦ TỤC
+                        <i class="bi bi-folder me-2"></i>DANH SÁCH LOẠI HỒ SƠ
                     </h5>
 
                     <button class="btn btn-light btn-sm" onclick="openAddModal()">
@@ -26,8 +26,7 @@
                         <thead>
                             <tr>
                                 <th width="5%">#</th>
-                                <th>TÊN THỦ TỤC</th>
-                                <th class="text-center d-none d-md-table-cell">NGÀY TRẢ KẾT QUẢ</th>
+                                <th>TÊN LOẠI HỒ SƠ</th>
                                 <th width="5%" class="text-end"></th>
                             </tr>
                         </thead>
@@ -36,35 +35,23 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td class="fw-bold">{{ $item->name }}</td>
-                                    <td class="text-center d-none d-md-table-cell">
-                                        @if ($item->ngay_tra_ket_qua)
-                                            <span class="badge bg-success">
-                                                {{ $item->ngay_tra_ket_qua }} ngày
-                                            </span>
-                                        @else
-                                            <span class="text-muted">—</span>
-                                        @endif
-                                    </td>
 
                                     <td class="text-end position-static">
                                         <div class="dropdown">
-                                            <button class="btn btn-link text-muted p-2" data-bs-toggle="dropdown">
+                                            <button class="btn btn-link text-muted p-2" type="button"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
                                                 <i class="bi bi-three-dots-vertical"></i>
                                             </button>
 
                                             <div class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
                                                 <button class="dropdown-item d-flex align-items-center gap-2 text-warning"
-                                                    onclick="openEditModal(
-                                                    {{ $item->id }},
-                                                    '{{ addslashes($item->name) }}',
-                                                    '{{ $item->ngay_tra_ket_qua ?? '' }}'
-                                                )">
+                                                    onclick="openEditModal({{ $item->id }}, '{{ addslashes($item->name) }}')">
                                                     <i class="bi bi-pencil-square"></i>
-                                                    Chỉnh sửa
+                                                    <span>Chỉnh sửa</span>
                                                 </button>
 
-                                                <form action="{{ route('loai-thu-tuc.destroy', $item) }}" method="POST"
-                                                    onsubmit="return confirm('Xoá thủ tục «{{ addslashes($item->name) }}» ?')">
+                                                <form action="{{ route('settings.loai-ho-so.destroy', $item) }}" method="POST"
+                                                    onsubmit="confirmDelete(event, this, 'Bạn chắc chắn muốn xoá loại hồ sơ «{{ addslashes($item->name) }}» ?')">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit"
@@ -79,8 +66,8 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center text-muted py-4">
-                                        Chưa có loại thủ tục nào
+                                    <td colspan="3" class="text-center text-muted py-4">
+                                        Chưa có loại hồ sơ nào
                                     </td>
                                 </tr>
                             @endforelse
@@ -93,34 +80,31 @@
     </div>
 
     {{-- ================= MODAL CREATE / EDIT ================= --}}
-    <div class="modal fade" id="thuTucModal" tabindex="-1">
+    <div class="modal fade" id="loaiHoSoModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 shadow">
 
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="fw-bold" id="modalTitle">Thêm loại thủ tục</h5>
+                    <h5 class="fw-bold" id="modalTitle">Thêm loại hồ sơ</h5>
                     <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
 
-                <form id="thuTucForm" method="POST">
+                <form id="loaiHoSoForm" method="POST">
                     @csrf
-                    <input type="hidden" id="methodField">
+                    <input type="hidden" id="methodField" name="_method" value="{{ old('_method') }}">
+                    <input type="hidden" id="idInput" name="id" value="{{ old('id') }}">
 
                     <div class="modal-body row g-3 p-4">
+
                         <div class="col-12">
-                            <label class="fw-bold">Tên thủ tục *</label>
-                            <input type="text" name="name" id="nameInput" class="form-control" required
-                                value="{{ old('name') }}">
+                            <label class="fw-bold">Tên loại hồ sơ *</label>
+                            <input type="text" name="name" id="nameInput" class="form-control"
+                                value="{{ old('name') }}" placeholder="Nhập tên loại hồ sơ">
                             @error('name')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                <div class="text-danger mt-1 small">{{ $message }}</div>
                             @enderror
                         </div>
 
-                        <div class="col-12">
-                            <label class="fw-bold">Số ngày trả kết quả</label>
-                            <input type="number" name="ngay_tra_ket_qua" id="daysInput" class="form-control"
-                                value="{{ old('ngay_tra_ket_qua') }}" min="1" max="365">
-                        </div>
                     </div>
 
                     <div class="modal-footer">
@@ -137,32 +121,47 @@
 
 @push('script')
     <script>
-        const modal = new bootstrap.Modal(document.getElementById('thuTucModal'));
-        const form = document.getElementById('thuTucForm');
+        const loaiHoSoModal = new bootstrap.Modal(document.getElementById('loaiHoSoModal'));
+        const form = document.getElementById('loaiHoSoForm');
 
         function openAddModal() {
             form.reset();
-            form.action = "{{ route('loai-thu-tuc.store') }}";
-            document.getElementById('methodField').innerHTML = '';
-            document.getElementById('modalTitle').innerText = 'Thêm loại thủ tục';
-            modal.show();
+            form.action = "{{ route('settings.loai-ho-so.store') }}";
+            document.getElementById('methodField').value = '';
+            document.getElementById('methodField').disabled = true;
+            document.getElementById('idInput').value = '';
+            document.getElementById('modalTitle').innerText = 'Thêm loại hồ sơ';
+            document.getElementById('nameInput').value = '';
+            loaiHoSoModal.show();
         }
 
-        function openEditModal(id, name, days) {
+        function openEditModal(id, name) {
             form.reset();
-            form.action = `/settings/loai-thu-tuc/${id}`;
-            document.getElementById('methodField').innerHTML =
-                '<input type="hidden" name="_method" value="PUT">';
-            document.getElementById('modalTitle').innerText = 'Sửa loại thủ tục';
+            form.action = `/settings/loai-ho-so/${id}`;
+
+            document.getElementById('modalTitle').innerText = 'Sửa loại hồ sơ';
+            document.getElementById('methodField').disabled = false;
+            document.getElementById('methodField').value = 'PUT';
+            document.getElementById('idInput').value = id;
+
             document.getElementById('nameInput').value = name;
-            document.getElementById('daysInput').value = days;
-            modal.show();
+
+            loaiHoSoModal.show();
         }
 
-        // Mở lại modal nếu lỗi validate
+        // Tự động mở modal khi có lỗi validate từ server
         document.addEventListener('DOMContentLoaded', () => {
             @if ($errors->any())
-                openAddModal();
+                @if (old('_method') == 'PUT')
+                    form.action = `/settings/loai-ho-so/{{ old('id') }}`;
+                    document.getElementById('modalTitle').innerText = 'Sửa loại hồ sơ';
+                    document.getElementById('methodField').disabled = false;
+                @else
+                    form.action = "{{ route('settings.loai-ho-so.store') }}";
+                    document.getElementById('modalTitle').innerText = 'Thêm loại hồ sơ';
+                    document.getElementById('methodField').disabled = true;
+                @endif
+                loaiHoSoModal.show();
             @endif
         });
     </script>
