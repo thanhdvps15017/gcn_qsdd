@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Đoàn Văn Thành',
                 'email' => 'thanhvan2703201@gmail.com',
                 'phone' => '0377421240',
-                'password' => bcrypt('12345678@'),
+                'password' => bcrypt('123123123'),
                 'email_verified_at' => now(),
             ]
         );

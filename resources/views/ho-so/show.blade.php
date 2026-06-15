@@ -162,11 +162,11 @@
                                     @foreach ($thuaChung as $i => $t)
                                         <tr>
                                             <td class="text-center">{{ $i + 1 }}</td>
-                                            <td>{{ $t['to'] ?? '—' }}</td>
-                                            <td>{{ $t['thua'] ?? '—' }}</td>
-                                            <td>{{ $t['dien_tich'] ?? '—' }}</td>
-                                            <td>{{ $xaList[$t['xa_id']]->name ?? '—' }}</td>
-                                            <td>{{ $t['ap_thon'] ?? '—' }}</td>
+                                            <td>{{ $t['map_sheet'] ?? $t['to'] ?? '—' }}</td>
+                                            <td>{{ $t['plot_number'] ?? $t['thua'] ?? '—' }}</td>
+                                            <td>{{ $t['area'] ?? $t['dien_tich'] ?? '—' }}</td>
+                                            <td>{{ optional($xaList[$t['ward_id'] ?? $t['xa_id'] ?? null] ?? null)->name ?? '—' }}</td>
+                                            <td>{{ $t['hamlet'] ?? $t['ap_thon'] ?? '—' }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -226,6 +226,7 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Họ tên</th>
+                                        <th>Ngày sinh</th>
                                         <th>CCCD</th>
                                         <th>Ngày cấp</th>
                                         <th>Địa chỉ</th>
@@ -236,6 +237,7 @@
                                         <tr>
                                             <td class="text-center">{{ $i + 1 }}</td>
                                             <td>{{ $ng['full_name'] ?? '—' }}</td>
+                                            <td>{{ !empty($ng['date_of_birth']) ? \Carbon\Carbon::parse($ng['date_of_birth'])->format('d/m/Y') : '—' }}</td>
                                             <td>{{ $ng['id_card'] ?? '—' }}</td>
                                             <td>{{ !empty($ng['id_issue_date']) ? \Carbon\Carbon::parse($ng['id_issue_date'])->format('d/m/Y') : '—' }}
                                             </td>
@@ -266,9 +268,9 @@
                                     @foreach ($thuaRieng as $i => $t)
                                         <tr>
                                             <td class="text-center">{{ $i + 1 }}</td>
-                                            <td>{{ $t['map_sheet'] ?? '—' }}</td>
-                                            <td>{{ $t['plot_number'] ?? '—' }}</td>
-                                            <td>{{ $t['area'] ?? '—' }}</td>
+                                            <td>{{ $t['map_sheet'] ?? $t['to'] ?? '—' }}</td>
+                                            <td>{{ $t['plot_number'] ?? $t['thua'] ?? '—' }}</td>
+                                            <td>{{ $t['area'] ?? $t['dien_tich'] ?? '—' }}</td>
                                             <td>{{ $t['notes'] ?? '—' }}</td>
                                         </tr>
                                     @endforeach

@@ -48,8 +48,8 @@
 
                                     <td class="text-end position-static">
                                         <div class="dropdown">
-                                            <button class="btn btn-link text-muted p-2" type="button"
-                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                            <button class="btn btn-link text-muted p-2" type="button" data-bs-toggle="dropdown"
+                                                aria-expanded="false">
                                                 <i class="bi bi-three-dots-vertical"></i>
                                             </button>
 
@@ -63,9 +63,9 @@
 
                                                 <button class="dropdown-item d-flex align-items-center gap-2 text-warning"
                                                     onclick='openEditUser(
-                                                            @json($user),
-                                                            @json($user->roles->first()?->name ?? null)
-                                                        )'>
+                                                                    @json($user),
+                                                                    @json($user->roles->first()?->name ?? null)
+                                                                )'>
                                                     <i class="bi bi-pencil-square"></i>
                                                     Chỉnh sửa
                                                 </button>
@@ -118,7 +118,9 @@
 
                         <div class="col-md-6">
                             <label class="fw-bold">Username *</label>
-                            <input name="username" id="username" class="form-control @error('username') is-invalid @enderror" value="{{ old('username') }}" placeholder="Nhập tên đăng nhập">
+                            <input name="username" id="username"
+                                class="form-control @error('username') is-invalid @enderror" value="{{ old('username') }}"
+                                placeholder="Nhập tên đăng nhập">
                             @error('username')
                                 <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
                             @enderror
@@ -141,7 +143,9 @@
 
                         <div class="col-12">
                             <label class="fw-bold">Mật khẩu</label>
-                            <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" placeholder="Nhập mật khẩu (để trống nếu không đổi)">
+                            <input type="password" name="password" id="password"
+                                class="form-control @error('password') is-invalid @enderror"
+                                placeholder="Nhập mật khẩu (để trống nếu không đổi)">
                             @error('password')
                                 <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
                             @enderror
@@ -149,10 +153,11 @@
 
                         <div class="col-12">
                             <label class="fw-bold">Role *</label>
-                            <select name="role" id="roleSelect" class="form-select" data-container="body">
+                            <select name="role" id="roleSelect" class="form-select no-selectpicker">
                                 <option value="">-- Chọn role --</option>
                                 @foreach ($roles as $role)
-                                    <option value="{{ $role->name }}" @selected(old('role') == $role->name)>{{ $role->name }}</option>
+                                    <option value="{{ $role->name }}" @selected(old('role') == $role->name)>{{ $role->name }}
+                                    </option>
                                 @endforeach
                             </select>
                             @error('role')
@@ -205,12 +210,19 @@
 
         function openCreateUser() {
             form.reset();
-            $('#roleSelect').selectpicker('refresh');
+            $('#roleSelect').selectpicker('destroy');
+            $('#roleSelect').val('');
+            $('#roleSelect').selectpicker({
+                styleBase: 'form-control',
+                style: '',
+                liveSearch: true,
+                width: '100%'
+            });
             form.action = "{{ route('settings.users.store') }}";
             document.getElementById('methodField').value = '';
             document.getElementById('methodField').disabled = true;
             document.getElementById('userId').value = '';
-            document.getElementById('userModalTitle').innerText = 'Thêm User';
+            document.getElementById('userModalTitle').innerText = 'Thêm tài khoản';
             userModal.show();
         }
 
@@ -228,7 +240,14 @@
             document.getElementById('email').value = user.email || '';
             document.getElementById('phone').value = user.phone || '';
 
-            $('#roleSelect').val(currentRole || '').selectpicker('refresh');
+            $('#roleSelect').selectpicker('destroy');
+            $('#roleSelect').val(currentRole || '');
+            $('#roleSelect').selectpicker({
+                styleBase: 'form-control',
+                style: '',
+                liveSearch: true,
+                width: '100%'
+            });
 
             userModal.show();
         }
@@ -249,6 +268,14 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Khởi tạo lần đầu trên trang load
+            $('#roleSelect').selectpicker({
+                styleBase: 'form-control',
+                style: '',
+                liveSearch: true,
+                width: '100%'
+            });
+
             @if ($errors->any())
                 @if (old('_method') == 'PUT')
                     form.action = `/settings/users/{{ old('id') }}`;
@@ -256,11 +283,11 @@
                     document.getElementById('methodField').disabled = false;
                 @else
                     form.action = "{{ route('settings.users.store') }}";
-                    document.getElementById('userModalTitle').innerText = 'Thêm User';
+                    document.getElementById('userModalTitle').innerText = 'Thêm tài khoản';
                     document.getElementById('methodField').disabled = true;
                 @endif
                 userModal.show();
             @endif
-        });
+            });
     </script>
 @endpush

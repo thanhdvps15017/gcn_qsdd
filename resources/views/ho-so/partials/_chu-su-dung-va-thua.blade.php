@@ -116,20 +116,20 @@
 
                             <div class="col-md-4">
                                 <label class="form-label">Tờ</label>
-                                <input name="shared_plots[{{ $idx }}][to]" class="form-control"
-                                    value="{{ $row['map_sheet'] ?? '' }}" placeholder="Số tờ bản đồ">
+                                <input name="shared_plots[{{ $idx }}][map_sheet]" class="form-control"
+                                    value="{{ $row['map_sheet'] ?? $row['to'] ?? '' }}" placeholder="Số tờ bản đồ">
                             </div>
 
                             <div class="col-md-4">
                                 <label class="form-label">Thửa</label>
-                                <input name="shared_plots[{{ $idx }}][thua]" class="form-control"
-                                    value="{{ $row['plot_number'] ?? '' }}" placeholder="Số thửa">
+                                <input name="shared_plots[{{ $idx }}][plot_number]" class="form-control"
+                                    value="{{ $row['plot_number'] ?? $row['thua'] ?? '' }}" placeholder="Số thửa">
                             </div>
 
                             <div class="col-md-4">
                                 <label class="form-label">Diện tích (m²)</label>
                                 <input name="shared_plots[{{ $idx }}][area]" class="form-control"
-                                    value="{{ $row['area'] ?? '' }}" placeholder="VD: 120.5">
+                                    value="{{ $row['area'] ?? $row['dien_tich'] ?? '' }}" placeholder="VD: 120.5">
                             </div>
 
                             <div class="col-md-4">
@@ -137,7 +137,7 @@
                                 <select name="shared_plots[{{ $idx }}][ward_id]" class="form-select">
                                     @foreach ($xas as $x)
                                         <option value="{{ $x->id }}"
-                                            {{ ($row['ward_id'] ?? '') == $x->id ? 'selected' : '' }}>
+                                            {{ ($row['ward_id'] ?? $row['xa_id'] ?? '') == $x->id ? 'selected' : '' }}>
                                             {{ $x->name }}
                                         </option>
                                     @endforeach
@@ -147,7 +147,7 @@
                             <div class="col-md-8">
                                 <label class="form-label">Ấp / Thôn</label>
                                 <input name="shared_plots[{{ $idx }}][hamlet]" class="form-control"
-                                    value="{{ $row['hamlet'] ?? '' }}" placeholder="Tên ấp / thôn">
+                                    value="{{ $row['hamlet'] ?? $row['ap_thon'] ?? '' }}" placeholder="Tên ấp / thôn">
                             </div>
 
                         </div>
@@ -255,12 +255,12 @@
     
                 <div class="col-md-4">
                     <label class="form-label">Tờ</label>
-                    <input name="shared_plots[${thuaChungIndex}][to]" class="form-control" placeholder="Số tờ bản đồ">
+                    <input name="shared_plots[${thuaChungIndex}][map_sheet]" class="form-control" placeholder="Số tờ bản đồ">
                 </div>
     
                 <div class="col-md-4">
                     <label class="form-label">Thửa</label>
-                    <input name="shared_plots[${thuaChungIndex}][thua]" class="form-control" placeholder="Số thửa">
+                    <input name="shared_plots[${thuaChungIndex}][plot_number]" class="form-control" placeholder="Số thửa">
                 </div>
     
                 <div class="col-md-4">

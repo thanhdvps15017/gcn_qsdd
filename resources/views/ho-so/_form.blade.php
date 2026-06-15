@@ -12,30 +12,30 @@
     // Dữ liệu động
     $uyQuyen = old('authorization', $isEdit ? $hoSo->authorization ?? [] : []);
     $thuaChung = old('shared_plots', $isEdit ? array_values((array) ($hoSo->shared_plots ?? [])) : []);
+    
     $thongTinRieng = old('private_info', $isEdit ? $hoSo->private_info ?? [] : []);
     $riengLoai = $thongTinRieng['type'] ?? '';
     $riengData = $thongTinRieng['data'] ?? [];
-    $riengThua = array_values((array) ($riengData['plot_number'] ?? []));
+    $riengThua = array_values((array) ($riengData['plot_number'] ?? $riengData['thua'] ?? []));
 
     if (empty($thuaChung)) {
         $thuaChung = [['map_sheet' => '', 'plot_number' => '', 'area' => '']];
     }
 
     // Chuẩn bị index cho JS
-    $chuSuDungList = old('land_owners', []);
-    if ($isEdit) {
-        $chuSuDungList = is_array($hoSo->land_owners)
-            ? array_values($hoSo->land_owners)
-            : ($hoSo->land_owners
-                ? [$hoSo->land_owners]
-                : [[]]);
+    $chuSuDungList = old('land_owners', $isEdit ? ($hoSo->land_owners ?? []) : []);
+    if (!is_array($chuSuDungList)) {
+        $chuSuDungList = [$chuSuDungList];
     }
+    // Lấy lại các giá trị dưới dạng mảng index 0, 1, 2...
+    $chuSuDungList = array_values($chuSuDungList);
+    
     if (empty($chuSuDungList)) {
         $chuSuDungList = [[]];
     }
     $chuSuDungIndex = count($chuSuDungList);
 
-    $nguoiLienQuan = old('private_info.data.related_person', $riengData['related_person'] ?? []);
+    $nguoiLienQuan = array_values((array) ($riengData['related_person'] ?? []));
     $nguoiIndex = count($nguoiLienQuan) ?: 1;
 @endphp
 

@@ -15,45 +15,10 @@ class HoSoController extends Controller
 {
     protected $service;
 
-        /* 🔎 Tìm kiếm */
-        if ($request->filled('q')) {
-            $q = $request->q;
-
-            $query->where(function ($sub) use ($q) {
-                $sub->where('ma_ho_so', 'like', "%{$q}%")
-                    ->orWhere('ten_chu_ho_so', 'like', "%{$q}%");
-            });
-        }
-
-        /* 📌 Trạng thái */
-        if ($request->filled('trang_thai')) {
-            $query->where('trang_thai', $request->trang_thai);
-        }
-
-        /* 📂 Loại hồ sơ */
-        if ($request->filled('loai_ho_so_id')) {
-            $query->where('loai_ho_so_id', $request->loai_ho_so_id);
-        }
-
-        /* 📄 Loại thủ tục */
-        if ($request->filled('loai_thu_tuc_id')) {
-            $query->where('loai_thu_tuc_id', $request->loai_thu_tuc_id);
-        }
-
-        /* 🏘️ Xã / Phường */
-        if ($request->filled('xa_id')) {
-            $query->where('xa_id', $request->xa_id);
-        }
-
-        /* ⏱️ Sắp xếp */
-        $sort = $request->get('sort', 'desc');
-        $query->orderBy('han_giai_quyet', $sort);
-
-        /* 📄 Lấy dữ liệu */
-        $hoSos = $query
-            ->with(['loaiHoSo', 'loaiThuTuc', 'xa', 'nguoiThamTra'])
-            ->paginate($request->get('per_page', 20))
-            ->withQueryString();
+    public function __construct(HoSoService $service)
+    {
+        $this->service = $service;
+    }
 
     public function index(Request $request) {
         $hoSos = $this->service->getPaginated($request->all(), $request->get('per_page', 20));
@@ -95,9 +60,11 @@ class HoSoController extends Controller
             'authorization.person' => 'nullable|string',
             'authorization.paper' => 'nullable|string',
             'shared_plots' => 'nullable|array',
-            'shared_plots.*.to' => 'nullable|string',
-            'shared_plots.*.thua' => 'nullable|string',
+            'shared_plots.*.map_sheet' => 'nullable|string',
+            'shared_plots.*.plot_number' => 'nullable|string',
             'shared_plots.*.area' => 'nullable',
+            'shared_plots.*.ward_id' => 'nullable|exists:xas,id',
+            'shared_plots.*.hamlet' => 'nullable|string',
             'certificate_issue_date' => 'nullable|date',
             'registration_book_number' => 'nullable|string',
             'publication_number' => 'nullable|string',
@@ -106,13 +73,17 @@ class HoSoController extends Controller
             'private_info.type' => 'nullable|string|in:tachthua_chuyennhuong,capdoi,chuyennhuong,tachthua,capdoi_chuyennhuong',
             'private_info.data' => 'nullable|array',
             'private_info.data.related_person' => 'nullable|array',
+            'private_info.data.related_person.*.salutation' => 'nullable|string',
             'private_info.data.related_person.*.full_name' => 'nullable|string',
+            'private_info.data.related_person.*.date_of_birth' => 'nullable|date',
             'private_info.data.related_person.*.id_card' => 'nullable|string',
-            'private_info.data.thua' => 'nullable|array',
-            'private_info.data.thua.*.to' => 'nullable|string',
-            'private_info.data.thua.*.thua' => 'nullable|string',
-            'private_info.data.thua.*.area' => 'nullable',
-            'private_info.data.thua.*.notes' => 'nullable|string',
+            'private_info.data.related_person.*.id_issue_date' => 'nullable|date',
+            'private_info.data.related_person.*.address' => 'nullable|string',
+            'private_info.data.plot_number' => 'nullable|array',
+            'private_info.data.plot_number.*.map_sheet' => 'nullable|string',
+            'private_info.data.plot_number.*.plot_number' => 'nullable|string',
+            'private_info.data.plot_number.*.area' => 'nullable',
+            'private_info.data.plot_number.*.notes' => 'nullable|string',
             'notes' => 'nullable|string',
             'files' => 'nullable|array',
             'files.*' => 'file|max:10240',
@@ -128,9 +99,11 @@ class HoSoController extends Controller
     {
         $hoSo->load(['loaiHoSo', 'loaiThuTuc', 'xa', 'nguoiThamTra', 'files', 'trangThaiLogs.user']);
 
-        $thuaChung = $hoSo->thua_chung ?? [];
+        $thuaChung = $hoSo->shared_plots ?? [];
 
-        $xaIds = collect($thuaChung)->pluck('xa_id')->filter()->unique();
+        $xaIds = collect($thuaChung)->flatMap(function($item) {
+            return [$item['ward_id'] ?? null, $item['xa_id'] ?? null];
+        })->filter()->unique();
 
         $xaList = \App\Models\Xa::whereIn('id', $xaIds)
             ->get()
@@ -170,9 +143,11 @@ class HoSoController extends Controller
             'authorization.person' => 'nullable|string',
             'authorization.paper' => 'nullable|string',
             'shared_plots' => 'nullable|array',
-            'shared_plots.*.to' => 'nullable|string',
-            'shared_plots.*.thua' => 'nullable|string',
+            'shared_plots.*.map_sheet' => 'nullable|string',
+            'shared_plots.*.plot_number' => 'nullable|string',
             'shared_plots.*.area' => 'nullable',
+            'shared_plots.*.ward_id' => 'nullable|exists:xas,id',
+            'shared_plots.*.hamlet' => 'nullable|string',
             'address' => 'nullable|string|max:500',
             'certificate_issue_date' => 'nullable|date',
             'registration_book_number' => 'nullable|string',
@@ -181,15 +156,17 @@ class HoSoController extends Controller
             'private_info.type' => 'nullable|string|in:tachthua_chuyennhuong,capdoi,chuyennhuong,tachthua,capdoi_chuyennhuong',
             'private_info.data' => 'nullable|array',
             'private_info.data.related_person' => 'nullable|array',
+            'private_info.data.related_person.*.salutation' => 'nullable|string',
             'private_info.data.related_person.*.full_name' => 'nullable|string',
+            'private_info.data.related_person.*.date_of_birth' => 'nullable|date',
             'private_info.data.related_person.*.id_card' => 'nullable|string',
             'private_info.data.related_person.*.id_issue_date' => 'nullable|date',
             'private_info.data.related_person.*.address' => 'nullable|string',
-            'private_info.data.thua' => 'nullable|array',
-            'private_info.data.thua.*.to' => 'nullable|string',
-            'private_info.data.thua.*.thua' => 'nullable|string',
-            'private_info.data.thua.*.area' => 'nullable',
-            'private_info.data.thua.*.notes' => 'nullable|string',
+            'private_info.data.plot_number' => 'nullable|array',
+            'private_info.data.plot_number.*.map_sheet' => 'nullable|string',
+            'private_info.data.plot_number.*.plot_number' => 'nullable|string',
+            'private_info.data.plot_number.*.area' => 'nullable',
+            'private_info.data.plot_number.*.notes' => 'nullable|string',
             'notes' => 'nullable|string',
             'deadline' => 'nullable|date',
             'status' => 'nullable|string',
