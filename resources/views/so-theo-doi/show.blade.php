@@ -22,20 +22,28 @@
                 </div>
 
                 <div class="card-body p-2">
-                    <form method="POST" action="{{ route('so-theo-doi.batch-add', $group) }}">
+                    <form method="POST" action="{{ route('so-theo-doi.batch-add', $group) }}" id="batch-add-form">
                         @csrf
 
                         <input type="text" id="search-chua-them" class="form-control mb-2"
                             placeholder="🔍 Tìm hồ sơ chưa thêm...">
 
-                        <select name="ho_so_ids[]" id="list-chua-them" class="form-select" multiple required
-                            style="min-height:350px">
-                            @foreach ($hoSosChuaThem as $hs)
-                                <option value="{{ $hs->id }}">
-                                    {{ $hs->dossier_code }} - {{ $hs->owner_name ?? 'Không tên' }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <div class="border rounded p-3 bg-white" style="min-height: 350px; max-height: 400px; overflow-y: auto;">
+                            <div id="list-chua-them-container">
+                                @forelse ($hoSosChuaThem as $hs)
+                                    <div class="form-check list-chua-them-item mb-2">
+                                        <input class="form-check-input ho-so-check" type="checkbox" name="ho_so_ids[]" value="{{ $hs->id }}" id="hs-{{ $hs->id }}">
+                                        <label class="form-check-label" for="hs-{{ $hs->id }}">
+                                            <strong>{{ $hs->dossier_code }}</strong> - {{ $hs->owner_name ?? 'Không tên' }}
+                                        </label>
+                                    </div>
+                                @empty
+                                    <div class="text-muted text-center py-5" id="empty-chua-them-msg">
+                                        Không còn hồ sơ nào chưa thêm
+                                    </div>
+                                @endforelse
+                            </div>
+                        </div>
 
                         <button class="btn btn-success w-100 mt-2">
                             <i class="bi bi-plus-lg"></i> Thêm hồ sơ
@@ -212,9 +220,40 @@
 
     {{-- ================= JS ================= --}}
     <script>
-        /* CHECK ALL */
+        // Store checked dossiers: id -> { dossier_code, owner_name }
+        const checkedHoSos = new Map();
+
+        // Listen for checkbox changes in the add form to keep track of selection
+        const containerEl = document.getElementById('list-chua-them-container');
+        if (containerEl) {
+            containerEl.addEventListener('change', function(e) {
+                if (e.target.classList.contains('ho-so-check')) {
+                    const id = e.target.value;
+                    const labelEl = e.target.nextElementSibling || e.target.parentElement.querySelector('label');
+                    const code = labelEl.querySelector('strong').textContent;
+                    const name = labelEl.textContent.replace(code, '').replace('-', '').trim();
+                    
+                    if (e.target.checked) {
+                        checkedHoSos.set(id.toString(), { dossier_code: code, owner_name: name });
+                    } else {
+                        checkedHoSos.delete(id.toString());
+                    }
+                }
+            });
+        }
+
+        // Validate batch add form submission
+        document.getElementById('batch-add-form')?.addEventListener('submit', function(e) {
+            const checkedCount = document.querySelectorAll('#list-chua-them-container input[type="checkbox"]:checked').length;
+            if (checkedCount === 0) {
+                e.preventDefault();
+                Swal.fire('Chú ý', 'Vui lòng chọn ít nhất một hồ sơ để thêm vào sổ!', 'warning');
+            }
+        });
+
+        /* CHECK ALL (Only for table-trong-so) */
         document.getElementById('check-all').addEventListener('click', e => {
-            document.querySelectorAll('input[name="ho_so_ids[]"]').forEach(cb => cb.checked = e.target.checked);
+            document.querySelectorAll('#table-trong-so input[name="ho_so_ids[]"]').forEach(cb => cb.checked = e.target.checked);
         });
 
         /* SEARCH CHƯA THÊM */
@@ -222,13 +261,47 @@
             fetch(`{{ route('so-theo-doi.search-chua-them', $group) }}?q=${this.value}`)
                 .then(res => res.json())
                 .then(data => {
-                    const select = document.getElementById('list-chua-them');
-                    select.innerHTML = '';
+                    const container = document.getElementById('list-chua-them-container');
+                    container.innerHTML = '';
+
+                    if (!data.length && checkedHoSos.size === 0) {
+                        container.innerHTML = `
+                            <div class="text-muted text-center py-5">
+                                Không tìm thấy hồ sơ nào
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    const renderedIds = new Set();
+
+                    // 1. Render matching items
                     data.forEach(hs => {
-                        select.innerHTML += `
-                    <option value="${hs.id}">
-                        ${hs.dossier_code} - ${hs.owner_name ?? 'Không tên'}
-                    </option>`;
+                        const idStr = hs.id.toString();
+                        renderedIds.add(idStr);
+                        const isChecked = checkedHoSos.has(idStr);
+                        container.innerHTML += `
+                            <div class="form-check list-chua-them-item mb-2">
+                                <input class="form-check-input ho-so-check" type="checkbox" name="ho_so_ids[]" value="${hs.id}" id="hs-${hs.id}" ${isChecked ? 'checked' : ''}>
+                                <label class="form-check-label" for="hs-${hs.id}">
+                                    <strong>${hs.dossier_code}</strong> - ${hs.owner_name ?? 'Không tên'}
+                                </label>
+                            </div>
+                        `;
+                    });
+
+                    // 2. Render checked items that weren't in the search results
+                    checkedHoSos.forEach((info, id) => {
+                        if (!renderedIds.has(id)) {
+                            container.innerHTML += `
+                                <div class="form-check list-chua-them-item mb-2">
+                                    <input class="form-check-input ho-so-check" type="checkbox" name="ho_so_ids[]" value="${id}" id="hs-${id}" checked>
+                                    <label class="form-check-label" for="hs-${id}">
+                                        <strong>${info.dossier_code}</strong> - ${info.owner_name}
+                                    </label>
+                                </div>
+                            `;
+                        }
                     });
                 });
         });
@@ -242,25 +315,57 @@
                     tbody.innerHTML = '';
 
                     if (!data.length) {
-                        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">
+                        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">
                     Không tìm thấy hồ sơ
                 </td></tr>`;
                         return;
                     }
 
                     data.forEach(hs => {
+                        const orderIndexStr = hs.pivot?.order_index || hs.order_index || '-';
+                        const notesStr = hs.pivot?.notes || hs.notes || '';
                         tbody.innerHTML += `
                 <tr>
                     <td><input type="checkbox" name="ho_so_ids[]" value="${hs.id}"></td>
+                    <td>${orderIndexStr}</td>
                     <td>${hs.dossier_code}</td>
-                    <td>${hs.land_owners?.full_name ?? '-'}</td>
-                    <td>${hs.status ?? ''}</td>
+                    <td>${hs.owner_name ?? '-'}</td>
+                    <td>${hs.loai_ho_so?.name ?? hs.loaiHoSo?.name ?? '-'}</td>
+                    <td>${hs.loai_thu_tuc?.name ?? hs.loaiThuTuc?.name ?? '-'}</td>
+                    <td>${hs.nguoi_tham_tra?.name ?? hs.nguoiThamTra?.name ?? '-'}</td>
                     <td>
+                        <button type="button"
+                            class="btn btn-sm btn-outline-secondary btn-open-note"
+                            data-ho-so-id="${hs.id}"
+                            data-ghi-chu="${notesStr}">
+                            <i class="bi bi-journal-text"></i> Ghi chú
+                        </button>
                         <a href="/ho-so/${hs.id}" class="btn btn-sm btn-outline-primary">Xem</a>
                     </td>
                 </tr>`;
                     });
+
+                    // Re-bind note open events for newly rendered rows
+                    bindNoteOpenEvents();
                 });
         });
+
+        function bindNoteOpenEvents() {
+            document.querySelectorAll('.btn-open-note').forEach(btn => {
+                // Remove existing event listener first to avoid duplication
+                btn.replaceWith(btn.cloneNode(true));
+            });
+            
+            // Re-select and bind
+            document.querySelectorAll('.btn-open-note').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.getElementById('ghi-chu-ho-so-id').value = this.dataset.hoSoId;
+                    document.getElementById('ghi-chu-text').value = this.dataset.ghiChu || '';
+                    const modalEl = document.getElementById('ghiChuModal');
+                    const ghiChuModal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    ghiChuModal.show();
+                });
+            });
+        }
     </script>
 @endsection

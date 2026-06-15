@@ -49,7 +49,8 @@ class DatabaseSeeder extends Seeder
             $role->syncPermissions($permissionsToSync);
         }
 
-        // Gọi thêm MasterDataSeeder
+        // Gọi thêm MasterDataSeeder và HoSoSeeder
         $this->call(MasterDataSeeder::class);
+        $this->call(HoSoSeeder::class);
     }
 }

@@ -29,15 +29,19 @@ class SoTheoDoiRepository
         $ids = $group->hoSos()->pluck('ho_sos.id');
         return HoSo::whereNotIn('id', $ids)
             ->when($keyword, function ($q) use ($keyword) {
-                $q->where('dossier_code', 'like', "%{$keyword}%")
-                  ->orWhere('owner_name', 'like', "%{$keyword}%");
+                $q->where(function ($query) use ($keyword) {
+                    $query->where('dossier_code', 'like', "%{$keyword}%")
+                          ->orWhere('owner_name', 'like', "%{$keyword}%");
+                });
             })->orderBy('dossier_code')->limit(50)->get(['id', 'dossier_code', 'owner_name']);
     }
     public function searchHoSoTrongSo(SoTheoDoiGroup $group, $keyword) {
         return $group->hoSos()
             ->when($keyword, function ($q) use ($keyword) {
-                $q->where('dossier_code', 'like', "%{$keyword}%")
-                  ->orWhere('owner_name', 'like', "%{$keyword}%");
-            })->with('chuSuDung:id,full_name')->limit(50)->get();
+                $q->where(function ($query) use ($keyword) {
+                    $query->where('dossier_code', 'like', "%{$keyword}%")
+                          ->orWhere('owner_name', 'like', "%{$keyword}%");
+                });
+            })->with(['loaiHoSo', 'loaiThuTuc', 'nguoiThamTra'])->limit(50)->get();
     }
 }
