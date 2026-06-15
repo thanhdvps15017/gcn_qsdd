@@ -1,15 +1,13 @@
 <div class="row">
-
-    <!-- CỘT TRÁI -->
-    <div class="col-lg-6">
+    <div class="col-lg-12">
         <div class="card mb-3 shadow-sm">
-            <div class="card-header fw-bold bg-light">Thông tin chung</div>
+            <div class="card-header fw-bold bg-light">Thông tin chung & Tài liệu đính kèm</div>
 
             <div class="card-body">
                 <div class="row g-3">
 
                     <div class="col-md-6">
-                        <label class="form-label">Mã hồ sơ</label>
+                        <label class="form-label">Mã hồ sơ <span class="text-danger">*</span></label>
                         <input name="dossier_code" class="form-control" required
                             value="{{ $isEdit ? $getValue('dossier_code') : 'H19.151-' . $getValue('dossier_code') }}">
                     </div>
@@ -80,63 +78,48 @@
                         </select>
                     </div>
 
-                </div>
-            </div>
-        </div>
-    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold">Ghi chú</label>
+                        <textarea name="notes" class="form-control" rows="2" placeholder="Nhập ghi chú chi tiết về hồ sơ...">{{ old('notes', $isEdit ? $hoSo->notes : '') }}</textarea>
+                    </div>
 
-    <!-- CỘT PHẢI -->
-    <div class="col-lg-6">
-        <div class="card mb-4 shadow-sm">
-            <div class="card-header fw-bold bg-light">Ghi chú & Tài liệu</div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold">Tài liệu đính kèm</label>
+                        <input type="file" name="files[]" class="form-control" multiple>
+                        <small class="text-muted d-block mt-1">PDF, Word, ảnh, tối đa 10MB/file</small>
+                    </div>
 
-            <div class="card-body">
+                    @if ($isEdit && $hoSo->files->count())
+                        <div class="col-12 mt-2">
+                            <label class="form-label fw-bold text-secondary small">Tài liệu hiện có</label>
+                            <div class="file-scroll">
+                                @foreach ($hoSo->files as $file)
+                                    <div class="file-card" id="file-row-{{ $file->id }}">
 
-                <div class="mb-3">
-                    <label class="form-label">Ghi chú</label>
-                    <textarea name="notes" class="form-control" rows="1">{{ old('notes', $isEdit ? $hoSo->notes : '') }}</textarea>
-                </div>
+                                        <!-- ICON XOÁ -->
+                                        <button type="button" class="file-delete btn-delete-file"
+                                            data-url="{{ route('ho-so.files.destroy', [$hoSo, $file]) }}"
+                                            data-id="{{ $file->id }}" title="Xóa file">
+                                            ✕
+                                        </button>
 
-                <div class="mb-3">
-                    <label class="form-label">Tài liệu đính kèm</label>
-                    <input type="file" name="files[]" class="form-control" multiple>
-                    <small class="text-muted d-block mt-1">PDF, Word, ảnh, tối đa 10MB/file</small>
-                </div>
+                                        <!-- FILE NAME -->
+                                        <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank"
+                                            class="file-name text-primary text-decoration-none" title="{{ $file->file_name }}">
+                                            {{ $file->file_name }}
+                                        </a>
 
-                @if ($isEdit && $hoSo->files->count())
-
-                    <div class="file-scroll mt-3">
-                        @foreach ($hoSo->files as $file)
-                            <div class="file-card" id="file-row-{{ $file->id }}">
-
-                                <!-- ICON XOÁ -->
-                                <button type="button" class="file-delete btn-delete-file"
-                                    data-url="{{ route('ho-so.files.destroy', [$hoSo, $file]) }}"
-                                    data-id="{{ $file->id }}" title="Xóa file">
-                                    ✕
-                                </button>
-
-                                <!-- FILE NAME -->
-                                <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank"
-                                    class="file-name text-primary text-decoration-none" title="{{ $file->file_name }}">
-                                    {{ $file->file_name }}
-                                </a>
-
+                                    </div>
+                                @endforeach
                             </div>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="text-muted fst-italic mt-3 mb-3">
-                        Chưa có file đính kèm
-                    </div>
+                        </div>
+                    @endif
 
-                @endif
+                </div>
             </div>
         </div>
     </div>
-
 </div>
-
 
 <style>
     .file-scroll {
@@ -168,6 +151,7 @@
         text-overflow: ellipsis;
         display: block;
         font-size: 14px;
+        padding-right: 20px;
     }
 
     .file-delete {

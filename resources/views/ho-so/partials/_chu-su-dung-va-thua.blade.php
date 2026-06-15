@@ -1,7 +1,7 @@
 <div class="row mb-3">
 
     <!-- CỘT TRÁI: CHỦ SỬ DỤNG -->
-    <div class="col-lg-6">
+    <div class="col-lg-12 mb-3">
         <div class="card h-100 shadow-sm">
 
             <div class="card-header d-flex justify-content-between align-items-center bg-light">
@@ -38,31 +38,28 @@
 
                             <div class="col-md-4">
                                 <label class="form-label">Ngày sinh</label>
-                                <input type="date" name="land_owners[{{ $idx }}][date_of_birth]"
-                                    class="form-control"
+                                <input type="date" name="land_owners[{{ $idx }}][date_of_birth]" class="form-control"
                                     value="{{ old("land_owners.$idx.date_of_birth", $chu['date_of_birth'] ?? '') }}"
                                     placeholder="YYYY-MM-DD">
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label class="form-label">CCCD/CMND</label>
                                 <input name="land_owners[{{ $idx }}][id_card]" class="form-control"
                                     value="{{ old("land_owners.$idx.id_card", $chu['id_card'] ?? '') }}"
                                     placeholder="Nhập số CCCD/CMND">
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label class="form-label">Ngày cấp</label>
-                                <input type="date" name="land_owners[{{ $idx }}][issue_date]"
-                                    class="form-control"
+                                <input type="date" name="land_owners[{{ $idx }}][issue_date]" class="form-control"
                                     value="{{ old("land_owners.$idx.issue_date", $chu['issue_date'] ?? '') }}"
                                     placeholder="YYYY-MM-DD">
                             </div>
 
-                            <div class="col-4">
+                            <div class="col-md-6">
                                 <label class="form-label">Địa chỉ</label>
-                                <input type="text" name="land_owners[{{ $idx }}][address]"
-                                    class="form-control"
+                                <input type="text" name="land_owners[{{ $idx }}][address]" class="form-control"
                                     value="{{ old("land_owners.$idx.address", $chu['address'] ?? '') }}"
                                     placeholder="Số nhà, đường, xã/phường...">
                             </div>
@@ -96,7 +93,7 @@
     </div>
 
     <!-- CỘT PHẢI: THỬA ĐẤT -->
-    <div class="col-lg-6">
+    <div class="col-lg-12">
         <div class="card h-100 shadow-sm">
 
             <div class="card-header d-flex justify-content-between align-items-center bg-light">
@@ -106,8 +103,7 @@
 
             <div class="card-body" id="thuaContainer">
                 @foreach ($thuaChung as $idx => $row)
-                    <div class="border rounded p-3 mb-3 bg-light position-relative thua-item"
-                        data-index="{{ $idx }}">
+                    <div class="border rounded p-3 mb-3 bg-light position-relative thua-item" data-index="{{ $idx }}">
 
                         <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2"
                             onclick="removeThua(this)">X</button>
@@ -136,8 +132,7 @@
                                 <label class="form-label">Xã</label>
                                 <select name="shared_plots[{{ $idx }}][ward_id]" class="form-select">
                                     @foreach ($xas as $x)
-                                        <option value="{{ $x->id }}"
-                                            {{ ($row['ward_id'] ?? $row['xa_id'] ?? '') == $x->id ? 'selected' : '' }}>
+                                        <option value="{{ $x->id }}" {{ ($row['ward_id'] ?? $row['xa_id'] ?? '') == $x->id ? 'selected' : '' }}>
                                             {{ $x->name }}
                                         </option>
                                     @endforeach
@@ -215,17 +210,17 @@
                     <input type="date" name="land_owners[${chuSuDungIndex}][date_of_birth]" class="form-control" placeholder="YYYY-MM-DD">
                 </div>
     
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label">CCCD/CMND</label>
                     <input name="land_owners[${chuSuDungIndex}][id_card]" class="form-control" placeholder="Nhập số CCCD/CMND">
                 </div>
     
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label">Ngày cấp</label>
                     <input type="date" name="land_owners[${chuSuDungIndex}][issue_date]" class="form-control" placeholder="YYYY-MM-DD">
                 </div>
     
-                <div class="col-4">
+                <div class="col-md-6">
                     <label class="form-label">Địa chỉ</label>
                     <input type="text" name="land_owners[${chuSuDungIndex}][address]" class="form-control" placeholder="Số nhà, đường, xã/phường...">
                 </div>
@@ -234,6 +229,14 @@
         </div>`;
 
         container.insertAdjacentHTML('beforeend', html);
+
+        // Khởi tạo selectpicker cho thẻ select mới thêm vào
+        const lastItem = container.lastElementChild;
+        $(lastItem).find('select').selectpicker({
+            liveSearch: true,
+            width: '100%'
+        });
+
         chuSuDungIndex++;
     }
 
@@ -286,6 +289,14 @@
         </div>`;
 
         container.insertAdjacentHTML('beforeend', html);
+
+        // Khởi tạo selectpicker cho thẻ select mới thêm vào
+        const lastItem = container.lastElementChild;
+        $(lastItem).find('select').selectpicker({
+            liveSearch: true,
+            width: '100%'
+        });
+
         thuaChungIndex++;
     }
 

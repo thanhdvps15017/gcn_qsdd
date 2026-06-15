@@ -39,6 +39,22 @@
     $nguoiIndex = count($nguoiLienQuan) ?: 1;
 @endphp
 
+<style>
+    /* Fix bootstrap-select inside input-group */
+    .input-group > .bootstrap-select {
+        width: 100px !important;
+        flex: 0 0 100px !important;
+    }
+    .input-group > .bootstrap-select .dropdown-toggle {
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+    }
+    .input-group > .bootstrap-select + .form-control {
+        border-top-left-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
+    }
+</style>
+
 <form action="{{ $action }}" method="POST" enctype="multipart/form-data">
     @csrf
     @if (strtoupper($method) !== 'POST')

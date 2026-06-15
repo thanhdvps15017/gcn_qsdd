@@ -28,7 +28,7 @@
             <div class="row g-4">
 
                 <!-- Cột trái: Người liên quan -->
-                <div class="col-lg-6">
+                <div class="col-lg-12">
                     <h6 class="fw-bold mb-3 text-success">Người liên quan / Bên nhận chuyển nhượng</h6>
 
                     <div id="person-lien-quan-container">
@@ -146,7 +146,7 @@
                 </div>
 
                 <!-- Cột phải: Danh sách thửa đất -->
-                <div class="col-lg-6">
+                <div class="col-lg-12">
                     <h6 class="fw-bold mb-3 text-success">Danh sách thửa đất sau biến động</h6>
 
                     <div id="thua-dat-container">
@@ -156,26 +156,26 @@
                                     class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2 remove-thua-btn">X</button>
 
                                 <div class="row g-3">
-                                    <div class="col-6 col-md-4">
+                                    <div class="col-md-2">
                                         <label class="form-label small">Tờ</label>
                                         <input name="private_info[data][plot_number][{{ $idx }}][map_sheet]"
                                             class="form-control" value="{{ $t['map_sheet'] ?? $t['to'] ?? '' }}" placeholder="Tờ">
                                     </div>
 
-                                    <div class="col-6 col-md-4">
+                                    <div class="col-md-2">
                                         <label class="form-label small">Thửa</label>
                                         <input name="private_info[data][plot_number][{{ $idx }}][plot_number]"
                                             class="form-control" value="{{ $t['plot_number'] ?? $t['thua'] ?? '' }}" placeholder="Thửa">
                                     </div>
 
-                                    <div class="col-6 col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label small">Diện tích (m²)</label>
                                         <input name="private_info[data][plot_number][{{ $idx }}][area]"
                                             class="form-control" value="{{ $t['area'] ?? $t['dien_tich'] ?? '' }}"
                                             placeholder="Diện tích">
                                     </div>
 
-                                    <div class="col-12">
+                                    <div class="col-md-5">
                                         <label class="form-label small">Ghi chú</label>
                                         <input name="private_info[data][plot_number][{{ $idx }}][notes]"
                                             class="form-control" value="{{ $t['notes'] ?? '' }}"
@@ -189,25 +189,25 @@
                                     class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2 remove-thua-btn">X</button>
 
                                 <div class="row g-3">
-                                    <div class="col-6 col-md-4">
+                                    <div class="col-md-2">
                                         <label class="form-label small">Tờ</label>
                                         <input name="private_info[data][plot_number][0][map_sheet]" class="form-control"
                                             placeholder="Tờ">
                                     </div>
 
-                                    <div class="col-6 col-md-4">
+                                    <div class="col-md-2">
                                         <label class="form-label small">Thửa</label>
                                         <input name="private_info[data][plot_number][0][plot_number]" class="form-control"
                                             placeholder="Thửa">
                                     </div>
 
-                                    <div class="col-6 col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label small">Diện tích (m²)</label>
                                         <input name="private_info[data][plot_number][0][area]" class="form-control"
                                             placeholder="Diện tích">
                                     </div>
 
-                                    <div class="col-12">
+                                    <div class="col-md-5">
                                         <label class="form-label small">Ghi chú</label>
                                         <input name="private_info[data][plot_number][0][notes]" class="form-control"
                                             placeholder="Ghi chú (nếu có)">
@@ -277,6 +277,14 @@
             </div>`;
 
         container.insertAdjacentHTML('beforeend', html);
+
+        // Khởi tạo selectpicker cho thẻ select mới thêm vào
+        const lastItem = container.lastElementChild;
+        $(lastItem).find('select').selectpicker({
+            liveSearch: true,
+            width: '100%'
+        });
+
         nguoiLienQuanIndex++;
     }
 
@@ -289,19 +297,19 @@
                 <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 mt-2 me-2 remove-thua-btn">X</button>
 
                 <div class="row g-3">
-                    <div class="col-6 col-md-4">
+                    <div class="col-md-2">
                         <label class="form-label small">Tờ</label>
                         <input name="private_info[data][plot_number][${thuaDatIndex}][map_sheet]" class="form-control" placeholder="Tờ">
                     </div>
-                    <div class="col-6 col-md-4">
+                    <div class="col-md-2">
                         <label class="form-label small">Thửa</label>
                         <input name="private_info[data][plot_number][${thuaDatIndex}][plot_number]" class="form-control" placeholder="Thửa">
                     </div>
-                    <div class="col-6 col-md-4">
+                    <div class="col-md-3">
                         <label class="form-label small">Diện tích (m²)</label>
                         <input name="private_info[data][plot_number][${thuaDatIndex}][area]" class="form-control" placeholder="Diện tích">
                     </div>
-                    <div class="col-12">
+                    <div class="col-md-5">
                         <label class="form-label small">Ghi chú</label>
                         <input name="private_info[data][plot_number][${thuaDatIndex}][notes]" class="form-control" placeholder="Ghi chú (nếu có)">
                     </div>
