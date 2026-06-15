@@ -53,9 +53,46 @@
             /* ================= NAVBAR ================= */
             .navbar {
                 height: var(--navbar-height);
-                background: linear-gradient(135deg, var(--primary), #1565C0) !important;
-                border-bottom: 1px solid rgba(255,255,255,0.1);
-                box-shadow: 0 4px 20px rgba(11, 95, 165, 0.15);
+                background: rgba(11, 95, 165, 0.95) !important;
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+                box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+            }
+
+            .logo-box {
+                width: 38px;
+                height: 38px;
+                background: rgba(255, 255, 255, 0.2);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                border-radius: 10px;
+                color: #FFFFFF;
+                font-size: 1.2rem;
+                box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.1);
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .navbar-brand:hover .logo-box {
+                transform: rotate(15deg) scale(1.05);
+                background: rgba(255, 255, 255, 0.3);
+            }
+            .logo-text {
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                letter-spacing: 0.5px;
+            }
+            .user-profile-badge {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                padding: 6px 14px;
+                border-radius: 50px;
+                transition: all 0.3s ease;
+            }
+            .user-profile-badge:hover {
+                background: rgba(255, 255, 255, 0.2);
+                border-color: rgba(255, 255, 255, 0.3);
+                transform: translateY(-1px);
             }
 
             /* ================= SIDEBAR ================= */
@@ -65,7 +102,10 @@
                 bottom: 0;
                 left: -280px;
                 width: var(--sidebar-width);
-                background: linear-gradient(180deg, var(--sidebar-bg), #042A4A);
+                background: linear-gradient(180deg, rgba(8, 76, 133, 0.95), rgba(4, 42, 74, 0.98)) !important;
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border-right: 1px solid rgba(255, 255, 255, 0.08);
                 box-shadow: 4px 0 24px rgba(0,0,0,0.06);
                 transition: left .4s cubic-bezier(0.16, 1, 0.3, 1);
                 z-index: 1000;
@@ -76,32 +116,6 @@
             .sidebar::-webkit-scrollbar { width: 5px; }
             .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
             .sidebar.show { left: 0; }
-
-            .sidebar .nav-link {
-                color: rgba(255, 255, 255, 0.75);
-                padding: 0.5rem 0.75rem;
-                font-weight: 500;
-                border-radius: var(--border-radius-sm);
-                margin: 0.25rem 0.5rem;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                font-size: 0.9rem;
-                transition: all 0.3s ease;
-            }
-
-            .sidebar .nav-link:hover {
-                background-color: var(--hover-color);
-                color: #FFFFFF;
-                transform: translateX(4px);
-            }
-
-            .sidebar .nav-link.active {
-                background: linear-gradient(135deg, var(--secondary), #4CAF50);
-                color: #FFFFFF;
-                box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
-                font-weight: 600;
-            }
 
             /* ================= MAIN ================= */
             .main-content {

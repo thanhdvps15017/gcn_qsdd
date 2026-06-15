@@ -158,53 +158,93 @@
 
 {{-- ================= Style ================= --}}
 <style>
+    .sidebar-menu {
+        padding: 10px 0;
+    }
+
     .sidebar ul {
         list-style: none;
         padding-left: 0;
         margin: 0;
     }
 
+    .sidebar .nav-link {
+        color: rgba(255, 255, 255, 0.75);
+        padding: 0.7rem 1.1rem;
+        font-weight: 500;
+        border-radius: 10px;
+        margin: 0.2rem 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.875rem;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar .nav-link i:first-child {
+        font-size: 1.15rem;
+        transition: transform 0.25s ease;
+    }
+
+    .sidebar .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+        color: #FFFFFF;
+        transform: translateX(4px);
+    }
+
+    .sidebar .nav-link:hover i:first-child {
+        transform: scale(1.1);
+    }
+
+    .sidebar .nav-link.active {
+        background: linear-gradient(135deg, var(--secondary), #4CAF50) !important;
+        color: #FFFFFF !important;
+        box-shadow: 0 4px 14px rgba(46, 125, 50, 0.4);
+        font-weight: 600;
+    }
+
     .has-submenu .submenu {
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.3s ease;
-        padding-left: 2.2rem;
+        transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        padding-left: 1.5rem;
+        margin-left: 1.5rem;
+        border-left: 1px dashed rgba(255, 255, 255, 0.15);
     }
 
     .has-submenu.open .submenu {
         max-height: 500px;
         margin-top: 0.25rem;
+        margin-bottom: 0.5rem;
     }
 
     .submenu .nav-link {
-        font-size: 0.85rem;
-        padding: 0.4rem 1rem;
-        color: rgba(255, 255, 255, 0.7) !important;
+        font-size: 0.825rem;
+        padding: 0.45rem 1rem;
+        margin: 0.15rem 0 0.15rem 0.5rem;
+        border-radius: 8px;
+        color: rgba(255, 255, 255, 0.6) !important;
         background: transparent !important;
     }
     
     .submenu .nav-link:hover,
     .submenu .nav-link.active {
         color: #FFFFFF !important;
+        background: rgba(255, 255, 255, 0.06) !important;
         font-weight: 600;
-    }
-
-    .sidebar-menu .nav-link {
-        display: flex;
-        align-items: center;
+        transform: translateX(2px);
     }
 
     .sidebar-menu .arrow {
         margin-left: auto;
-        font-size: 0.8rem;
-    }
-
-    .arrow {
+        font-size: 0.75rem;
+        opacity: 0.7;
         transition: transform .3s ease;
     }
 
     .has-submenu.open .arrow {
         transform: rotate(180deg);
+        opacity: 1;
     }
 </style>
 
