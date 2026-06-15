@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('ho_so_id')->constrained('ho_sos')->cascadeOnDelete();
             $table->foreignId('tracking_book_id')->constrained('so_theo_doi_groups')->cascadeOnDelete();
             $table->string('notes')->nullable();
-            $table->integer('order_index')->default(0);
+            $table->string('order_index')->nullable();
             $table->timestamps();
         });
     }

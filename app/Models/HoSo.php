@@ -74,7 +74,7 @@ class HoSo extends Model
 
     public function soTheoDoiGroups()
     {
-        return $this->belongsToMany(SoTheoDoiGroup::class, 'ho_so_so_theo_doi');
+        return $this->belongsToMany(SoTheoDoiGroup::class, 'ho_so_so_theo_doi', 'ho_so_id', 'tracking_book_id');
     }
 
     public function getTrangThaiMetaAttribute()

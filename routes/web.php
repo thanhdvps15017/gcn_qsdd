@@ -120,6 +120,9 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/{group}/search-trong-so', [SoTheoDoiController::class, 'searchHoSoTrongSo'])
             ->name('search-trong-so');
+
+        Route::post('/{group}/ho-so/{hoSo}/ghi-chu', [SoTheoDoiController::class, 'saveGhiChu'])
+            ->name('save-ghi-chu');
     });
 
     /* ================= Xuất file ================= */

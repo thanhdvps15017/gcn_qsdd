@@ -17,7 +17,7 @@
                 <i class="bi bi-pencil-square me-2"></i> Sửa
             </a>
             <form action="{{ route('ho-so.destroy', $hoSo) }}" method="POST" class="d-inline"
-                onsubmit="return confirm('Bạn có chắc chắn muốn xóa hồ sơ này?');">
+                onsubmit="confirmDelete(event, this, 'Bạn có chắc chắn muốn xóa hồ sơ này?');">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="btn btn-light btn-md px-3 text-danger">
@@ -471,26 +471,45 @@
             // Nếu bạn muốn giữ chức năng xóa file ở trang show
             document.querySelectorAll('.btn-delete-file').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    if (!confirm('Xóa file này?')) return;
                     const url = this.dataset.url;
                     const fileId = this.dataset.id;
 
-                    fetch(url, {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector(
-                                    'meta[name="csrf-token"]')?.content || '',
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(res => {
-                            if (!res.ok) throw new Error('Lỗi xóa');
-                            return res.json();
-                        })
-                        .then(() => {
-                            document.getElementById('file-row-' + fileId)?.remove();
-                        })
-                        .catch(() => alert('Không thể xóa file'));
+                    Swal.fire({
+                        title: 'Xác nhận xóa?',
+                        text: "Bạn có chắc chắn muốn xóa tài liệu này?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Có, xóa!',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch(url, {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'X-CSRF-TOKEN': document.querySelector(
+                                            'meta[name="csrf-token"]')?.content || '',
+                                        'Accept': 'application/json'
+                                    }
+                                })
+                                .then(res => {
+                                    if (!res.ok) throw new Error('Lỗi xóa');
+                                    return res.json();
+                                })
+                                .then(() => {
+                                    document.getElementById('file-row-' + fileId)?.remove();
+                                    if (typeof showToast === 'function') {
+                                        showToast('Đã xóa tài liệu thành công!');
+                                    } else {
+                                        Swal.fire('Thành công', 'Đã xóa tài liệu thành công!', 'success');
+                                    }
+                                })
+                                .catch(() => {
+                                    Swal.fire('Lỗi', 'Không thể xóa file', 'error');
+                                });
+                        }
+                    });
                 });
             });
         });

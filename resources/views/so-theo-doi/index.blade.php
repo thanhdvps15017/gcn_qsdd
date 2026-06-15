@@ -40,7 +40,7 @@
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-outline-danger btn-sm w-100 rounded-1"
-                                onclick="return confirm('Xóa sổ này?');">
+                                onclick="confirmDelete(event, this.closest('form'), 'Bạn chắc chắn muốn xóa sổ theo dõi này?')">
                                 <i class="bi bi-trash"></i> Xóa
                             </button>
                         </form>

@@ -106,7 +106,7 @@
                             </table>
                         </div>
 
-                        <button class="btn btn-danger btn-sm mt-2" onclick="return confirm('Xóa hồ sơ đã chọn?')">
+                        <button class="btn btn-danger btn-sm mt-2" onclick="confirmDelete(event, document.getElementById('batch-remove-form'), 'Bạn chắc chắn muốn xóa các hồ sơ đã chọn khỏi sổ theo dõi?')">
                             <i class="bi bi-trash"></i> Xóa chọn
                         </button>
                     </form>

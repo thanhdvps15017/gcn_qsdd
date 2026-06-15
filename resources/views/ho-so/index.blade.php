@@ -245,7 +245,7 @@
                                                 </a>
 
                                                 <form action="{{ route('ho-so.destroy', $hoSo) }}" method="POST"
-                                                    onsubmit="return confirm('Bạn chắc chắn muốn xóa hồ sơ {{ $hoSo->dossier_code ? '«' . addslashes($hoSo->dossier_code) . '»' : '' }} ?');">
+                                                    onsubmit="confirmDelete(event, this, 'Bạn chắc chắn muốn xóa hồ sơ {{ $hoSo->dossier_code ? '«' . addslashes($hoSo->dossier_code) . '»' : '' }} ?');">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit"

@@ -121,21 +121,42 @@
         // Xóa file đã upload
         document.querySelectorAll('.btn-delete-file').forEach(btn => {
             btn.addEventListener('click', function() {
-                if (!confirm('Xóa file này?')) return;
                 const url = this.dataset.url;
                 const fileId = this.dataset.id;
 
-                fetch(url, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector(
-                                'meta[name="csrf-token"]')?.content || '',
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(res => res.ok ? res.json() : Promise.reject())
-                    .then(() => document.getElementById(`file-row-${fileId}`)?.remove())
-                    .catch(() => alert('Không thể xóa file'));
+                Swal.fire({
+                    title: 'Xác nhận xóa?',
+                    text: "Bạn có chắc chắn muốn xóa tài liệu này?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Có, xóa!',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(url, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector(
+                                        'meta[name="csrf-token"]')?.content || '',
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(res => res.ok ? res.json() : Promise.reject())
+                            .then(() => {
+                                document.getElementById(`file-row-${fileId}`)?.remove();
+                                if (typeof showToast === 'function') {
+                                    showToast('Đã xóa tài liệu thành công!');
+                                } else {
+                                    Swal.fire('Thành công', 'Đã xóa tài liệu thành công!', 'success');
+                                }
+                            })
+                            .catch(() => {
+                                Swal.fire('Lỗi', 'Không thể xóa file', 'error');
+                            });
+                    }
+                });
             });
         });
     });
